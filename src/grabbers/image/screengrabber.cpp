@@ -1,7 +1,9 @@
 #include "screengrabber.h"
 #include <QElapsedTimer>
 #include <QImage>
+#include <QEventLoop>
 #include <QPixmap>
+#include <QTimer>
 #include <QApplication>
 #include <QDesktopWidget>
 
@@ -48,6 +50,7 @@ void ScreenGrabber::grab()
     int rectHeight = m_captureRect.height();
 
     QImage frame;//this stores grabbed image
+    QEventLoop latencyLoop;
 
     forever {
         m_mutex.lock();
@@ -61,6 +64,10 @@ void ScreenGrabber::grab()
 
         frame = QPixmap::grabWindow(qApp->desktop()->winId(), rectLeft, rectTop,
                                     rectWidth, rectHeight).toImage();//convert to QImage because we can't use QPixmap in the thread other than GUI
+
+        //wait for set by user milliseconds
+        QTimer::singleShot(latency(), &latencyLoop, SLOT(quit()));
+        latencyLoop.exec();
 
         emit frameAvailable(frame, durationTimer.elapsed());
     }

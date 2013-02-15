@@ -22,6 +22,19 @@ public:
     /*! Destroys the abstract image grabber. */
     ~AbstractImageGrabber();
 
+    /*!
+      Sets the image capture latency. It may be used to reduce CPU usage(especially on single-core processors) and to lower frame rate.
+      The default value is 0. It means that the grabber will try to capture as many frames as possible.
+      \sa latency()
+    */
+    void setLatency(int ms);
+
+    /*!
+      Returns the current latency in milliseconds.
+      \sa setLatency()
+    */
+    int latency() const;
+
 public slots:
     /*! Starts data grabbing. The state() is set to AbstractGrabber::ActiveState if no errors occurred. */
     virtual bool start();
@@ -43,6 +56,8 @@ signals:
      */
     void frameAvailable(const QImage &frame, int duration);
 
+    void latencyChanged();
+
 protected:
     /*!
       Starts an image grabbing in a different thread.
@@ -54,6 +69,7 @@ protected:
     /*! Captures images from a device. */
     virtual void grab() = 0;
 
+    int m_latency;
     bool m_stopRequested;
     bool m_pauseRequested;
     QMutex m_mutex;

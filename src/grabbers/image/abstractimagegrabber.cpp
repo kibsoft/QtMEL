@@ -4,6 +4,7 @@
 
 AbstractImageGrabber::AbstractImageGrabber(QObject *parent)
     : AbstractGrabber(parent)
+    , m_latency(0)
     , m_stopRequested(false)
     , m_pauseRequested(false)
 {
@@ -11,6 +12,20 @@ AbstractImageGrabber::AbstractImageGrabber(QObject *parent)
 
 AbstractImageGrabber::~AbstractImageGrabber()
 {
+}
+
+void AbstractImageGrabber::setLatency(int ms)
+{
+    if (m_latency != ms) {
+        m_latency = ms;
+
+        emit latencyChanged();
+    }
+}
+
+int AbstractImageGrabber::latency() const
+{
+    return m_latency;
 }
 
 bool AbstractImageGrabber::start()
