@@ -3,14 +3,15 @@
 #include <QTimer>
 
 MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    QMainWindow(parent)
+  , ui(new Ui::MainWindow)
+  , m_helper(new MouseHelper(this))
 {
     ui->setupUi(this);
 
     setWindowFlags(Qt::WindowStaysOnTopHint);
 
-    connect(MouseHelper::instance(), SIGNAL(mouseEvent(MouseEvent)), this, SLOT(updateMHStatusLabel(MouseEvent)));
+    connect(m_helper, SIGNAL(mouseEvent(MouseEvent)), this, SLOT(updateMHStatusLabel(MouseEvent)));
 }
 
 MainWindow::~MainWindow()
@@ -23,7 +24,7 @@ void MainWindow::on_MHStart_clicked()
     ui->MHStart->setEnabled(false);
     ui->MHStop->setEnabled(true);
 
-    MouseHelper::instance()->startGrabbing();
+    m_helper->startGrabbing();
 }
 
 void MainWindow::on_MHStop_clicked()
@@ -32,7 +33,7 @@ void MainWindow::on_MHStop_clicked()
     ui->MHStop->setEnabled(false);
     ui->MHStatusLabel->setText("-");
 
-    MouseHelper::instance()->stopGrabbing();
+    m_helper->stopGrabbing();
 }
 
 void MainWindow::updateMHStatusLabel(const MouseEvent &event)

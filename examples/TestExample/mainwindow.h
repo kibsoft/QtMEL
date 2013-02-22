@@ -25,6 +25,7 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
+    MouseHelper *m_helper;
 };
 
 #endif // MAINWINDOW_H
