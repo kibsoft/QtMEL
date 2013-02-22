@@ -30,7 +30,8 @@ class QVACLSHARED_EXPORT MouseHelper : public QObject
 {
     Q_OBJECT
 public:    
-    static MouseHelper* instance();
+    explicit MouseHelper(QObject *parent = 0);
+    ~MouseHelper();
 
     void startGrabbing();
     void stopGrabbing();
@@ -39,12 +40,6 @@ signals:
     void mouseEvent(const MouseEvent &event);
 
 private:
-    explicit MouseHelper(QObject *parent = 0);
-    MouseHelper(const MouseHelper &) {}
-    MouseHelper& operator=(const MouseHelper &) { return *this; }
-
-    static MouseHelper* m_instance;
-
     MouseHelperPrivate *pimpl;
 };
 
