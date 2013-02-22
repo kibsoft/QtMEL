@@ -56,6 +56,9 @@ signals:
      */
     void frameAvailable(const QImage &frame, int duration);
 
+    /*!
+      This signal is emitted immediately after the latency value has been changed.
+     */
     void latencyChanged();
 
 protected:
@@ -69,10 +72,35 @@ protected:
     /*! Captures images from a device. */
     virtual void grab() = 0;
 
+    /*!
+      Sets the stop flag.
+      \sa stopRequest()
+    */
+    void setStopRequest(bool stop);
+
+    /*!
+      Returns the stop flag. If the flag is true then grabing device is going to be stopped (if it is active)
+      \sa setStopRequest()
+    */
+    bool stopRequest() const;
+
+    /*!
+      Sets the pause flag.
+      \sa pauseRequest()
+    */
+    void setPauseRequest(bool pause);
+
+    /*!
+      Returns the pause flag. If the flag is true then grabing device is going to be paused (if it is active)
+      \sa setPauseRequest()
+    */
+    bool pauseRequest() const;
+
+private:
     int m_latency;
-    bool m_stopRequested;
-    bool m_pauseRequested;
-    QMutex m_mutex;
+    bool m_stopRequest;
+    bool m_pauseRequest;
+    mutable QMutex m_stopPauseMutex;
 };
 
 #endif // ABSTRACTIMAGEGRABBER_H

@@ -5,8 +5,8 @@
 AbstractImageGrabber::AbstractImageGrabber(QObject *parent)
     : AbstractGrabber(parent)
     , m_latency(0)
-    , m_stopRequested(false)
-    , m_pauseRequested(false)
+    , m_stopRequest(false)
+    , m_pauseRequest(false)
 {
 }
 
@@ -41,16 +41,15 @@ bool AbstractImageGrabber::start()
 void AbstractImageGrabber::stop()
 {
     if (state() != AbstractGrabber::StoppedState) {
-        QMutexLocker locker(&m_mutex);
-        m_stopRequested = true;
+        setStopRequest(true);
     }
 }
 
 void AbstractImageGrabber::suspend()
 {
     if (state() == AbstractGrabber::ActiveState) {
-        QMutexLocker locker(&m_mutex);
-        m_pauseRequested = true;
+        QMutexLocker locker(&m_stopPauseMutex);
+        m_pauseRequest = true;
     }
 }
 
@@ -64,4 +63,36 @@ void AbstractImageGrabber::startGrabbing()
 {
     QtConcurrent::run(this, &AbstractImageGrabber::grab);
     setState(AbstractGrabber::ActiveState);
+}
+
+void AbstractImageGrabber::setStopRequest(bool stop)
+{
+    QMutexLocker locker(&m_stopPauseMutex);
+
+    if (m_stopRequest != stop) {
+        m_stopRequest = stop;
+    }
+}
+
+bool AbstractImageGrabber::stopRequest() const
+{
+    QMutexLocker locker(&m_stopPauseMutex);
+
+    return m_stopRequest;
+}
+
+void AbstractImageGrabber::setPauseRequest(bool pause)
+{
+    QMutexLocker locker(&m_stopPauseMutex);
+
+    if (m_pauseRequest != pause) {
+        m_pauseRequest = pause;
+    }
+}
+
+bool AbstractImageGrabber::pauseRequest() const
+{
+    QMutexLocker locker(&m_stopPauseMutex);
+
+    return m_pauseRequest;
 }
