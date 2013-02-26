@@ -19,6 +19,8 @@ public:
     void startGrabbing();
     void stopGrabbing();
 
+    static QPixmap cursorPixmap();
+
 signals:
     void mouseEvent(const MouseEvent &event);
 

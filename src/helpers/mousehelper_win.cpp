@@ -1,6 +1,8 @@
 #include "mousehelper_p.h"
+#include <winuser.h>
 #include <QtGui/qwindowdefs.h>
 #include <QCursor>
+#include <QBitmap>
 
 class EventHandler : public QObject {
     Q_OBJECT
@@ -72,6 +74,35 @@ void MouseHelperPrivate::stopGrabbing()
     EventHandler::destroy();
 }
 
+QPixmap MouseHelperPrivate::cursorPixmap()
+{
+    QPixmap cursorPixmap;
+    HICON icon;
+    CURSORINFO cursorInfo;
+    ICONINFO iconInfo;
+    cursorInfo.cbSize = sizeof(CURSORINFO);
+
+    if(GetCursorInfo(&cursorInfo))
+    {
+        if (cursorInfo.flags == CURSOR_SHOWING)
+        {
+            icon = CopyIcon(cursorInfo.hCursor);
+            if(GetIconInfo(icon, &iconInfo))
+            {
+                cursorPixmap = QPixmap::fromWinHBITMAP(iconInfo.hbmColor, QPixmap::Alpha);
+
+                if (cursorPixmap.isNull()) {//if the cursor hasn't color image (for example, Ibeam cursor)
+                    //copy bottom part of the mask image in order to get the cursor
+                    cursorPixmap = QPixmap::fromWinHBITMAP(iconInfo.hbmMask, QPixmap::Alpha).mask();
+                    cursorPixmap = cursorPixmap.copy(0, cursorPixmap.height() / 2, cursorPixmap.width(), cursorPixmap.height() / 2);
+                }
+            }
+        }
+    }
+
+    return cursorPixmap;
+}
+
 void MouseHelperPrivate::handleEvent(const MouseEvent &event)
 {
     emit mouseEvent(event);
@@ -85,7 +116,7 @@ void MouseHelperPrivate::handleEvent(const MouseEvent &event)
         sendClickEvent(event.button, event.position);
         break;
 
-    //avoid compiler warning
+        //avoid compiler warning
     case MouseEvent::MouseButtonClick:
         break;
     }

@@ -21,3 +21,8 @@ void MouseHelper::stopGrabbing()
 {
     pimpl->stopGrabbing();
 }
+
+QPixmap MouseHelper::cursorPixmap()
+{
+    return MouseHelperPrivate::cursorPixmap();
+}
