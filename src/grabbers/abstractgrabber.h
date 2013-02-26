@@ -24,6 +24,7 @@ public:
         StoppedState /*!< The grabber doesn't do anything. */
     };
 
+    /*! This enum describes grabber errors. */
     enum Error {
         NoError = 0, /*!< No error occurred. */
         InvalidConfigurationError, /*!< Initial data for the grabber were invalid. For example, capture rectangle from ScreenGrabber. */
