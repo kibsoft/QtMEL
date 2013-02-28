@@ -23,7 +23,7 @@ void ScreenGrabber::setCaptureRect(const QRect &rect)
     if (m_captureRect != rect) {
         m_captureRect = rect;
 
-        emit captureRectChanged();
+        emit captureRectChanged(rect);
     }
 }
 
@@ -39,7 +39,7 @@ void ScreenGrabber::setCaptureCursor(bool capture)
     if (m_captureCursor != capture) {
         m_captureCursor = capture;
 
-        emit captureCursorChanged();
+        emit captureCursorChanged(capture);
     }
 }
 

@@ -25,8 +25,8 @@ public slots:
     bool start();
 
 signals:
-    void captureRectChanged();
-    void captureCursorChanged();
+    void captureRectChanged(const QRect &rect);
+    void captureCursorChanged(bool capture);
 
 private:
     void grab();

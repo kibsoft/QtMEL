@@ -14,12 +14,12 @@ AbstractImageGrabber::~AbstractImageGrabber()
 {
 }
 
-void AbstractImageGrabber::setLatency(int ms)
+void AbstractImageGrabber::setLatency(int latency)
 {
-    if (m_latency != ms) {
-        m_latency = ms;
+    if (m_latency != latency) {
+        m_latency = latency;
 
-        emit latencyChanged();
+        emit latencyChanged(latency);
     }
 }
 

@@ -15,6 +15,9 @@
 class QVACLSHARED_EXPORT AbstractImageGrabber : public AbstractGrabber
 {
     Q_OBJECT
+
+    Q_PROPERTY(int latency READ latency WRITE setLatency NOTIFY latencyChanged)
+
 public:
     /*! Constructs an abstract image grabber with the given parent. */
     AbstractImageGrabber(QObject *parent = 0);
@@ -27,7 +30,7 @@ public:
       The default value is 0. It means that the grabber will try to capture as many frames as possible.
       \sa latency()
     */
-    void setLatency(int ms);
+    void setLatency(int latency);
 
     /*!
       Returns the current latency in milliseconds.
@@ -59,7 +62,7 @@ signals:
     /*!
       This signal is emitted immediately after the latency value has been changed.
      */
-    void latencyChanged();
+    void latencyChanged(int latency);
 
 protected:
     /*!

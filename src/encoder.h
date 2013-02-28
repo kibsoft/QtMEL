@@ -35,7 +35,7 @@ public:
 
 signals:
     void fileNameChanged(const QString &fileName);
-    void videoSizeChanged(const QSize &videoSize);
+    void videoSizeChanged(const QSize &size);
     void fixedFrameRateChanged(int frameRate);
     void encodeAudioChanged(bool encode);
 
