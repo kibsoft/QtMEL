@@ -33,8 +33,7 @@ public:
     };
 
     enum VideoCodec {
-        None = 0,
-        MPEG1, /*!< MPEG-1 video */
+        MPEG1 = 1, /*!< MPEG-1 video */
         MPEG2, /*!< MPEG-2 video */
         H261 = 4, /*!< H.261 */
         H263, /*!< H.263 / H.263-1996, H.263+ / H.263-1998 / H.263 version 2 */
@@ -95,6 +94,60 @@ public:
         A64_MULTI5, /*!< Multicolor charset for Commodore 64, extended with 5th color */
         R10K, /*!< AJA Kona 10-bit RGB Codec */
         PRORES = 152 /*!< Apple ProRes (iCodec Pro) */
+    };
+
+    enum AudioCodec {
+        PCM_S16LE = 65536, /*!< PCM signed 16-bit little-endian */
+        PCM_S16BE, /*!< PCM signed 16-bit big-endian */
+        PCM_U16LE, /*!< PCM unsigned 16-bit little-endian */
+        PCM_U16BE, /*!< PCM unsigned 16-bit big-endian */
+        PCM_S8, /*!< PCM signed 8-bit */
+        PCM_U8, /*!< PCM unsigned 8-bit */
+        PCM_MULAW, /*!< PCM mu-law / G.711 mu-law */
+        PCM_ALAW, /*!< PCM A-law / G.711 A-law */
+        PCM_S32LE, /*!< PCM signed 32-bit little-endian */
+        PCM_S32BE, /*!< PCM signed 32-bit big-endian */
+        PCM_U32LE, /*!< PCM unsigned 32-bit little-endian */
+        PCM_U32BE, /*!< PCM unsigned 32-bit big-endian */
+        PCM_S24LE, /*!< PCM signed 24-bit little-endian */
+        PCM_S24BE, /*!< PCM signed 24-bit big-endian */
+        PCM_U24LE, /*!< PCM unsigned 24-bit little-endian */
+        PCM_U24BE, /*!< PCM unsigned 24-bit big-endian */
+        PCM_S24DAUD, /*!< PCM D-Cinema audio signed 24-bit */
+        PCM_S16LE_PLANAR = 65554, /*!< PCM signed 16-bit little-endian planar */
+        PCM_F32BE = 65556, /*!< PCM 32-bit floating point big-endian */
+        PCM_F32LE, /*!< PCM 32-bit floating point little-endian */
+        PCM_F64BE, /*!< PCM 64-bit floating point big-endian */
+        PCM_F64LE, /*!< PCM 64-bit floating point little-endian */
+        ADPCM_IMA_QT = 69632, /*!< ADPCM IMA QuickTime */
+        ADPCM_IMA_WAV, /*!< ADPCM IMA WAV */
+        ADPCM_MS = 69638, /*!< ADPCM Microsoft */
+        ADPCM_ADX = 69641, /*!< SEGA CRI ADX ADPCM */
+        ADPCM_G726 = 69643, /*!< G.726 ADPCM */
+        ADPCM_SWF = 69645, /*!< ADPCM Shockwave Flash */
+        ADPCM_YAMAHA, /*!< ADPCM Yamaha */
+        ADPCM_G722 = 69660, /*!< G.722 ADPCM */
+        AMR_NB = 73728, /*!< AMR-NB (Adaptive Multi-Rate NarrowBand) */
+        AMR_WB, /*!< AMR-WB (Adaptive Multi-Rate WideBand) */
+        RA_144 = 77824, /*!< RealAudio 1.0 (14.4K) */
+        ROQ_DPCM = 81920, /*!< DPCM id RoQ */
+        MP2 = 86016, /*!< MP2 (MPEG audio layer 2) */
+        MP3, /*!< MP3 (MPEG audio layer 3) */
+        AAC, /*!< AAC (Advanced Audio Coding) */
+        AC3, /*!< ATSC A/52A (AC-3) */
+        DTS, /*!< DCA (DTS Coherent Acoustics) */
+        VORBIS, /*!< Vorbis */
+        WMAV1 = 86023, /*!< Windows Media Audio 1 */
+        WMAV2, /*!< Windows Media Audio 2 */
+        SONIC = 86028, /*!< Sonic */
+        SONIC_LS, /*!< Sonic lossless */
+        FLAC, /*!< FLAC (Free Lossless Audio Codec) */
+        ALAC = 86034, /*!< ALAC (Apple Lossless Audio Codec) */
+        GSM = 86036, /*!< Gsm */
+        GSM_MS = 86048, /*!< GSM Microsoft variant */
+        NELLYMOSER = 86052, /*!< Nellymoser Asao */
+        SPEEX = 86054, /*!< Speex */
+        EAC3 = 86059 /*!< ATSC A/52B (AC-3, E-AC-3) */
     };
 
     explicit Encoder(QObject *parent = 0);
