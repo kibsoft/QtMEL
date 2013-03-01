@@ -20,7 +20,8 @@ SOURCES += src/grabbers/abstractgrabber.cpp \
     src/grabbers/image/abstractimagegrabber.cpp \
     src/grabbers/image/screengrabber.cpp \
     src/helpers/mousehelper.cpp \
-    src/encoder.cpp
+    src/encoder/encoder.cpp \
+    src/encoder/videocodecsettings.cpp
 
 win32: SOURCES += src/helpers/mousehelper_win.cpp
 
@@ -30,4 +31,6 @@ HEADERS += src/grabbers/abstractgrabber.h\
     src/grabbers/image/screengrabber.h \
     src/helpers/mousehelper.h \
     src/helpers/mousehelper_p.h \
-    src/encoder.h
+    src/encoder/encoder.h \
+    src/encoder/encoderglobal.h \
+    src/encoder/videocodecsettings.h
