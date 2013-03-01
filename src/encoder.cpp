@@ -12,6 +12,8 @@ extern "C" {
 #include <libswscale/swscale.h>
 }
 
+#include <QThread>
+
 typedef uint8_t AVBuffer;
 
 class EncoderObject : public QObject {
@@ -21,8 +23,8 @@ public:
     explicit EncoderObject(QObject *parent = 0);
     ~EncoderObject();
 
-    bool setFileName(const QString &fileName);
-    QString fileName() const;
+    bool setFilePath(const QString &filePath);
+    QString filePath() const;
 
     bool setVideoSize(const QSize &size);
     QSize videoSize() const;
@@ -39,7 +41,7 @@ public slots:
 private:
     void init();
 
-    QString m_fileName;
+    QString m_filePath;
     QSize m_videoSize;
     int m_fixedFrameRate;
     bool m_encodeAudio;
@@ -76,10 +78,10 @@ EncoderObject::~EncoderObject()
 {
 }
 
-bool EncoderObject::setFileName(const QString &fileName)
+bool EncoderObject::setFilePath(const QString &fileName)
 {
-    if (m_fileName != fileName) {
-        m_fileName = fileName;
+    if (m_filePath != fileName) {
+        m_filePath = fileName;
 
         return true;
     }
@@ -87,9 +89,9 @@ bool EncoderObject::setFileName(const QString &fileName)
     return false;
 }
 
-QString EncoderObject::fileName() const
+QString EncoderObject::filePath() const
 {
-    return m_fileName;
+    return m_filePath;
 }
 
 bool EncoderObject::setVideoSize(const QSize &size)
@@ -174,11 +176,20 @@ void EncoderObject::init()
     m_pictureBuffer = 0;
 }
 
+
+
+//---------------------------------------------------------------------------------
+// Encoder implementation
+//---------------------------------------------------------------------------------
+
+
 Encoder::Encoder(QObject *parent) :
     QObject(parent)
   , m_encoder(new EncoderObject)
+  , m_encoderThread(new QThread(this))
+  , m_error(Encoder::NoError)
 {
-
+    m_encoder->moveToThread(m_encoderThread);
 }
 
 Encoder::~Encoder()
@@ -186,15 +197,15 @@ Encoder::~Encoder()
     delete m_encoder;
 }
 
-void Encoder::setFileName(const QString &fileName)
+void Encoder::setFilePath(const QString &filePath)
 {
-    if (m_encoder->setFileName(fileName))
-        emit fileNameChanged(fileName);
+    if (m_encoder->setFilePath(filePath))
+        emit filePathChanged(filePath);
 }
 
-QString Encoder::fileName() const
+QString Encoder::filePath() const
 {
-    return m_encoder->fileName();
+    return m_encoder->filePath();
 }
 
 void Encoder::setVideoSize(const QSize &size)
@@ -228,6 +239,24 @@ void Encoder::setEncodeAudio(bool encode)
 bool Encoder::encodeAudio() const
 {
     return m_encoder->encodeAudio();
+}
+
+Encoder::Error Encoder::error() const
+{
+    return m_error;
+}
+
+QString Encoder::errorString() const
+{
+    return m_errorString;
+}
+
+void Encoder::setError(Encoder::Error errorCode, const QString &errorString)
+{
+    m_error = errorCode;
+    m_errorString = errorString;
+
+    emit error(errorCode);
 }
 
 #include "encoder.moc"

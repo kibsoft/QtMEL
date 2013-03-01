@@ -44,7 +44,7 @@ public:
     AbstractGrabber::State state() const;
 
     /*!
-      Returns the last error that occurred.. If no error occurred, returns AbstractGrabber::NoError.
+      Returns the last error that occurred. If no error occurred, returns AbstractGrabber::NoError.
       \sa errorString()
     */
     AbstractGrabber::Error error() const;
@@ -85,7 +85,7 @@ protected:
     */
     void setState(AbstractGrabber::State state);
 
-    void setError(AbstractGrabber::Error error, const QString &errorString);
+    void setError(AbstractGrabber::Error errorCode, const QString &errorString);
 
 private:
     AbstractGrabber::State m_state;
