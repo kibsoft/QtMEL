@@ -8,42 +8,6 @@
 class EncoderObject;
 class QThread;
 
-struct VideoCodecSettings {
-    int bitrate; /*!< The average bitrate. */
-    int gop; /*!< The number of pictures in a group of pictures. */
-    int qmin; /*!< Minimum quantizer. */
-    int qmax; /*!< Maximum  quantizer. */
-    int maxQdiff; /*!< Maximum quantizer difference between frames. */
-    int coderType; /*!< Coder type. */
-    int meCmp; /*!< Motion estimation comparison function. */
-    int partitions; /*!< Macroblock subpartition sizes to consider - p8x8, p4x4, b8x8, i8x8, i4x4. */
-    int meMethod; /*!< Motion estimation algorithm used for video coding. */
-    int meSubpelQuality; /*!< Subpel ME quality. */
-    int meRange; /*!< Maximum motion estimation search range in subpel units If 0 then no limit. */
-    int keyintMin; /*!< Minimum GOP size. */
-    int scenechangeThreshold; /*!< Scene change detection threshold 0 is default, larger means fewer detected scene changes. */
-    int iQuantFactor ; /*!< qscale factor between P and I-frames. */
-    int bFrameStrategy  ; /*!<  */
-    int qcompress; /*!< Amount of qscale change between easy & hard scenes (0.0-1.0). */
-    int maxBFrames; /*!< Maximum number of B-frames between non-B-frames. */
-    int refs; /*!< Number of reference frames. */
-    int directpred; /*!< Direct MV prediction mode. */
-    int trellis; /*!< Trellis RD quantization. */
-    int weightedPPred; /*!< Explicit P-frame weighted prediction analysis method. */
-    int rcLookahead; /*!< RC lookahead Number of frames for frametype and ratecontrol lookahead. */
-    int flags; /*!< */
-    int flags2; /*!< */
-
-    int lumaElimThreshold; /*!< Luma single coefficient elimination threshold. */
-    int chromaElimThreshold; /*!< Chroma single coeff elimination threshold. */
-    int bQuantOffset; /*!< qscale offset between IP and B-frames. */
-    int mpegQuant; /*!< 0-> h263 quant 1-> mpeg quant. */
-    int rcEq; /*!< Rate control equation. */
-    int rcMaxRate; /*!< Maximum bitrate. */
-    int rcMinRate; /*!< Minimum bitrate. */
-    int rcBufferSize; /*!< Decoder bitstream buffer size. */
-};
-
 class QVACLSHARED_EXPORT Encoder : public QObject
 {
     Q_OBJECT
