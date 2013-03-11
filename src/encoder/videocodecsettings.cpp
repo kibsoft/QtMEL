@@ -7,10 +7,10 @@ VideoCodecSettings::VideoCodecSettings()
     m_qmin = -1;
     m_qmax = -1;
     m_maxQdiff = -1;
-    m_coderType = static_cast<Encoder::CoderType>(-1);
+    m_coderType = static_cast<EncoderGlobal::CoderType>(-1);
     m_meCmp = -1;
-    m_partitions = static_cast<Encoder::Partitions>(-1);
-    m_meMethod = static_cast<Encoder::MotionEstimationAlgorithm>(-1);
+    m_partitions = static_cast<EncoderGlobal::Partitions>(-1);
+    m_meMethod = static_cast<EncoderGlobal::MotionEstimationAlgorithm>(-1);
     m_meSubpelQuality = -1;
     m_meRange = -1;
     m_keyintMin = -1;
@@ -20,12 +20,12 @@ VideoCodecSettings::VideoCodecSettings()
     m_qcompress = -1;
     m_maxBFrames = -1;
     m_refs = -1;
-    m_directpred = static_cast<Encoder::MotionVectorPredictionMode>(-1);
+    m_directpred = static_cast<EncoderGlobal::MotionVectorPredictionMode>(-1);
     m_trellis = -1;
-    m_weightedPPred = static_cast<Encoder::WeightedPredictionMethod>(-1);
+    m_weightedPPred = static_cast<EncoderGlobal::WeightedPredictionMethod>(-1);
     m_rcLookahead = -1;
-    m_flags = static_cast<Encoder::Flags>(-1);
-    m_flags2 = static_cast<Encoder::Flags2>(-1);
+    m_flags = static_cast<EncoderGlobal::Flags>(-1);
+    m_flags2 = static_cast<EncoderGlobal::Flags2>(-1);
 }
 
 void VideoCodecSettings::setBitrate(int bitrate)
@@ -78,12 +78,12 @@ int VideoCodecSettings::maximumQuantizerDifference() const
     return m_maxQdiff;
 }
 
-void VideoCodecSettings::setCoderType(Encoder::CoderType type)
+void VideoCodecSettings::setCoderType(EncoderGlobal::CoderType type)
 {
     m_coderType = type;
 }
 
-Encoder::CoderType VideoCodecSettings::coderType() const
+EncoderGlobal::CoderType VideoCodecSettings::coderType() const
 {
     return m_coderType;
 }
@@ -98,22 +98,22 @@ int VideoCodecSettings::motionEstimationComparison() const
     return m_meCmp;
 }
 
-void VideoCodecSettings::setPartitions(Encoder::Partitions partitions)
+void VideoCodecSettings::setPartitions(EncoderGlobal::Partitions partitions)
 {
     m_partitions = partitions;
 }
 
-Encoder::Partitions VideoCodecSettings::partitions() const
+EncoderGlobal::Partitions VideoCodecSettings::partitions() const
 {
     return m_partitions;
 }
 
-void VideoCodecSettings::setMotionEstimationMethod(Encoder::MotionEstimationAlgorithm method)
+void VideoCodecSettings::setMotionEstimationMethod(EncoderGlobal::MotionEstimationAlgorithm method)
 {
     m_meMethod = method;
 }
 
-Encoder::MotionEstimationAlgorithm VideoCodecSettings::motionEstimationMethod() const
+EncoderGlobal::MotionEstimationAlgorithm VideoCodecSettings::motionEstimationMethod() const
 {
     return m_meMethod;
 }
@@ -158,12 +158,12 @@ int VideoCodecSettings::sceneChangeThreshold() const
     return m_sceneChangeThreshold;
 }
 
-void VideoCodecSettings::setIQuantFactor(int quantFactor)
+void VideoCodecSettings::setIQuantFactor(float quantFactor)
 {
     m_iQuantFactor = quantFactor;
 }
 
-int VideoCodecSettings::iQuantFactor() const
+float VideoCodecSettings::iQuantFactor() const
 {
     return m_iQuantFactor;
 }
@@ -173,19 +173,29 @@ void VideoCodecSettings::setBFrameStrategy(int strategy)
     m_bFrameStrategy = strategy;
 }
 
-int VideoCodecSettings::bFrameStrategy()
+int VideoCodecSettings::bFrameStrategy() const
 {
     return m_bFrameStrategy;
 }
 
-void VideoCodecSettings::setQuantizerCurveCompressionFactor(int factor)
+void VideoCodecSettings::setQuantizerCurveCompressionFactor(float factor)
 {
     m_qcompress = factor;
 }
 
-int VideoCodecSettings::quantizerCurveCompressionFactor()
+float VideoCodecSettings::quantizerCurveCompressionFactor() const
 {
     return m_qcompress;
+}
+
+void VideoCodecSettings::setMaximumBFrames(int max)
+{
+    m_maxBFrames = max;
+}
+
+int VideoCodecSettings::maximumBFrames() const
+{
+    return m_maxBFrames;
 }
 
 void VideoCodecSettings::setReferenceFrameCount(int count)
@@ -198,12 +208,12 @@ int VideoCodecSettings::referenceFrameCount() const
     return m_refs;
 }
 
-void VideoCodecSettings::setDirectMvPredictionMode(Encoder::MotionVectorPredictionMode mode)
+void VideoCodecSettings::setDirectMvPredictionMode(EncoderGlobal::MotionVectorPredictionMode mode)
 {
     m_directpred = mode;
 }
 
-Encoder::MotionVectorPredictionMode VideoCodecSettings::directMvPredictionMode() const
+EncoderGlobal::MotionVectorPredictionMode VideoCodecSettings::directMvPredictionMode() const
 {
     return m_directpred;
 }
@@ -218,6 +228,16 @@ int VideoCodecSettings::trellis() const
     return m_trellis;
 }
 
+void VideoCodecSettings::setPFramePredictionAnalysisMethod(EncoderGlobal::WeightedPredictionMethod method)
+{
+    m_weightedPPred = method;
+}
+
+int VideoCodecSettings::pFramePredictionAnalysisMethod() const
+{
+    return m_weightedPPred;
+}
+
 void VideoCodecSettings::setRcLookahead(int value)
 {
     m_rcLookahead = value;
@@ -228,22 +248,22 @@ int VideoCodecSettings::rcLookahead() const
     return m_rcLookahead;
 }
 
-void VideoCodecSettings::setFlags(Encoder::Flags flags)
+void VideoCodecSettings::setFlags(EncoderGlobal::Flags flags)
 {
     m_flags = flags;
 }
 
-Encoder::Flags VideoCodecSettings::flags() const
+EncoderGlobal::Flags VideoCodecSettings::flags() const
 {
     return m_flags;
 }
 
-void VideoCodecSettings::setFlags2(Encoder::Flags2 flags)
+void VideoCodecSettings::setFlags2(EncoderGlobal::Flags2 flags)
 {
     m_flags2 = flags;
 }
 
-Encoder::Flags2 VideoCodecSettings::flags2() const
+EncoderGlobal::Flags2 VideoCodecSettings::flags2() const
 {
     return m_flags2;
 }

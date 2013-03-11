@@ -3,9 +3,10 @@
 
 #include <QFlags>
 
-namespace Encoder {
+namespace EncoderGlobal {
 
 enum VideoCodec {
+    DEFAULT_VIDEO_CODEC = 0x0000,
     MPEG1 = 0x0001, /*!< MPEG-1 video */
     MPEG2, /*!< MPEG-2 video */
     H261 = 0x0004, /*!< H.261 */
@@ -70,6 +71,7 @@ enum VideoCodec {
 };
 
 enum AudioCodec {
+    DEFAULT_AUDIO_CODEC = 0x0000,
     PCM_S16LE = 0x10000, /*!< PCM signed 16-bit little-endian */
     PCM_S16BE, /*!< PCM signed 16-bit big-endian */
     PCM_U16LE, /*!< PCM unsigned 16-bit little-endian */
@@ -229,8 +231,8 @@ Q_DECLARE_FLAGS(Flags2, Flag2)
 
 }
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(Encoder::Partitions)
-Q_DECLARE_OPERATORS_FOR_FLAGS(Encoder::Flags)
-Q_DECLARE_OPERATORS_FOR_FLAGS(Encoder::Flags2)
+Q_DECLARE_OPERATORS_FOR_FLAGS(EncoderGlobal::Partitions)
+Q_DECLARE_OPERATORS_FOR_FLAGS(EncoderGlobal::Flags)
+Q_DECLARE_OPERATORS_FOR_FLAGS(EncoderGlobal::Flags2)
 
 #endif // ENCODERGLOBAL_H

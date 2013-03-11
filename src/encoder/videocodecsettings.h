@@ -23,17 +23,17 @@ public:
     void setMaximumQuantizerDifference(int qdiff);
     int maximumQuantizerDifference() const;
 
-    void setCoderType(Encoder::CoderType type);
-    Encoder::CoderType coderType() const;
+    void setCoderType(EncoderGlobal::CoderType type);
+    EncoderGlobal::CoderType coderType() const;
 
     void setMotionEstimationComparison(int cmp);
     int motionEstimationComparison() const;
 
-    void setPartitions(Encoder::Partitions partitions);
-    Encoder::Partitions partitions() const;
+    void setPartitions(EncoderGlobal::Partitions partitions);
+    EncoderGlobal::Partitions partitions() const;
 
-    void setMotionEstimationMethod(Encoder::MotionEstimationAlgorithm method);
-    Encoder::MotionEstimationAlgorithm motionEstimationMethod() const;
+    void setMotionEstimationMethod(EncoderGlobal::MotionEstimationAlgorithm method);
+    EncoderGlobal::MotionEstimationAlgorithm motionEstimationMethod() const;
 
     void setSubpixelMotionEstimationQuality(int subpel);
     int subpixelMotionEstimationQuality() const;
@@ -47,14 +47,14 @@ public:
     void setSceneChangeThreshold(int threshold);
     int sceneChangeThreshold() const;
 
-    void setIQuantFactor(int quantFactor);
-    int iQuantFactor() const;
+    void setIQuantFactor(float quantFactor);
+    float iQuantFactor() const;
 
     void setBFrameStrategy(int strategy);
-    int bFrameStrategy();
+    int bFrameStrategy() const;
 
-    void setQuantizerCurveCompressionFactor(int factor);
-    int quantizerCurveCompressionFactor();
+    void setQuantizerCurveCompressionFactor(float factor);
+    float quantizerCurveCompressionFactor() const;
 
     void setMaximumBFrames(int max);
     int maximumBFrames() const;
@@ -62,23 +62,23 @@ public:
     void setReferenceFrameCount(int count);
     int referenceFrameCount() const;
 
-    void setDirectMvPredictionMode(Encoder::MotionVectorPredictionMode mode);
-    Encoder::MotionVectorPredictionMode directMvPredictionMode() const;
+    void setDirectMvPredictionMode(EncoderGlobal::MotionVectorPredictionMode mode);
+    EncoderGlobal::MotionVectorPredictionMode directMvPredictionMode() const;
 
     void setTrellis(int trellis);
     int trellis() const;
 
-    void setPFramePredictionAnalysisMethod(Encoder::WeightedPredictionMethod method);
+    void setPFramePredictionAnalysisMethod(EncoderGlobal::WeightedPredictionMethod method);
     int pFramePredictionAnalysisMethod() const;
 
     void setRcLookahead(int value);
     int rcLookahead() const;
 
-    void setFlags(Encoder::Flags flags);
-    Encoder::Flags flags() const;
+    void setFlags(EncoderGlobal::Flags flags);
+    EncoderGlobal::Flags flags() const;
 
-    void setFlags2(Encoder::Flags2 flags);
-    Encoder::Flags2 flags2() const;
+    void setFlags2(EncoderGlobal::Flags2 flags);
+    EncoderGlobal::Flags2 flags2() const;
 
 private:
     int m_bitrate; /*!< The average bitrate. */
@@ -86,10 +86,10 @@ private:
     int m_qmin; /*!< Minimum quantizer. */
     int m_qmax; /*!< Maximum  quantizer. */
     int m_maxQdiff; /*!< Maximum quantizer difference between frames. */
-    Encoder::CoderType m_coderType; /*!< Coder type. */
+    EncoderGlobal::CoderType m_coderType; /*!< Coder type. */
     int m_meCmp; /*!< Motion estimation comparison function. */
-    Encoder::Partitions m_partitions; /*!< Macroblock subpartition sizes to consider - p8x8, p4x4, b8x8, i8x8, i4x4. */
-    Encoder::MotionEstimationAlgorithm m_meMethod; /*!< Motion estimation algorithm used for video coding. */
+    EncoderGlobal::Partitions m_partitions; /*!< Macroblock subpartition sizes to consider - p8x8, p4x4, b8x8, i8x8, i4x4. */
+    EncoderGlobal::MotionEstimationAlgorithm m_meMethod; /*!< Motion estimation algorithm used for video coding. */
     int m_meSubpelQuality; /*!< Subpel ME quality. */
     int m_meRange; /*!< Maximum motion estimation search range in subpel units If 0 then no limit. */
     int m_keyintMin; /*!< Minimum GOP size. */
@@ -99,12 +99,12 @@ private:
     int m_qcompress; /*!< Amount of qscale change between easy & hard scenes (0.0-1.0). */
     int m_maxBFrames; /*!< Maximum number of B-frames between non-B-frames. */
     int m_refs; /*!< Number of reference frames. */
-    Encoder::MotionVectorPredictionMode m_directpred; /*!< Direct MV prediction mode. */
+    EncoderGlobal::MotionVectorPredictionMode m_directpred; /*!< Direct MV prediction mode. */
     int m_trellis; /*!< Trellis RD quantization. */
-    Encoder::WeightedPredictionMethod m_weightedPPred; /*!< Explicit P-frame weighted prediction analysis method. */
+    EncoderGlobal::WeightedPredictionMethod m_weightedPPred; /*!< Explicit P-frame weighted prediction analysis method. */
     int m_rcLookahead; /*!< RC lookahead Number of frames for frametype and ratecontrol lookahead. */
-    Encoder::Flags m_flags; /*!< */
-    Encoder::Flags2 m_flags2; /*!< */
+    EncoderGlobal::Flags m_flags; /*!< */
+    EncoderGlobal::Flags2 m_flags2; /*!< */
 };
 
 #endif // VIDEOCODECSETTINGS_H
