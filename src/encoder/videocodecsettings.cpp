@@ -15,9 +15,9 @@ VideoCodecSettings::VideoCodecSettings()
     m_meRange = -1;
     m_keyintMin = -1;
     m_sceneChangeThreshold = -1;
-    m_iQuantFactor = -1;
+    m_iQuantFactor = -1.0f;
     m_bFrameStrategy = -1;
-    m_qcompress = -1;
+    m_qcompress = -1.0f;
     m_maxBFrames = -1;
     m_refs = -1;
     m_directpred = static_cast<EncoderGlobal::MotionVectorPredictionMode>(-1);

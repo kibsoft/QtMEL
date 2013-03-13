@@ -94,9 +94,9 @@ private:
     int m_meRange; /*!< Maximum motion estimation search range in subpel units If 0 then no limit. */
     int m_keyintMin; /*!< Minimum GOP size. */
     int m_sceneChangeThreshold; /*!< Scene change detection threshold 0 is default, larger means fewer detected scene changes. */
-    int m_iQuantFactor ; /*!< qscale factor between P and I-frames. */
+    float m_iQuantFactor ; /*!< qscale factor between P and I-frames. */
     int m_bFrameStrategy  ; /*!<  */
-    int m_qcompress; /*!< Amount of qscale change between easy & hard scenes (0.0-1.0). */
+    float m_qcompress; /*!< Amount of qscale change between easy & hard scenes (0.0-1.0). */
     int m_maxBFrames; /*!< Maximum number of B-frames between non-B-frames. */
     int m_refs; /*!< Number of reference frames. */
     EncoderGlobal::MotionVectorPredictionMode m_directpred; /*!< Direct MV prediction mode. */
