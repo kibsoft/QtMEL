@@ -126,7 +126,7 @@ enum AudioCodec {
 };
 
 enum PixelFormat {
-    NONE = -1,
+    PIXEL_FORMAT_NONE = -1,
     YUV420P, /*!< planar YUV 4:2:0, 12bpp, (1 Cr & Cb sample per 2x2 Y samples) */
     YUYV422, /*!< packed YUV 4:2:2, 16bpp, Y0 Cb Y1 Cr */
     RGB24, /*!< packed RGB 8:8:8, 24bpp, RGBRGB... */

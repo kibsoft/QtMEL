@@ -14,7 +14,8 @@ win32 {
 }
 
 LIBS += -lavcodec-53 \
-    -lavformat-53
+    -lavformat-53 \
+    -lswscale-2
 
 SOURCES += src/grabbers/abstractgrabber.cpp \
     src/grabbers/image/abstractimagegrabber.cpp \
