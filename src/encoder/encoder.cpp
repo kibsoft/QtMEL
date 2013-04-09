@@ -50,11 +50,14 @@ public:
 
 public slots:
     void start();
+    void stop();
 
     void encodeVideoFrame(const QImage &frame, int duration);
 
 private:
-    void init();
+    void initData();
+    void initFfmpegStuff();
+    void cleanup();
 
     bool createVideoStream();
     bool createAudioStream();
@@ -109,7 +112,8 @@ EncoderPrivate::EncoderPrivate(Encoder *e, QObject *parent)
     //get the pointer to the public class
     q_ptr = e;
 
-    init();
+    initData();
+    initFfmpegStuff();
 }
 
 EncoderPrivate::~EncoderPrivate()
@@ -255,9 +259,19 @@ void EncoderPrivate::start()
 
     if (avio_open(&m_formatContext->pb, filePath().toLocal8Bit(), AVIO_FLAG_WRITE) < 0) {
         q_ptr->setError(Encoder::FileOpenError, QString(tr("Unable to open: %1")).arg(filePath()));
+        return;
     }
 
     avformat_write_header(m_formatContext, 0);
+
+    q_ptr->setState(Encoder::ActiveState);
+}
+
+void EncoderPrivate::stop()
+{
+    av_write_trailer(m_formatContext);
+
+    q_ptr->setState(Encoder::StoppedState);
 }
 
 void EncoderPrivate::encodeVideoFrame(const QImage &frame, int duration)
@@ -285,7 +299,7 @@ void EncoderPrivate::encodeVideoFrame(const QImage &frame, int duration)
     }
 }
 
-void EncoderPrivate::init()
+void EncoderPrivate::initData()
 {
     m_outputPixelFormat = EncoderGlobal::PIXEL_FORMAT_NONE;
     m_videoCodecName = EncoderGlobal::DEFAULT_VIDEO_CODEC;
@@ -293,6 +307,11 @@ void EncoderPrivate::init()
 
     m_fixedFrameRate = -1;
     m_encodeAudio = true;
+}
+
+
+void EncoderPrivate::initFfmpegStuff()
+{
     m_prevFrameDuration = 0;
     m_pts = 0;
 
@@ -315,6 +334,40 @@ void EncoderPrivate::init()
 
     m_imageConvertContext = NULL;
     m_videoPicture = NULL;
+}
+
+void EncoderPrivate::cleanup()
+{
+    //close codecs
+    if (m_videoCodecContext != NULL)
+        avcodec_close(m_videoCodecContext);
+
+    if (m_audioCodecContext != NULL)
+        avcodec_close(m_audioCodecContext);
+
+    //remove subsidiary objects
+    if (m_videoBuffer)
+        delete[] m_videoBuffer;
+
+    if (m_audioOutputBuffer)
+        delete[] m_audioOutputBuffer;
+
+    if (m_videoPicture != NULL)
+        av_free(m_videoPicture);
+
+    if (m_formatContext != NULL) {
+        //remove ffmpeg objects
+        for (int i = 0; i < m_formatContext->nb_streams; i++) {
+            av_freep(&m_formatContext->streams[i]->codec);
+            av_freep(&m_formatContext->streams[i]);
+        }
+
+        avio_close(m_formatContext->pb);
+
+        av_free(m_formatContext);
+    }
+
+    initFfmpegStuff();
 }
 
 bool EncoderPrivate::createVideoStream()
@@ -479,6 +532,7 @@ Encoder::Encoder(QObject *parent) :
     QObject(parent)
   , d_ptr(new EncoderPrivate(this))
   , m_encoderThread(new QThread(this))
+  , m_state(Encoder::StoppedState)
   , m_error(Encoder::NoError)
 {
     d_ptr->moveToThread(m_encoderThread);
@@ -569,14 +623,48 @@ VideoCodecSettings Encoder::videoCodecSettings() const
     return d_ptr->videoCodecSettings();
 }
 
+Encoder::State Encoder::state() const
+{
+    return m_state;
+}
+
 Encoder::Error Encoder::error() const
 {
     return m_error;
 }
 
+void Encoder::setState(Encoder::State state)
+{
+    if (m_state != state) {
+        m_state = state;
+        emit stateChanged(state);
+    }
+}
+
 QString Encoder::errorString() const
 {
     return m_errorString;
+}
+
+void Encoder::start()
+{
+    if (state() != Encoder::ActiveState)
+        QMetaObject::invokeMethod(d_ptr, "start", Qt::QueuedConnection);
+}
+
+void Encoder::stop()
+{
+    if (state() == Encoder::ActiveState)
+        QMetaObject::invokeMethod(d_ptr, "stop", Qt::QueuedConnection);
+}
+
+void Encoder::encodeVideoFrame(const QImage &frame, int duration)
+{
+    if (state() == Encoder::ActiveState) {
+        QMetaObject::invokeMethod(d_ptr, "encodeVideoFrame", Qt::QueuedConnection,
+                                  Q_ARG(QImage, frame),
+                                  Q_ARG(int, duration));
+    }
 }
 
 void Encoder::setError(Encoder::Error errorCode, const QString &errorString)

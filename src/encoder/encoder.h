@@ -6,6 +6,7 @@
 #include "videocodecsettings.h"
 #include <QObject>
 #include <QSize>
+#include <QImage>
 
 class EncoderPrivate;
 class QThread;
@@ -18,6 +19,7 @@ class QVACLSHARED_EXPORT Encoder : public QObject
 
 public:
 
+     /*! This enum describes encoder's errors. */
     enum Error {
         NoError = 0, /*!< No error occurred. */
         InvalidVideoSizeError, /*!< Wrong video size. */
@@ -32,6 +34,12 @@ public:
         FileOpenError, /*!< Could not open a file. */
         InvalidConversionContext, /*!< Could not initialize conversion context. */
         InvalidInputPixelFormat /*!< Could not convert input pixel format to the ffmpeg's format. */
+    };
+
+    /*! This enum describes the state of the encoder. */
+    enum State {
+        ActiveState = 0, /*!< Encoder is active, this state is set after start() is called. */
+        StoppedState /*!< Encoder is not active. */
     };
 
     explicit Encoder(QObject *parent = 0);
@@ -62,6 +70,12 @@ public:
     VideoCodecSettings videoCodecSettings() const;
 
     /*!
+      Returns the state of the encoder.
+      \sa stateChanged()
+    */
+    Encoder::State state() const;
+
+    /*!
       Returns the last error that occurred. If no error occurred, returns Encoder::NoError.
       \sa errorString()
     */
@@ -73,15 +87,29 @@ public:
     */
     QString errorString() const;
 
+public slots:
+    void start();
+    void stop();
+
+    void encodeVideoFrame(const QImage &frame, int duration);
+
 signals:
+    void stateChanged(Encoder::State state);
     void error(Encoder::Error errorCode);
 
 private:
+    /*!
+      Sets the encoder's state to the given state.
+      \sa state()
+    */
+    void setState(Encoder::State state);
+
     void setError(Encoder::Error errorCode, const QString &errorString);
 
     EncoderPrivate *d_ptr;
     QThread *m_encoderThread;
 
+    Encoder::State m_state;
     Encoder::Error m_error;
     QString m_errorString;
 };
