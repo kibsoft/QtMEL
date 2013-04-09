@@ -79,36 +79,102 @@
       <property name="title">
        <string>Screen Grabber</string>
       </property>
-      <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <layout class="QVBoxLayout" name="verticalLayout_4">
        <item>
-        <widget class="QPushButton" name="SGStart">
-         <property name="text">
-          <string>Start</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="SGStop">
-         <property name="text">
-          <string>Stop</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <layout class="QVBoxLayout" name="verticalLayout_2">
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
          <item>
-          <widget class="QLabel" name="SGFrameRate">
+          <widget class="QPushButton" name="SGStart">
            <property name="text">
-            <string>Instant frame rate:</string>
+            <string>Start</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="SCFrameRateLabel">
+          <widget class="QPushButton" name="SGStop">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="text">
-            <string>-</string>
+            <string>Stop</string>
            </property>
           </widget>
+         </item>
+         <item>
+          <layout class="QVBoxLayout" name="verticalLayout_2">
+           <item>
+            <widget class="QLabel" name="SGFrameRate">
+             <property name="text">
+              <string>Average frame rate:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="SCFrameRateLabel">
+             <property name="text">
+              <string>-</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_5">
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_2">
+           <item>
+            <widget class="QLabel" name="label">
+             <property name="text">
+              <string>Latency:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="latencySpinBox">
+             <property name="maximum">
+              <number>150</number>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_4">
+           <item>
+            <widget class="QLabel" name="label_2">
+             <property name="text">
+              <string>Image width:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="widthSpinBox"/>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_3">
+             <property name="text">
+              <string>Image height:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="heightSpinBox"/>
+           </item>
+          </layout>
          </item>
         </layout>
        </item>
