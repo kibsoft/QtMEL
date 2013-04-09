@@ -357,7 +357,7 @@ void EncoderPrivate::cleanup()
 
     if (m_formatContext != NULL) {
         //remove ffmpeg objects
-        for (int i = 0; i < m_formatContext->nb_streams; i++) {
+        for (unsigned i = 0; i < m_formatContext->nb_streams; i++) {
             av_freep(&m_formatContext->streams[i]->codec);
             av_freep(&m_formatContext->streams[i]);
         }
@@ -384,7 +384,7 @@ bool EncoderPrivate::createVideoStream()
     m_videoCodecContext->codec_type = AVMEDIA_TYPE_VIDEO;
     m_videoCodecContext->width = videoSize().width();
     m_videoCodecContext->height = videoSize().height();
-    m_videoCodecContext->pix_fmt = PIX_FMT_YUV420P;
+    m_videoCodecContext->pix_fmt = (PixelFormat)outputPixelFormat();
     m_videoCodecContext->time_base.den = fixedFrameRate() != -1 ? fixedFrameRate() : 1000;
     m_videoCodecContext->time_base.num = 1;
 
