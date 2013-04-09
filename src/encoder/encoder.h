@@ -30,7 +30,8 @@ public:
         AudioEncoderNotFoundError, /*!< Requested audio encoder was not found. */
         InvalidAudioCodecError, /*!< Could not open audio codec. */
         FileOpenError, /*!< Could not open a file. */
-        InvalidConversionContext /*!< Could not initialize conversion context. */
+        InvalidConversionContext, /*!< Could not initialize conversion context. */
+        InvalidInputPixelFormat /*!< Could not convert input pixel format to the ffmpeg's format. */
     };
 
     explicit Encoder(QObject *parent = 0);
@@ -47,9 +48,6 @@ public:
 
     void setEncodeAudio(bool encode);
     bool encodeAudio() const;
-
-    void setInputPixelFormat(EncoderGlobal::PixelFormat format);
-    EncoderGlobal::PixelFormat inputPixelFormat() const;
 
     void setOutputPixelFormat(EncoderGlobal::PixelFormat format);
     EncoderGlobal::PixelFormat outputPixelFormat() const;

@@ -36,9 +36,6 @@ public:
     void setEncodeAudio(bool encode);
     bool encodeAudio() const;
 
-    void setInputPixelFormat(EncoderGlobal::PixelFormat format);
-    EncoderGlobal::PixelFormat inputPixelFormat() const;
-
     void setOutputPixelFormat(EncoderGlobal::PixelFormat format);
     EncoderGlobal::PixelFormat outputPixelFormat() const;
 
@@ -66,13 +63,13 @@ private:
     bool openAudioStream();
 
     bool convertImage(const QImage &image);
+    EncoderGlobal::PixelFormat convertImagePixelFormat(QImage::Format format) const;
 
     void applyVideoCodecSettings();
     template <class T> void setVideoCodecOption(T AVCodecContext::*option, T (VideoCodecSettings::*f)() const);
 
     Encoder *q_ptr;
 
-    EncoderGlobal::PixelFormat m_inputPixelFormat;
     EncoderGlobal::PixelFormat m_outputPixelFormat;
     EncoderGlobal::VideoCodec m_videoCodecName;
     EncoderGlobal::AudioCodec m_audioCodecName;
@@ -82,6 +79,7 @@ private:
     QSize m_videoSize;
     int m_fixedFrameRate;
     bool m_encodeAudio;
+    int m_prevFrameDuration;
     int m_pts;
 
     //video stuff
@@ -164,18 +162,6 @@ void EncoderPrivate::setEncodeAudio(bool encode)
 bool EncoderPrivate::encodeAudio() const
 {
     return m_encodeAudio;
-}
-
-void EncoderPrivate::setInputPixelFormat(EncoderGlobal::PixelFormat format)
-{
-    if (m_inputPixelFormat != format) {
-        m_inputPixelFormat = format;
-    }
-}
-
-EncoderGlobal::PixelFormat EncoderPrivate::inputPixelFormat() const
-{
-    return m_inputPixelFormat;
 }
 
 void EncoderPrivate::setOutputPixelFormat(EncoderGlobal::PixelFormat format)
@@ -276,17 +262,38 @@ void EncoderPrivate::start()
 
 void EncoderPrivate::encodeVideoFrame(const QImage &frame, int duration)
 {
+    if (convertImage(frame)) {
+        int outSize = avcodec_encode_video(m_videoCodecContext, m_videoBuffer, m_videoBufferSize, m_videoPicture);
+
+        if (outSize > 0) {
+            m_pts += m_prevFrameDuration;
+            m_prevFrameDuration = duration;
+
+            m_videoCodecContext->coded_frame->pts = m_pts;
+
+            AVPacket pkt;
+            av_init_packet(&pkt);
+
+            if(m_videoCodecContext->coded_frame->key_frame)
+                pkt.flags |= AV_PKT_FLAG_KEY;
+
+            pkt.stream_index = m_videoStream->index;
+            pkt.data = m_videoBuffer;
+            pkt.size = outSize;
+            av_interleaved_write_frame(m_formatContext, &pkt);
+        }
+    }
 }
 
 void EncoderPrivate::init()
 {
-    m_inputPixelFormat = EncoderGlobal::PIXEL_FORMAT_NONE;
     m_outputPixelFormat = EncoderGlobal::PIXEL_FORMAT_NONE;
     m_videoCodecName = EncoderGlobal::DEFAULT_VIDEO_CODEC;
     m_audioCodecName = EncoderGlobal::DEFAULT_AUDIO_CODEC;
 
     m_fixedFrameRate = -1;
     m_encodeAudio = true;
+    m_prevFrameDuration = 0;
     m_pts = 0;
 
     //video stuff
@@ -369,8 +376,14 @@ bool EncoderPrivate::openAudioStream()
 
 bool EncoderPrivate::convertImage(const QImage &image)
 {
+    EncoderGlobal::PixelFormat inputFormat = convertImagePixelFormat(image.format());
+    if (inputFormat == EncoderGlobal::PIXEL_FORMAT_NONE) {
+        q_ptr->setError(Encoder::InvalidInputPixelFormat, tr("Could not convert input pixel format to the ffmpeg's format."));
+        return false;
+    }
+
     m_imageConvertContext = sws_getCachedContext(m_imageConvertContext, image.width(), image.height(),
-                                                 (PixelFormat)inputPixelFormat(), image.width(), image.height(), (PixelFormat)outputPixelFormat(), SWS_BICUBIC, NULL, NULL, NULL);
+                                                 (PixelFormat)inputFormat, image.width(), image.height(), (PixelFormat)outputPixelFormat(), SWS_BICUBIC, NULL, NULL, NULL);
 
     if (m_imageConvertContext == NULL) {
         q_ptr->setError(Encoder::InvalidConversionContext, tr("Could not initialize conversion context."));
@@ -390,6 +403,33 @@ bool EncoderPrivate::convertImage(const QImage &image)
     sws_scale(m_imageConvertContext, srcplanes, srcstride,0, image.height(), m_videoPicture->data, m_videoPicture->linesize);
 
     return true;
+}
+
+EncoderGlobal::PixelFormat EncoderPrivate::convertImagePixelFormat(QImage::Format format) const
+{
+    EncoderGlobal::PixelFormat newFormat;
+
+    switch (format) {
+    case QImage::Format_RGB32:
+    case QImage::Format_ARGB32:
+    case QImage::Format_ARGB32_Premultiplied:
+        newFormat = EncoderGlobal::ARGB;
+        break;
+
+    case QImage::Format_RGB16:
+        newFormat = EncoderGlobal::RGB565BE;
+        break;
+
+    case QImage::Format_RGB888:
+        newFormat = EncoderGlobal::RGB24;
+        break;
+
+    default:
+        newFormat = EncoderGlobal::PIXEL_FORMAT_NONE;
+        break;
+    }
+
+    return newFormat;
 }
 
 void EncoderPrivate::applyVideoCodecSettings()
@@ -487,16 +527,6 @@ void Encoder::setEncodeAudio(bool encode)
 bool Encoder::encodeAudio() const
 {
     return d_ptr->encodeAudio();
-}
-
-void Encoder::setInputPixelFormat(EncoderGlobal::PixelFormat format)
-{
-    d_ptr->setInputPixelFormat(format);
-}
-
-EncoderGlobal::PixelFormat Encoder::inputPixelFormat() const
-{
-    return d_ptr->inputPixelFormat();
 }
 
 void Encoder::setOutputPixelFormat(EncoderGlobal::PixelFormat format)
