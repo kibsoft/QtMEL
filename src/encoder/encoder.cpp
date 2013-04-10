@@ -11,7 +11,6 @@ extern "C" {
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
 }
-
 #include <QThread>
 #include <QImage>
 
@@ -95,6 +94,7 @@ private:
     AVFrame *m_videoPicture;
     SwsContext *m_imageConvertContext;
     int m_videoBufferSize;
+    AVBuffer *m_pictureBuffer;
 
     //audio stuff
     AVStream *m_audioStream;
@@ -269,9 +269,11 @@ void EncoderPrivate::start()
 
 void EncoderPrivate::stop()
 {
+    q_ptr->setState(Encoder::StoppedState);
+
     av_write_trailer(m_formatContext);
 
-    q_ptr->setState(Encoder::StoppedState);
+    cleanup();
 }
 
 void EncoderPrivate::encodeVideoFrame(const QImage &frame, int duration)
@@ -287,6 +289,7 @@ void EncoderPrivate::encodeVideoFrame(const QImage &frame, int duration)
 
             AVPacket pkt;
             av_init_packet(&pkt);
+            pkt.pts = m_pts;
 
             if(m_videoCodecContext->coded_frame->key_frame)
                 pkt.flags |= AV_PKT_FLAG_KEY;
@@ -323,6 +326,7 @@ void EncoderPrivate::initFfmpegStuff()
     m_videoCodec = NULL;
     m_videoBufferSize = 0;
     m_videoBuffer = 0;
+    m_pictureBuffer = 0;
 
     //audio stuff
     m_audioStream = NULL;
@@ -348,6 +352,9 @@ void EncoderPrivate::cleanup()
     //remove subsidiary objects
     if (m_videoBuffer)
         delete[] m_videoBuffer;
+
+    if (m_pictureBuffer)
+        delete[] m_pictureBuffer;
 
     if (m_audioOutputBuffer)
         delete[] m_audioOutputBuffer;
@@ -388,7 +395,7 @@ bool EncoderPrivate::createVideoStream()
     m_videoCodecContext->time_base.den = fixedFrameRate() != -1 ? fixedFrameRate() : 1000;
     m_videoCodecContext->time_base.num = 1;
 
-    applyVideoCodecSettings();
+//    applyVideoCodecSettings();
 
     return true;
 }
@@ -419,6 +426,12 @@ bool EncoderPrivate::openVideoStream()
     //init frame
     m_videoPicture = avcodec_alloc_frame();
 
+    int size = avpicture_get_size(m_videoCodecContext->pix_fmt, m_videoCodecContext->width, m_videoCodecContext->height);
+    m_pictureBuffer = new uint8_t[size];
+
+    // Setup the planes
+    avpicture_fill((AVPicture *)m_videoPicture, m_pictureBuffer,m_videoCodecContext->pix_fmt, m_videoCodecContext->width, m_videoCodecContext->height);
+
     return true;
 }
 
@@ -436,7 +449,7 @@ bool EncoderPrivate::convertImage(const QImage &image)
     }
 
     m_imageConvertContext = sws_getCachedContext(m_imageConvertContext, image.width(), image.height(),
-                                                 (PixelFormat)inputFormat, image.width(), image.height(), (PixelFormat)outputPixelFormat(), SWS_BICUBIC, NULL, NULL, NULL);
+                                                 (PixelFormat)inputFormat, image.width(), image.height(), m_videoCodecContext->pix_fmt, SWS_BICUBIC, NULL, NULL, NULL);
 
     if (m_imageConvertContext == NULL) {
         q_ptr->setError(Encoder::InvalidConversionContext, tr("Could not initialize conversion context."));
@@ -464,6 +477,9 @@ EncoderGlobal::PixelFormat EncoderPrivate::convertImagePixelFormat(QImage::Forma
 
     switch (format) {
     case QImage::Format_RGB32:
+        newFormat = EncoderGlobal::BGRA;
+        break;
+
     case QImage::Format_ARGB32:
     case QImage::Format_ARGB32_Premultiplied:
         newFormat = EncoderGlobal::ARGB;
@@ -535,7 +551,11 @@ Encoder::Encoder(QObject *parent) :
   , m_state(Encoder::StoppedState)
   , m_error(Encoder::NoError)
 {
+    qRegisterMetaType<Encoder::Error>("Encoder::Error");
+    qRegisterMetaType<Encoder::State>("Encoder::State");
+
     d_ptr->moveToThread(m_encoderThread);
+    m_encoderThread->start();
 }
 
 Encoder::~Encoder()
