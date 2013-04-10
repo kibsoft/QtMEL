@@ -11,6 +11,8 @@ extern "C" {
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
 }
+
+#include <QMetaType>
 #include <QThread>
 #include <QImage>
 
@@ -239,7 +241,7 @@ void EncoderPrivate::start()
     avcodec_register_all();
     av_register_all();
 
-    m_outputFormat = av_guess_format(NULL, filePath().toLocal8Bit(), NULL);
+    m_outputFormat = av_guess_format(NULL, filePath().toUtf8().constData(), NULL);
     if (!m_outputFormat) {
         q_ptr->setError(Encoder::InvalidOutputFormatError, tr("Unable to get an output format by passed filename."));
         return;
@@ -257,7 +259,7 @@ void EncoderPrivate::start()
     if (!openVideoStream())
         return;
 
-    if (avio_open(&m_formatContext->pb, filePath().toLocal8Bit(), AVIO_FLAG_WRITE) < 0) {
+    if (avio_open(&m_formatContext->pb, filePath().toUtf8().constData(), AVIO_FLAG_WRITE) < 0) {
         q_ptr->setError(Encoder::FileOpenError, QString(tr("Unable to open: %1")).arg(filePath()));
         return;
     }
