@@ -20,6 +20,7 @@ VideoCodecSettings::VideoCodecSettings()
     m_qcompress = -1.0f;
     m_maxBFrames = -1;
     m_refs = -1;
+    m_cqp = -1;
     m_directpred = static_cast<EncoderGlobal::MotionVectorPredictionMode>(-1);
     m_trellis = -1;
     m_weightedPPred = static_cast<EncoderGlobal::WeightedPredictionMethod>(-1);
@@ -206,6 +207,16 @@ void VideoCodecSettings::setReferenceFrameCount(int count)
 int VideoCodecSettings::referenceFrameCount() const
 {
     return m_refs;
+}
+
+void VideoCodecSettings::setConstantQuantizerMode(int cqp)
+{
+    m_cqp = cqp;
+}
+
+int VideoCodecSettings::constantQuantizerMode() const
+{
+    return m_cqp;
 }
 
 void VideoCodecSettings::setDirectMvPredictionMode(EncoderGlobal::MotionVectorPredictionMode mode)

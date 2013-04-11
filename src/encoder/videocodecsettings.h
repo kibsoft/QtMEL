@@ -1,9 +1,10 @@
 #ifndef VIDEOCODECSETTINGS_H
 #define VIDEOCODECSETTINGS_H
 
+#include "../qvacl_global.h"
 #include "encoderglobal.h"
 
-class VideoCodecSettings
+class QVACLSHARED_EXPORT VideoCodecSettings
 {
 public:
     VideoCodecSettings();
@@ -62,6 +63,9 @@ public:
     void setReferenceFrameCount(int count);
     int referenceFrameCount() const;
 
+    void setConstantQuantizerMode(int cqp);
+    int constantQuantizerMode() const;
+
     void setDirectMvPredictionMode(EncoderGlobal::MotionVectorPredictionMode mode);
     EncoderGlobal::MotionVectorPredictionMode directMvPredictionMode() const;
 
@@ -99,6 +103,7 @@ private:
     float m_qcompress; /*!< Amount of qscale change between easy & hard scenes (0.0-1.0). */
     int m_maxBFrames; /*!< Maximum number of B-frames between non-B-frames. */
     int m_refs; /*!< Number of reference frames. */
+    int m_cqp; /*! Constant quantization parameter rate control method. */
     EncoderGlobal::MotionVectorPredictionMode m_directpred; /*!< Direct MV prediction mode. */
     int m_trellis; /*!< Trellis RD quantization. */
     EncoderGlobal::WeightedPredictionMethod m_weightedPPred; /*!< Explicit P-frame weighted prediction analysis method. */
