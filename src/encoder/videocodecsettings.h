@@ -69,7 +69,7 @@ public:
     int trellis() const;
 
     void setPFramePredictionAnalysisMethod(EncoderGlobal::WeightedPredictionMethod method);
-    int pFramePredictionAnalysisMethod() const;
+    EncoderGlobal::WeightedPredictionMethod pFramePredictionAnalysisMethod() const;
 
     void setRcLookahead(int value);
     int rcLookahead() const;

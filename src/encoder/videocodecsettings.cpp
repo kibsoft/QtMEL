@@ -233,7 +233,7 @@ void VideoCodecSettings::setPFramePredictionAnalysisMethod(EncoderGlobal::Weight
     m_weightedPPred = method;
 }
 
-int VideoCodecSettings::pFramePredictionAnalysisMethod() const
+EncoderGlobal::WeightedPredictionMethod VideoCodecSettings::pFramePredictionAnalysisMethod() const
 {
     return m_weightedPPred;
 }

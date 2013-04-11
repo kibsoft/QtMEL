@@ -70,7 +70,7 @@ private:
     EncoderGlobal::PixelFormat convertImagePixelFormat(QImage::Format format) const;
 
     void applyVideoCodecSettings();
-    template <class T> void setVideoCodecOption(T AVCodecContext::*option, T (VideoCodecSettings::*f)() const);
+    template <class T1, class T2> void setVideoCodecOption(T1 AVCodecContext::*option, T2 (VideoCodecSettings::*f)() const);
 
     Encoder *q_ptr;
 
@@ -397,7 +397,7 @@ bool EncoderPrivate::createVideoStream()
     m_videoCodecContext->time_base.den = fixedFrameRate() != -1 ? fixedFrameRate() : 1000;
     m_videoCodecContext->time_base.num = 1;
 
-//    applyVideoCodecSettings();
+    applyVideoCodecSettings();
 
     return true;
 }
@@ -505,36 +505,36 @@ EncoderGlobal::PixelFormat EncoderPrivate::convertImagePixelFormat(QImage::Forma
 
 void EncoderPrivate::applyVideoCodecSettings()
 {
-    setVideoCodecOption<int>(&AVCodecContext::bit_rate, &VideoCodecSettings::bitrate);
-    setVideoCodecOption<int>(&AVCodecContext::gop_size, &VideoCodecSettings::gopSize);
-    setVideoCodecOption<int>(&AVCodecContext::qmin, &VideoCodecSettings::minimumQuantizer);
-    setVideoCodecOption<int>(&AVCodecContext::qmax, &VideoCodecSettings::minimumQuantizer);
-    setVideoCodecOption<int>(&AVCodecContext::max_qdiff, &VideoCodecSettings::maximumQuantizerDifference);
-    setVideoCodecOption<int>(&AVCodecContext::coder_type, reinterpret_cast<int (VideoCodecSettings::*) () const>(&VideoCodecSettings::coderType));
-    setVideoCodecOption<int>(&AVCodecContext::me_cmp, &VideoCodecSettings::motionEstimationComparison);
-    setVideoCodecOption<int>(&AVCodecContext::partitions, reinterpret_cast<int (VideoCodecSettings::*) () const>(&VideoCodecSettings::partitions));
-    setVideoCodecOption<int>(&AVCodecContext::me_method, reinterpret_cast<int (VideoCodecSettings::*) () const>(&VideoCodecSettings::motionEstimationMethod));
-    setVideoCodecOption<int>(&AVCodecContext::me_subpel_quality, &VideoCodecSettings::subpixelMotionEstimationQuality);
-    setVideoCodecOption<int>(&AVCodecContext::me_range, &VideoCodecSettings::motionEstimationRange);
-    setVideoCodecOption<int>(&AVCodecContext::keyint_min, &VideoCodecSettings::minimumKeyframeInterval);
-    setVideoCodecOption<int>(&AVCodecContext::scenechange_threshold, &VideoCodecSettings::sceneChangeThreshold);
-    setVideoCodecOption<float>(&AVCodecContext::i_quant_factor, &VideoCodecSettings::iQuantFactor);
-    setVideoCodecOption<int>(&AVCodecContext::b_frame_strategy, &VideoCodecSettings::bFrameStrategy);
-    setVideoCodecOption<float>(&AVCodecContext::qcompress, &VideoCodecSettings::quantizerCurveCompressionFactor);
-    setVideoCodecOption<int>(&AVCodecContext::max_b_frames, &VideoCodecSettings::maximumBFrames);
-    setVideoCodecOption<int>(&AVCodecContext::refs, &VideoCodecSettings::referenceFrameCount);
-    setVideoCodecOption<int>(&AVCodecContext::directpred, reinterpret_cast<int (VideoCodecSettings::*) () const>(&VideoCodecSettings::directMvPredictionMode));
-    setVideoCodecOption<int>(&AVCodecContext::trellis, &VideoCodecSettings::trellis);
-    setVideoCodecOption<int>(&AVCodecContext::weighted_p_pred, reinterpret_cast<int (VideoCodecSettings::*) () const>(&VideoCodecSettings::pFramePredictionAnalysisMethod));
-    setVideoCodecOption<int>(&AVCodecContext::rc_lookahead, &VideoCodecSettings::rcLookahead);
-    setVideoCodecOption<int>(&AVCodecContext::flags, reinterpret_cast<int (VideoCodecSettings::*) () const>(&VideoCodecSettings::flags));
-    setVideoCodecOption<int>(&AVCodecContext::flags2, reinterpret_cast<int (VideoCodecSettings::*) () const>(&VideoCodecSettings::flags2));
+    setVideoCodecOption<int, int>(&AVCodecContext::bit_rate, &VideoCodecSettings::bitrate);
+    setVideoCodecOption<int, int>(&AVCodecContext::gop_size, &VideoCodecSettings::gopSize);
+    setVideoCodecOption<int, int>(&AVCodecContext::qmin, &VideoCodecSettings::minimumQuantizer);
+    setVideoCodecOption<int, int>(&AVCodecContext::qmax, &VideoCodecSettings::minimumQuantizer);
+    setVideoCodecOption<int, int>(&AVCodecContext::max_qdiff, &VideoCodecSettings::maximumQuantizerDifference);
+    setVideoCodecOption<int, EncoderGlobal::CoderType>(&AVCodecContext::coder_type, &VideoCodecSettings::coderType);
+    setVideoCodecOption<int, int>(&AVCodecContext::me_cmp, &VideoCodecSettings::motionEstimationComparison);
+    setVideoCodecOption<int, EncoderGlobal::Partitions>(&AVCodecContext::partitions, &VideoCodecSettings::partitions);
+    setVideoCodecOption<int, EncoderGlobal::MotionEstimationAlgorithm>(&AVCodecContext::me_method, &VideoCodecSettings::motionEstimationMethod);
+    setVideoCodecOption<int, int>(&AVCodecContext::me_subpel_quality, &VideoCodecSettings::subpixelMotionEstimationQuality);
+    setVideoCodecOption<int, int>(&AVCodecContext::me_range, &VideoCodecSettings::motionEstimationRange);
+    setVideoCodecOption<int, int>(&AVCodecContext::keyint_min, &VideoCodecSettings::minimumKeyframeInterval);
+    setVideoCodecOption<int, int>(&AVCodecContext::scenechange_threshold, &VideoCodecSettings::sceneChangeThreshold);
+    setVideoCodecOption<float, float>(&AVCodecContext::i_quant_factor, &VideoCodecSettings::iQuantFactor);
+    setVideoCodecOption<int, int>(&AVCodecContext::b_frame_strategy, &VideoCodecSettings::bFrameStrategy);
+    setVideoCodecOption<float, float>(&AVCodecContext::qcompress, &VideoCodecSettings::quantizerCurveCompressionFactor);
+    setVideoCodecOption<int, int>(&AVCodecContext::max_b_frames, &VideoCodecSettings::maximumBFrames);
+    setVideoCodecOption<int, int>(&AVCodecContext::refs, &VideoCodecSettings::referenceFrameCount);
+    setVideoCodecOption<int, EncoderGlobal::MotionVectorPredictionMode>(&AVCodecContext::directpred, &VideoCodecSettings::directMvPredictionMode);
+    setVideoCodecOption<int, int>(&AVCodecContext::trellis, &VideoCodecSettings::trellis);
+    setVideoCodecOption<int, EncoderGlobal::WeightedPredictionMethod>(&AVCodecContext::weighted_p_pred, &VideoCodecSettings::pFramePredictionAnalysisMethod);
+    setVideoCodecOption<int, int>(&AVCodecContext::rc_lookahead, &VideoCodecSettings::rcLookahead);
+    setVideoCodecOption<int, EncoderGlobal::Flags>(&AVCodecContext::flags, &VideoCodecSettings::flags);
+    setVideoCodecOption<int, EncoderGlobal::Flags2>(&AVCodecContext::flags2, &VideoCodecSettings::flags2);
 }
 
-template <class T>
-void EncoderPrivate::setVideoCodecOption(T AVCodecContext::*option, T (VideoCodecSettings::*f)() const)
+template <class T1, class T2>
+void EncoderPrivate::setVideoCodecOption(T1 AVCodecContext::*option, T2 (VideoCodecSettings::*f)() const)
 {
-    T value = (m_videoSettings.*f)();
+    T2 value = (m_videoSettings.*f)();
     if (value != -1) {
         m_videoCodecContext->*option = (m_videoSettings.*f)();
     }
