@@ -23,51 +23,51 @@ enum VideoCodec {
     WMV1, /*!< Windows Media Video 7 */
     WMV2, /*!< Windows Media Video 8 */
     H263P, /*!< H.263+ / H.263-1998 / H.263 version 2 */
-    FLV1 = 0x0015, /*!< FLV / Sorenson Spark / Sorenson H.263 (Flash Video) */
+    FLV1 = 0x0016, /*!< FLV / Sorenson Spark / Sorenson H.263 (Flash Video) */
     SVQ1, /*!< Sorenson Vector Quantizer 1 / Sorenson Video 1 / SVQ1 */
-    DVVIDEO = 0x0018, /*!< DV (Digital Video) */
+    DVVIDEO = 0x0019, /*!< DV (Digital Video) */
     HUFFYUV, /*!< HuffYUV */
-    H264 = 0x001B, /*!< H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10 */
-    THEORA = 0x001E, /*!< Theora */
+    H264 = 0x001C, /*!< H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10 */
+    THEORA = 0x001F, /*!< Theora */
     ASV1, /*!< ASUS V1 */
     ASV2, /*!< ASUS V2 */
     FFV1, /*!< FFmpeg video codec #1 */
-    CLJR = 0x0024, /*!< Cirrus Logic AccuPak */
-    ROQ = 0x0026, /*!< RoQ video */
-    MSVIDEO1 = 0x002E, /*!< Microsoft Video 1 */
-    ZLIB = 0x0036, /*!< LCL (LossLess Codec Library) ZLIB */
+    CLJR = 0x0025, /*!< Cirrus Logic AccuPak */
+    ROQ = 0x0027, /*!< RoQ video */
+    MSVIDEO1 = 0x002F, /*!< Microsoft Video 1 */
+    ZLIB = 0x0037, /*!< LCL (LossLess Codec Library) ZLIB */
     QTRLE, /*!< QuickTime Animation (RLE) video */
     SNOW, /*!< Snow */
-    PNG = 0x003E, /*!< PNG (Portable Network Graphics) image */
+    PNG = 0x003F, /*!< PNG (Portable Network Graphics) image */
     PPM, /*!< PPM (Portable PixelMap) image */
     PBM, /*!< PBM (Portable BitMap) image */
     PGM, /*!< PGM (Portable GrayMap) image */
     PGMYUV, /*!< PGMYUV (Portable GrayMap YUV) image */
     PAM, /*!< PAM (Portable AnyMap) image */
     FFVHUFF, /*!< Huffyuv FFmpeg variant */
-    BMP = 0x004F, /*!< BMP (Windows and OS/2 bitmap) */
-    ZMBV = 0x0052, /*!< Zip Motion Blocks Video */
-    FLASHSV = 0x0057, /*!< Flash Screen Video v1 */
+    BMP = 0x0050, /*!< BMP (Windows and OS/2 bitmap) */
+    ZMBV = 0x0053, /*!< Zip Motion Blocks Video */
+    FLASHSV = 0x0058, /*!< Flash Screen Video v1 */
     CAVS, /*!< Chinese AVS (Audio Video Standard) (AVS1-P2, JiZhun profile) */
     JPEG2000, /*!< JPEG 2000 */
-    TARGA = 0x005E, /*!< Truevision Targa image */
-    TIFF = 0x0061, /*!< TIFF image */
+    TARGA = 0x005F, /*!< Truevision Targa image */
+    TIFF = 0x0062, /*!< TIFF image */
     GIF, /*!< GIF (Graphics Interchange Format) */
-    DNXHD = 0x0065, /*!< VC3/DNxHD */
-    SGI = 0x0067, /*!< SGI image */
-    AMV = 0x006D, /*!< AMV Video */
-    PCX = 0x006F, /*!< PC Paintbrush PCX image */
+    DNXHD = 0x0066, /*!< VC3/DNxHD */
+    SGI = 0x0068, /*!< SGI image */
+    AMV = 0x006E, /*!< AMV Video */
+    PCX = 0x0070, /*!< PC Paintbrush PCX image */
     SUNRAST, /*!< Sun Rasterfile image */
-    DIRAC = 0x0078, /*!< Dirac */
-    V210 = 0x0083, /*!< Uncompressed 4:2:2 10-bit */
+    DIRAC = 0x0079, /*!< Dirac */
+    V210 = 0x0084, /*!< Uncompressed 4:2:2 10-bit */
     DPX, /*!< DPX image */
-    FLASHSV2 = 0x0087, /*!< Flash Screen Video v2 */
-    R210 = 0x0089, /*!< Uncompressed RGB 10-bit */
-    VP8 = 0x0090, /*!< On2 VP8 */
-    A64_MULTI = 0x0093, /*!< Multicolor charset for Commodore 64 */
+    FLASHSV2 = 0x0088, /*!< Flash Screen Video v2 */
+    R210 = 0x008A, /*!< Uncompressed RGB 10-bit */
+    VP8 = 0x0091, /*!< On2 VP8 */
+    A64_MULTI = 0x0094, /*!< Multicolor charset for Commodore 64 */
     A64_MULTI5, /*!< Multicolor charset for Commodore 64, extended with 5th color */
     R10K, /*!< AJA Kona 10-bit RGB Codec */
-    PRORES = 0x0098 /*!< Apple ProRes (iCodec Pro) */
+    PRORES = 0x0099 /*!< Apple ProRes (iCodec Pro) */
 };
 
 enum AudioCodec {
