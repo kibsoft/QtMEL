@@ -55,6 +55,9 @@ public slots:
 
     void encodeVideoFrame(const QImage &frame, int duration);
 
+private slots:
+    void onError();
+
 private:
     void initData();
     void initFfmpegStuff();
@@ -116,6 +119,9 @@ EncoderPrivate::EncoderPrivate(Encoder *e, QObject *parent)
 
     initData();
     initFfmpegStuff();
+
+    //cleanup ffmpeg stuff on error
+    connect(q_ptr, SIGNAL(error(Encoder::Error)), this, SLOT(onError()));
 }
 
 EncoderPrivate::~EncoderPrivate()
@@ -302,6 +308,11 @@ void EncoderPrivate::encodeVideoFrame(const QImage &frame, int duration)
             av_interleaved_write_frame(m_formatContext, &pkt);
         }
     }
+}
+
+void EncoderPrivate::onError()
+{
+    cleanup();
 }
 
 void EncoderPrivate::initData()
