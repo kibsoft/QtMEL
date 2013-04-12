@@ -52,7 +52,7 @@ bool ScreenGrabber::captureCursor() const
 bool ScreenGrabber::start()
 {
     //emit error signal if the capture rect is wrong
-    if (captureRect().isNull() || !captureRect().isValid()
+    if (captureRect().isNull() || !captureRect().isValid() || !qApp->desktop()->screen()->rect().contains(captureRect())
             || (captureRect().width() > qApp->desktop()->width() || captureRect().height() > qApp->desktop()->height())) {
 
         setError(AbstractGrabber::InvalidConfigurationError, tr("Capture rectangle is invalid"));

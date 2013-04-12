@@ -219,8 +219,8 @@ VideoCodecSettings EncoderPrivate::videoCodecSettings() const
 void EncoderPrivate::start()
 {
     //check input data
-    if (!videoSize().isValid()) {
-        q_ptr->setError(Encoder::InvalidVideoSizeError, tr("Video size is not set."));
+    if (!(videoSize().width() > 0 && videoSize().height() > 0)) {
+        q_ptr->setError(Encoder::InvalidVideoSizeError, tr("Video size is invalid. Width and height must be greater than 0."));
         return;
     }
 
