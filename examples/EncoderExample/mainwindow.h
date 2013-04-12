@@ -35,7 +35,10 @@ private slots:
 
     void on_StopButton_clicked();
 
+    void on_fixedFPSStart_clicked();
+
 private:
+    void generateFrames();
     void showMessage(const QString &title, const QString &message);
     VideoCodecSettings videoCodecSettings() const;
 

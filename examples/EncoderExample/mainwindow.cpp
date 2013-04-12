@@ -6,6 +6,9 @@
 #include <QDesktopWidget>
 #include <QDesktopServices>
 #include <QUrl>
+#include <QImage>
+#include <QPainter>
+#include <QMetaObject>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -34,11 +37,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    m_screenGrabber->stop();
-    m_encoder->stop();
-    while (m_encoder->state() != Encoder::StoppedState) {}
-
-    QMainWindow::closeEvent(event);
+    Q_UNUSED(event)
 }
 
 void MainWindow::onEncoderError(Encoder::Error error)
@@ -58,14 +57,29 @@ void MainWindow::onImageGrabberError(AbstractGrabber::Error error)
 void MainWindow::onState(Encoder::State state)
 {
     if (state == Encoder::ActiveState) {
+        //if screen recording example
+        if (ui->screenRecrdGB->isEnabled()) {
+            if (!m_screenGrabber->start()) {
+                m_encoder->stop();
+                return;
+            }
 
-        if (!m_screenGrabber->start()) {
-            m_encoder->stop();
-            return;
+            ui->StartButton->setEnabled(false);
+            ui->StopButton->setEnabled(true);
+            ui->fixedFPSGB->setEnabled(false);
+        } else {//if fixed fps example
+            generateFrames();
         }
+    } else {
+        //if fixed fps example
+        if (!ui->screenRecrdGB->isEnabled()) {
+            //unlock ui
+            ui->fixedFPSStart->setEnabled(true);
+            ui->screenRecrdGB->setEnabled(true);
 
-        ui->StartButton->setEnabled(false);
-        ui->StopButton->setEnabled(true);
+            //play final video
+            QDesktopServices::openUrl(qApp->applicationDirPath() + "/fixed_fps_video.avi");
+        }
     }
 }
 
@@ -130,8 +144,46 @@ void MainWindow::on_StopButton_clicked()
 
     ui->StartButton->setEnabled(true);
     ui->StopButton->setEnabled(false);
+    ui->fixedFPSGB->setEnabled(true);
 
     if (ui->playVideoCheckBox->isChecked()) {
         QDesktopServices::openUrl(QUrl::fromLocalFile(ui->filePathLabel->text()));
     }
+}
+
+void MainWindow::on_fixedFPSStart_clicked()
+{
+    //lock ui
+    ui->fixedFPSStart->setEnabled(false);
+    ui->screenRecrdGB->setEnabled(false);
+
+    //setup encoder
+    m_encoder->setFilePath(qApp->applicationDirPath() + "/fixed_fps_video.avi");
+    m_encoder->setVideoSize(QSize(1024, 768));
+    m_encoder->setFixedFrameRate(ui->fpsSpinBox->value());
+    m_encoder->start();
+}
+
+void MainWindow::generateFrames()
+{
+    //generate 500 frames
+    for (int i = 0; i < 500; ++i) {
+        QImage frame(QSize(1024, 768), QImage::Format_RGB16);
+        frame.fill(Qt::yellow);
+        QPainter painter(&frame);
+        painter.setPen(QPen(Qt::red, 3));
+        painter.drawRect(i, i, 30, 30);
+        ui->statusBar->showMessage(QString::number(i/5) + "%");
+        m_encoder->encodeVideoFrame(frame);
+
+        //this is needed to prevent RAM overflow on some computers
+        if (i % 20 == 0) {
+            while (m_encoder->encodedFrameCount() != i) { qApp->processEvents(); }
+        }
+
+        qApp->processEvents();
+    }
+
+    ui->statusBar->clearMessage();
+    m_encoder->stop();
 }
