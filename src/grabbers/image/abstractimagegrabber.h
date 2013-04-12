@@ -16,6 +16,20 @@ class QVACLSHARED_EXPORT AbstractImageGrabber : public AbstractGrabber
 {
     Q_OBJECT
 
+    /*!
+      This property holds the latency between capturing of images.
+
+      Here is a pseudocode:
+      @code
+      forever {
+        //capture an image from device
+        waitForSetLatency();
+      }
+      @endcode
+
+      \sa setLatency()
+      \sa latency()
+    */
     Q_PROPERTY(int latency READ latency WRITE setLatency NOTIFY latencyChanged)
 
 public:

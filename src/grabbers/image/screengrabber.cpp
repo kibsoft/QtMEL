@@ -17,6 +17,10 @@ ScreenGrabber::ScreenGrabber(QObject *parent)
 {
 }
 
+ScreenGrabber::~ScreenGrabber()
+{
+}
+
 void ScreenGrabber::setCaptureRect(const QRect &rect)
 {
     QMutexLocker locker(&m_captureRectMutex);

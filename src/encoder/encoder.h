@@ -11,6 +11,21 @@
 class EncoderPrivate;
 class QThread;
 
+//! The Encoder class represents a media encoder.
+/*!
+  The class is used to encode video or audio streams.
+
+  Here is an example of the Encoder usage:
+  @code
+  Encoder *encoder = new Encoder(this);
+  encoder->setFileName("C:/QtEL/video.avi");
+  encoder->setVideoSize(QSize(1280, 800));
+  encoder->setFixedFrameRate(15);//set 15fps
+  encoder->setOutputPixelFormat(EncoderGlobal::YUV420P);
+  encoder->setVideoCodec(EncoderGlobal::H264);
+  encoder->start();
+  @endcode
+*/
 class QVACLSHARED_EXPORT Encoder : public QObject
 {
     Q_OBJECT
@@ -42,10 +57,20 @@ public:
         StoppedState /*!< Encoder is not active. */
     };
 
+    /*! Constructs an encoder with the given parent. */
     explicit Encoder(QObject *parent = 0);
+    /*! Destroys the encoder. */
     ~Encoder();
 
+    /*!
+      Sets the file path.
+      \sa filePath()
+    */
     void setFilePath(const QString &filePath);
+    /*!
+      Returns current file path.
+      \sa setFilePath()
+    */
     QString filePath() const;
 
     void setVideoSize(const QSize &size);
