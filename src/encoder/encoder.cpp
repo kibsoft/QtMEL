@@ -567,7 +567,8 @@ Encoder::~Encoder()
 
 void Encoder::setFilePath(const QString &filePath)
 {
-    d_ptr->setFilePath(filePath);
+    if (state() != Encoder::ActiveState)
+        d_ptr->setFilePath(filePath);
 }
 
 QString Encoder::filePath() const
@@ -577,7 +578,8 @@ QString Encoder::filePath() const
 
 void Encoder::setVideoSize(const QSize &size)
 {
-    d_ptr->setVideoSize(size);
+    if (state() != Encoder::ActiveState)
+        d_ptr->setVideoSize(size);
 }
 
 QSize Encoder::videoSize() const
@@ -587,7 +589,8 @@ QSize Encoder::videoSize() const
 
 void Encoder::setFixedFrameRate(int frameRate)
 {
-    d_ptr->setFixedFrameRate(frameRate);
+    if (state() != Encoder::ActiveState)
+        d_ptr->setFixedFrameRate(frameRate);
 }
 
 int Encoder::fixedFrameRate() const
@@ -597,7 +600,8 @@ int Encoder::fixedFrameRate() const
 
 void Encoder::setEncodeAudio(bool encode)
 {
-    d_ptr->setEncodeAudio(encode);
+    if (state() != Encoder::ActiveState)
+        d_ptr->setEncodeAudio(encode);
 }
 
 bool Encoder::encodeAudio() const
@@ -607,7 +611,8 @@ bool Encoder::encodeAudio() const
 
 void Encoder::setOutputPixelFormat(EncoderGlobal::PixelFormat format)
 {
-    d_ptr->setOutputPixelFormat(format);
+    if (state() != Encoder::ActiveState)
+        d_ptr->setOutputPixelFormat(format);
 }
 
 EncoderGlobal::PixelFormat Encoder::outputPixelFormat() const
@@ -617,7 +622,8 @@ EncoderGlobal::PixelFormat Encoder::outputPixelFormat() const
 
 void Encoder::setVideoCodec(EncoderGlobal::VideoCodec codec)
 {
-    d_ptr->setVideoCodec(codec);
+    if (state() != Encoder::ActiveState)
+        d_ptr->setVideoCodec(codec);
 }
 
 EncoderGlobal::VideoCodec Encoder::videoCodec() const
@@ -627,7 +633,8 @@ EncoderGlobal::VideoCodec Encoder::videoCodec() const
 
 void Encoder::setAudioCodec(EncoderGlobal::AudioCodec codec)
 {
-    d_ptr->setAudioCodec(codec);
+    if (state() != Encoder::ActiveState)
+        d_ptr->setAudioCodec(codec);
 }
 
 EncoderGlobal::AudioCodec Encoder::audioCodec() const
@@ -637,7 +644,8 @@ EncoderGlobal::AudioCodec Encoder::audioCodec() const
 
 void Encoder::setVideoCodecSettings(const VideoCodecSettings &settings)
 {
-    d_ptr->setVideoCodecSettings(settings);
+    if (state() != Encoder::ActiveState)
+        d_ptr->setVideoCodecSettings(settings);
 }
 
 VideoCodecSettings Encoder::videoCodecSettings() const
