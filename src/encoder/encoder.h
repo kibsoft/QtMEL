@@ -94,6 +94,8 @@ public:
     void setVideoCodecSettings(const VideoCodecSettings &settings);
     VideoCodecSettings videoCodecSettings() const;
 
+    int encodedFrameCount() const;
+
     /*!
       Returns the state of the encoder.
       \sa stateChanged()
@@ -116,7 +118,7 @@ public slots:
     void start();
     void stop();
 
-    void encodeVideoFrame(const QImage &frame, int duration);
+    void encodeVideoFrame(const QImage &frame, int duration = -1);
 
 signals:
     void stateChanged(Encoder::State state);

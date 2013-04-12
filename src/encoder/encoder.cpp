@@ -14,6 +14,8 @@ extern "C" {
 
 #include <QMetaType>
 #include <QThread>
+#include <QMutex>
+#include <QMutexLocker>
 #include <QImage>
 
 typedef uint8_t AVBuffer;
@@ -33,6 +35,7 @@ public:
 
     void setFixedFrameRate(int frameRate);
     int fixedFrameRate() const;
+    bool isFixedFrameRate() const;
 
     void setEncodeAudio(bool encode);
     bool encodeAudio() const;
@@ -48,6 +51,8 @@ public:
 
     void setVideoCodecSettings(const VideoCodecSettings &settings);
     VideoCodecSettings videoCodecSettings() const;
+
+    int encodedFrameCount() const;
 
 public slots:
     void start();
@@ -86,8 +91,10 @@ private:
     QSize m_videoSize;
     int m_fixedFrameRate;
     bool m_encodeAudio;
+
     int m_prevFrameDuration;
     int m_pts;
+    int m_encodedFrameCount;
 
     //video stuff
     AVOutputFormat *m_outputFormat;
@@ -109,6 +116,8 @@ private:
     QByteArray m_audioInputBuffer;
     int m_audioOutputBufferSize;
     int m_audioSampleSize;
+
+    mutable QMutex m_encodedFrameCountMutex;
 };
 
 EncoderPrivate::EncoderPrivate(Encoder *e, QObject *parent)
@@ -162,6 +171,11 @@ void EncoderPrivate::setFixedFrameRate(int frameRate)
 int EncoderPrivate::fixedFrameRate() const
 {
     return m_fixedFrameRate;
+}
+
+bool EncoderPrivate::isFixedFrameRate() const
+{
+    return fixedFrameRate() != -1;
 }
 
 void EncoderPrivate::setEncodeAudio(bool encode)
@@ -220,6 +234,12 @@ void EncoderPrivate::setVideoCodecSettings(const VideoCodecSettings &settings)
 VideoCodecSettings EncoderPrivate::videoCodecSettings() const
 {
     return m_videoSettings;
+}
+
+int EncoderPrivate::encodedFrameCount() const
+{
+    QMutexLocker locker(&m_encodedFrameCountMutex);
+    return m_encodedFrameCount;
 }
 
 void EncoderPrivate::start()
@@ -286,32 +306,42 @@ void EncoderPrivate::stop()
 
 void EncoderPrivate::encodeVideoFrame(const QImage &frame, int duration)
 {
-    if (convertImage(frame)) {
-        int outSize = avcodec_encode_video(m_videoCodecContext, m_videoBuffer, m_videoBufferSize, m_videoPicture);
+    if (duration) {//if duration is -1(fixed fps) or greater than 0
+        if (convertImage(frame)) {
+            int outSize = avcodec_encode_video(m_videoCodecContext, m_videoBuffer, m_videoBufferSize, m_videoPicture);
 
-        if (outSize > 0) {
-            m_pts += m_prevFrameDuration;
-            m_prevFrameDuration = duration;
+            if (outSize > 0) {
+                if (!isFixedFrameRate()) {
+                    m_pts += m_prevFrameDuration;
+                    m_prevFrameDuration = duration;
 
-            m_videoCodecContext->coded_frame->pts = m_pts;
+                    m_videoCodecContext->coded_frame->pts = m_pts;
+                }
 
-            AVPacket pkt;
-            av_init_packet(&pkt);
-            pkt.pts = m_pts;
+                AVPacket pkt;
+                av_init_packet(&pkt);
 
-            if(m_videoCodecContext->coded_frame->key_frame)
-                pkt.flags |= AV_PKT_FLAG_KEY;
+                pkt.pts = m_videoCodecContext->coded_frame->pts;
 
-            pkt.stream_index = m_videoStream->index;
-            pkt.data = m_videoBuffer;
-            pkt.size = outSize;
-            av_interleaved_write_frame(m_formatContext, &pkt);
+                if(m_videoCodecContext->coded_frame->key_frame)
+                    pkt.flags |= AV_PKT_FLAG_KEY;
+
+                pkt.stream_index = m_videoStream->index;
+                pkt.data = m_videoBuffer;
+                pkt.size = outSize;
+                av_interleaved_write_frame(m_formatContext, &pkt);
+
+                QMutexLocker locker(&m_encodedFrameCountMutex);
+                ++m_encodedFrameCount;
+            }
         }
     }
 }
 
 void EncoderPrivate::onError()
 {
+    q_ptr->setState(Encoder::StoppedState);
+
     cleanup();
 }
 
@@ -330,6 +360,7 @@ void EncoderPrivate::initFfmpegStuff()
 {
     m_prevFrameDuration = 0;
     m_pts = 0;
+    m_encodedFrameCount = 0;
 
     //video stuff
     m_outputFormat = NULL;
@@ -489,21 +520,23 @@ EncoderGlobal::PixelFormat EncoderPrivate::convertImagePixelFormat(QImage::Forma
     EncoderGlobal::PixelFormat newFormat;
 
     switch (format) {
+    case QImage::Format_ARGB32:
+    case QImage::Format_ARGB32_Premultiplied:
     case QImage::Format_RGB32:
         newFormat = EncoderGlobal::BGRA;
         break;
 
-    case QImage::Format_ARGB32:
-    case QImage::Format_ARGB32_Premultiplied:
-        newFormat = EncoderGlobal::ARGB;
-        break;
-
     case QImage::Format_RGB16:
-        newFormat = EncoderGlobal::RGB565BE;
+        newFormat = EncoderGlobal::RGB565LE;
         break;
 
     case QImage::Format_RGB888:
         newFormat = EncoderGlobal::RGB24;
+        break;
+
+    case QImage::Format_Mono:
+    case QImage::Format_MonoLSB:
+        newFormat = EncoderGlobal::MONOWHITE;
         break;
 
     default:
@@ -573,6 +606,7 @@ Encoder::Encoder(QObject *parent) :
 
 Encoder::~Encoder()
 {
+    m_encoderThread->terminate();
     delete d_ptr;
 }
 
@@ -662,6 +696,11 @@ void Encoder::setVideoCodecSettings(const VideoCodecSettings &settings)
 VideoCodecSettings Encoder::videoCodecSettings() const
 {
     return d_ptr->videoCodecSettings();
+}
+
+int Encoder::encodedFrameCount() const
+{
+    return d_ptr->encodedFrameCount();
 }
 
 Encoder::State Encoder::state() const
