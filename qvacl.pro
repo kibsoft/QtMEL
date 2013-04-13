@@ -8,6 +8,8 @@ MOC_DIR = moc
 
 DEFINES += QVACL_LIBRARY
 
+QT += multimedia
+
 win32 {
     LIBS += -L$$(FFMPEG_LIBRARY_PATH)
     INCLUDEPATH += $$(FFMPEG_INCLUDE_PATH)
@@ -23,7 +25,8 @@ SOURCES += src/grabbers/abstractgrabber.cpp \
     src/grabbers/image/screengrabber.cpp \
     src/helpers/mousehelper.cpp \
     src/encoder/encoder.cpp \
-    src/encoder/videocodecsettings.cpp
+    src/encoder/videocodecsettings.cpp \
+    src/grabbers/audio/audiograbber.cpp
 
 win32: SOURCES += src/helpers/mousehelper_win.cpp
 
@@ -35,4 +38,5 @@ HEADERS += src/grabbers/abstractgrabber.h\
     src/helpers/mousehelper_p.h \
     src/encoder/encoder.h \
     src/encoder/encoderglobal.h \
-    src/encoder/videocodecsettings.h
+    src/encoder/videocodecsettings.h \
+    src/grabbers/audio/audiograbber.h

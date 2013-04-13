@@ -28,7 +28,9 @@ public:
     enum Error {
         NoError = 0, /*!< No error occurred. */
         InvalidConfigurationError, /*!< Initial data for the grabber were invalid. For example, capture rectangle from ScreenGrabber. */
-        DeviceNotFoundError /*!< Device to be grabbed was not found. */
+        DeviceNotFoundError, /*!< Device to be grabbed was not found. */
+        InvalidFormatError, /*! The format is not supported by the device. */
+        DeviceOpenError /*! Unable to open device. */
     };
 
     /*! Constructs an abstract grabber with the given parent. */
