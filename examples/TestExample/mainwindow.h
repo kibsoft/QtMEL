@@ -3,33 +3,12 @@
 
 #include <QMainWindow>
 #include <MouseHelper>
-#include <QRunnable>
-#include <QApplication>
 
 namespace Ui {
 class MainWindow;
 }
 
 class ScreenGrabber;
-
-class HelloWorldTask : public QRunnable
-{
-public:
-    HelloWorldTask(QImage frame, int number)
-    {
-        m_frame = frame;
-        m_number = number;
-    }
-
-    void run()
-    {
-        m_frame.save(QApplication::applicationDirPath() + "/" + QString::number(m_number) + ".jpg");
-    }
-
-private:
-    QImage m_frame;
-    int m_number;
-};
 
 class MainWindow : public QMainWindow
 {
