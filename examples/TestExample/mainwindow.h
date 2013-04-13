@@ -9,6 +9,7 @@ class MainWindow;
 }
 
 class ScreenGrabber;
+class AudioGrabber;
 
 class MainWindow : public QMainWindow
 {
@@ -32,10 +33,16 @@ private slots:
     void on_SGStop_clicked();
     void updateAverageFrameRate(const QImage &frame, int duration);
 
+    void on_AGStart_clicked();
+    void on_AGStop_clicked();
+    void updateSoundPB(const QByteArray &data);
 private:
     Ui::MainWindow *ui;
     MouseHelper *m_helper;
     ScreenGrabber *m_screenGrabber;
+
+    AudioGrabber *m_audioGrabber;
+    int m_maxAmplitude;
 
     int m_grabbingTime;
     int m_grabbedFrameCount;

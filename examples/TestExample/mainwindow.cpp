@@ -4,12 +4,17 @@
 #include <QDesktopWidget>
 #include <QTimer>
 #include <ScreenGrabber>
+#include <AudioGrabber>
+#include <QAudioDeviceInfo>
+#include <QtCore/qendian.h>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
   , ui(new Ui::MainWindow)
-  , m_screenGrabber(new ScreenGrabber(this))
   , m_helper(new MouseHelper(this))
+  , m_screenGrabber(new ScreenGrabber(this))
+  , m_audioGrabber(new AudioGrabber(this))
+  , m_maxAmplitude(0)
   , m_grabbingTime(0)
   , m_grabbedFrameCount(0)
 {
@@ -29,6 +34,7 @@ MainWindow::MainWindow(QWidget *parent) :
     //connect signals
     connect(m_helper, SIGNAL(mouseEvent(MouseEvent)), this, SLOT(updateMHStatusLabel(MouseEvent)));
     connect(m_screenGrabber, SIGNAL(frameAvailable(QImage,int)), this, SLOT(updateAverageFrameRate(QImage,int)));
+    connect(m_audioGrabber, SIGNAL(frameAvailable(QByteArray)), this, SLOT(updateSoundPB(QByteArray)));
 }
 
 MainWindow::~MainWindow()
@@ -136,5 +142,104 @@ void MainWindow::updateAverageFrameRate(const QImage &frame, int duration)
             double frameRate = m_grabbedFrameCount / (m_grabbingTime / 1000.0);//frame per second
             ui->SCFrameRateLabel->setText(QString("%1 fps").arg(QString::number(frameRate, 'g', 4)));
         }
+    }
+}
+
+void MainWindow::on_AGStart_clicked()
+{
+    m_audioGrabber->setDevice(QAudioDeviceInfo::defaultInputDevice());
+
+    QAudioFormat format = QAudioDeviceInfo::defaultInputDevice().preferredFormat();
+    format.setCodec("audio/pcm");
+    format.setChannelCount(2);
+    format.setSampleRate(8000);
+    format.setSampleSize(16);
+    format.setByteOrder(QAudioFormat::LittleEndian);
+    format.setSampleType(QAudioFormat::SignedInt);
+
+    m_audioGrabber->setFormat(format);
+
+    //calc max input level amplitude
+    switch (format.sampleSize()) {
+    case 8:
+        switch (format.sampleType()) {
+        case QAudioFormat::UnSignedInt:
+            m_maxAmplitude = 255;
+            break;
+        case QAudioFormat::SignedInt:
+            m_maxAmplitude = 127;
+            break;
+        default:
+            break;
+        }
+        break;
+    case 16:
+        switch (format.sampleType()) {
+        case QAudioFormat::UnSignedInt:
+            m_maxAmplitude = 65535;
+            break;
+        case QAudioFormat::SignedInt:
+            m_maxAmplitude = 32767;
+            break;
+        default:
+            break;
+        }
+        break;
+    default:
+        break;
+    }
+
+    if (!m_audioGrabber->start()) {
+        qDebug()<<"Error: "<<m_audioGrabber->errorString();
+    }
+}
+
+void MainWindow::on_AGStop_clicked()
+{
+    m_audioGrabber->stop();
+}
+
+void MainWindow::updateSoundPB(const QByteArray &data)
+{
+    if (m_maxAmplitude) {
+        QAudioFormat format = m_audioGrabber->format();
+
+        Q_ASSERT(format.sampleSize() % 8 == 0);
+        const int channelBytes = format.sampleSize() / 8;
+        const int sampleBytes = format.channels() * channelBytes;
+        Q_ASSERT(data.size() % sampleBytes == 0);
+        const int numSamples = data.size() / sampleBytes;
+
+        int maxValue = 0;
+        const unsigned char *ptr = reinterpret_cast<const unsigned char *>(data.data());
+
+        for (int i = 0; i < numSamples; ++i) {
+            for(int j = 0; j < format.channels(); ++j) {
+                int value = 0;
+
+                if (format.sampleSize() == 8 && format.sampleType() == QAudioFormat::UnSignedInt) {
+                    value = *reinterpret_cast<const quint8*>(ptr);
+                } else if (format.sampleSize() == 8 && format.sampleType() == QAudioFormat::SignedInt) {
+                    value = qAbs(*reinterpret_cast<const qint8*>(ptr));
+                } else if (format.sampleSize() == 16 && format.sampleType() == QAudioFormat::UnSignedInt) {
+                    if (format.byteOrder() == QAudioFormat::LittleEndian)
+                        value = qFromLittleEndian<quint16>(ptr);
+                    else
+                        value = qFromBigEndian<quint16>(ptr);
+                } else if (format.sampleSize() == 16 && format.sampleType() == QAudioFormat::SignedInt) {
+                    if (format.byteOrder() == QAudioFormat::LittleEndian)
+                        value = qAbs(qFromLittleEndian<qint16>(ptr));
+                    else
+                        value = qAbs(qFromBigEndian<qint16>(ptr));
+                }
+
+                maxValue = qMax(value, maxValue);
+                ptr += channelBytes;
+            }
+        }
+
+        maxValue = qMin(maxValue, m_maxAmplitude);
+
+        ui->SoundPB->setValue(qRound((qreal(maxValue) / m_maxAmplitude) * 100));
     }
 }

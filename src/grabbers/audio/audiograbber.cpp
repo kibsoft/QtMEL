@@ -55,7 +55,7 @@ bool AudioGrabber::start()
         m_inputDevice = new QAudioInput(m_deviceInfo, m_format);
         m_buffer = m_inputDevice->start();
         if (m_inputDevice->error() == QAudio::OpenError) {
-            setError(AbstractGrabber::DeviceOpenError, tr("Unable to open device. Maybe you had set output device instead of input?"));
+            setError(AbstractGrabber::DeviceOpenError, tr("Unable to open device."));
             return false;
         }
 
