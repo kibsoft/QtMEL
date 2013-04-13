@@ -44,25 +44,29 @@ bool AudioGrabber::start()
     if (state() == AbstractGrabber::StoppedState) {
         if (m_deviceInfo.isNull()) {
             setError(AbstractGrabber::DeviceNotFoundError, tr("Device to be grabbed was not found."));
-            return;
+            return false;
         }
 
         if (!m_deviceInfo.isFormatSupported(m_format)) {
             setError(AbstractGrabber::InvalidFormatError, tr("The format is not supported by the device."));
-            return;
+            return false;
         }
 
         m_inputDevice = new QAudioInput(m_deviceInfo, m_format);
         m_buffer = m_inputDevice->start();
         if (m_inputDevice->error() == QAudio::OpenError) {
             setError(AbstractGrabber::DeviceOpenError, tr("Unable to open device. Maybe you had set output device instead of input?"));
-            return;
+            return false;
         }
 
         connect(m_buffer, SIGNAL(readyRead()), this, SLOT(onReadyRead()));
 
         setState(AbstractGrabber::ActiveState);
+
+        return true;
     }
+
+    return false;
 }
 
 void AudioGrabber::stop()
