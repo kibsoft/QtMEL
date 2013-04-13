@@ -46,6 +46,6 @@ private:
     QAudioFormat m_format;
     QIODevice *m_buffer;
     int m_grabbedAudioDataSize;
-}
+};
 
 #endif // AUDIOGRABBER_H
