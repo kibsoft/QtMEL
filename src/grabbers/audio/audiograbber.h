@@ -1,6 +1,7 @@
 #ifndef AUDIOGRABBER_H
 #define AUDIOGRABBER_H
 
+#include "../../qvacl_global.h"
 #include "../abstractgrabber.h"
 
 #include <QAudioDeviceInfo>
@@ -9,7 +10,7 @@
 
 class QAudioInput;
 
-class AudioGrabber : public AbstractGrabber
+class QVACLSHARED_EXPORT AudioGrabber : public AbstractGrabber
 {
     Q_OBJECT
 
