@@ -125,6 +125,15 @@ enum AudioCodec {
     EAC3 = 0x1502B /*!< ATSC A/52B (AC-3, E-AC-3) */
 };
 
+enum SampleFormat {
+    NoSampleFormat = -1,
+    Unsigned8,
+    Signed16,
+    Signed32,
+    Float,
+    Double
+};
+
 enum PixelFormat {
     PIXEL_FORMAT_NONE = -1,
     YUV420P, /*!< planar YUV 4:2:0, 12bpp, (1 Cr & Cb sample per 2x2 Y samples) */

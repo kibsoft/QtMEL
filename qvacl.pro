@@ -26,7 +26,8 @@ SOURCES += src/grabbers/abstractgrabber.cpp \
     src/helpers/mousehelper.cpp \
     src/encoder/encoder.cpp \
     src/encoder/videocodecsettings.cpp \
-    src/grabbers/audio/audiograbber.cpp
+    src/grabbers/audio/audiograbber.cpp \
+    src/encoder/audiocodecsettings.cpp
 
 win32: SOURCES += src/helpers/mousehelper_win.cpp
 
@@ -39,4 +40,5 @@ HEADERS += src/grabbers/abstractgrabber.h\
     src/encoder/encoder.h \
     src/encoder/encoderglobal.h \
     src/encoder/videocodecsettings.h \
-    src/grabbers/audio/audiograbber.h
+    src/grabbers/audio/audiograbber.h \
+    src/encoder/audiocodecsettings.h
