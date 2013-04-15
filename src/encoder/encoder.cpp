@@ -37,8 +37,8 @@ public:
     int fixedFrameRate() const;
     bool isFixedFrameRate() const;
 
-    void setEncodeAudio(bool encode);
-    bool encodeAudio() const;
+    void setEncodingMode(Encoder::EncodingMode mode);
+    Encoder::EncodingMode encodingMode() const;
 
     void setOutputPixelFormat(EncoderGlobal::PixelFormat format);
     EncoderGlobal::PixelFormat outputPixelFormat() const;
@@ -99,7 +99,7 @@ private:
     QString m_filePath;
     QSize m_videoSize;
     int m_fixedFrameRate;
-    bool m_encodeAudio;
+    Encoder::EncodingMode m_encodingMode;
 
     int m_prevFrameDuration;
     int m_pts;
@@ -189,16 +189,16 @@ bool EncoderPrivate::isFixedFrameRate() const
     return fixedFrameRate() != -1;
 }
 
-void EncoderPrivate::setEncodeAudio(bool encode)
+void EncoderPrivate::setEncodingMode(Encoder::EncodingMode mode)
 {
-    if (m_encodeAudio != encode) {
-        m_encodeAudio = encode;
+    if (m_encodingMode != mode) {
+        m_encodingMode = mode;
     }
 }
 
-bool EncoderPrivate::encodeAudio() const
+Encoder::EncodingMode EncoderPrivate::encodingMode() const
 {
-    return m_encodeAudio;
+    return m_encodingMode;
 }
 
 void EncoderPrivate::setOutputPixelFormat(EncoderGlobal::PixelFormat format)
@@ -304,17 +304,23 @@ void EncoderPrivate::start()
 
     m_formatContext->oformat = m_outputFormat;
 
-    if (!createVideoStream())
-        return;
+    if (encodingMode() == Encoder::VideoMode
+            || encodingMode() == Encoder::VideoAudioMode) {
+        if (!createVideoStream())
+            return;
 
-    if (!openVideoStream())
-        return;
+        if (!openVideoStream())
+            return;
+    }
 
-    if (!createAudioStream())
-        return;
+    if (encodingMode() == Encoder::AudioMode
+            || encodingMode() == Encoder::VideoAudioMode) {
+        if (!createAudioStream())
+            return;
 
-    if (!openAudioStream())
-        return;
+        if (!openAudioStream())
+            return;
+    }
 
     if (avio_open(&m_formatContext->pb, filePath().toUtf8().constData(), AVIO_FLAG_WRITE) < 0) {
         q_ptr->setError(Encoder::FileOpenError, QString(tr("Unable to open: %1")).arg(filePath()));
@@ -400,13 +406,14 @@ void EncoderPrivate::encodeAudioData(const QByteArray &data)
             AVPacket pkt;
             av_init_packet(&pkt);
 
-            pkt.size = ;
+            pkt.pts = m_audioStream->codec->coded_frame->pts;
 
-            pkt.pts = av_rescale_q(m_audioStream->codec->coded_frame->pts, m_audioStream->codec->time_base, m_audioStream->time_base);
-            pkt.flags |= AV_PKT_FLAG_KEY;
+            if(m_audioCodecContext->coded_frame->key_frame)
+                pkt.flags |= AV_PKT_FLAG_KEY;
+
             pkt.stream_index = m_audioStream->index;
             pkt.data = m_audioOutputBuffer;
-
+            pkt.size = outSize;
             av_interleaved_write_frame(m_formatContext, &pkt);
 
             QMutexLocker locker(&m_encodedAudioDataSizeMutex);
@@ -429,7 +436,7 @@ void EncoderPrivate::initData()
     m_audioCodecName = EncoderGlobal::DEFAULT_AUDIO_CODEC;
 
     m_fixedFrameRate = -1;
-    m_encodeAudio = true;
+    m_encodingMode = Encoder::VideoAudioMode;
 }
 
 
@@ -772,15 +779,15 @@ int Encoder::fixedFrameRate() const
     return d_ptr->fixedFrameRate();
 }
 
-void Encoder::setEncodeAudio(bool encode)
+void Encoder::setEncodingMode(Encoder::EncodingMode mode)
 {
     if (state() != Encoder::ActiveState)
-        d_ptr->setEncodeAudio(encode);
+        d_ptr->setEncodingMode(mode);
 }
 
-bool Encoder::encodeAudio() const
+Encoder::EncodingMode Encoder::encodingMode() const
 {
-    return d_ptr->encodeAudio();
+    return d_ptr->encodingMode();
 }
 
 void Encoder::setOutputPixelFormat(EncoderGlobal::PixelFormat format)
@@ -885,7 +892,8 @@ void Encoder::stop()
 
 void Encoder::encodeVideoFrame(const QImage &frame, int duration)
 {
-    if (state() == Encoder::ActiveState) {
+    if (state() == Encoder::ActiveState
+            && (encodingMode() == Encoder::VideoMode || encodingMode() == Encoder::VideoAudioMode)) {
         QMetaObject::invokeMethod(d_ptr, "encodeVideoFrame", Qt::QueuedConnection,
                                   Q_ARG(QImage, frame),
                                   Q_ARG(int, duration));
@@ -894,7 +902,8 @@ void Encoder::encodeVideoFrame(const QImage &frame, int duration)
 
 void Encoder::encodeAudioData(const QByteArray &data)
 {
-    if (state() == Encoder::ActiveState) {
+    if (state() == Encoder::ActiveState
+            && (encodingMode() == Encoder::AudioMode || encodingMode() == Encoder::VideoAudioMode)) {
         QMetaObject::invokeMethod(d_ptr, "encodeAudioData", Qt::QueuedConnection,
                                   Q_ARG(QByteArray, data));
     }

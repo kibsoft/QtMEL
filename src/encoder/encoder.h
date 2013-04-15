@@ -58,6 +58,13 @@ public:
         StoppedState /*!< Encoder is not active. */
     };
 
+    /*! This enum describes encoding modes. */
+    enum EncodingMode  {
+        VideoMode = 0, /*!< Encode only video stream. */
+        AudioMode, /*!< Encode only audio stream. */
+        VideoAudioMode /*!< Encode video and audio streams. */
+    };
+
     /*! Constructs an encoder with the given parent. */
     explicit Encoder(QObject *parent = 0);
     /*! Destroys the encoder. */
@@ -80,8 +87,8 @@ public:
     void setFixedFrameRate(int frameRate);
     int fixedFrameRate() const;
 
-    void setEncodeAudio(bool encode);
-    bool encodeAudio() const;
+    void setEncodingMode(Encoder::EncodingMode mode);
+    Encoder::EncodingMode encodingMode() const;
 
     void setOutputPixelFormat(EncoderGlobal::PixelFormat format);
     EncoderGlobal::PixelFormat outputPixelFormat() const;
