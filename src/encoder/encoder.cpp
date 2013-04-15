@@ -479,6 +479,9 @@ void EncoderPrivate::cleanup()
         avcodec_close(m_audioCodecContext);
 
     //remove subsidiary objects
+    if (m_imageConvertContext != NULL)
+        sws_freeContext(m_imageConvertContext);
+
     if (m_videoBuffer)
         delete[] m_videoBuffer;
 
@@ -494,8 +497,8 @@ void EncoderPrivate::cleanup()
     if (m_formatContext != NULL) {
         //remove ffmpeg objects
         for (unsigned i = 0; i < m_formatContext->nb_streams; i++) {
-            av_freep(&m_formatContext->streams[i]->codec);
-            av_freep(&m_formatContext->streams[i]);
+            av_free(&m_formatContext->streams[i]->codec);
+            av_free(&m_formatContext->streams[i]);
         }
 
         avio_close(m_formatContext->pb);
