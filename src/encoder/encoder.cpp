@@ -52,13 +52,18 @@ public:
     void setVideoCodecSettings(const VideoCodecSettings &settings);
     VideoCodecSettings videoCodecSettings() const;
 
+    void setAudioCodecSettings(const AudioCodecSettings &settings);
+    AudioCodecSettings audioCodecSettings() const;
+
     int encodedFrameCount() const;
+    int encodedAudioDataSize() const;
 
 public slots:
     void start();
     void stop();
 
     void encodeVideoFrame(const QImage &frame, int duration);
+    void encodeAudioData(const QByteArray &data);
 
 private slots:
     void onError();
@@ -80,12 +85,16 @@ private:
     void applyVideoCodecSettings();
     template <class T1, class T2> void setVideoCodecOption(T1 AVCodecContext::*option, T2 (VideoCodecSettings::*f)() const);
 
+    void applyAudioCodecSettings();
+    template <class T1, class T2> void setAudioCodecOption(T1 AVCodecContext::*option, T2 (AudioCodecSettings::*f)() const);
+
     Encoder *q_ptr;
 
     EncoderGlobal::PixelFormat m_outputPixelFormat;
     EncoderGlobal::VideoCodec m_videoCodecName;
     EncoderGlobal::AudioCodec m_audioCodecName;
     VideoCodecSettings m_videoSettings;
+    AudioCodecSettings m_audioSettings;
 
     QString m_filePath;
     QSize m_videoSize;
@@ -95,6 +104,7 @@ private:
     int m_prevFrameDuration;
     int m_pts;
     int m_encodedFrameCount;
+    int m_encodedAudioDataSize;
 
     //video stuff
     AVOutputFormat *m_outputFormat;
@@ -118,6 +128,7 @@ private:
     int m_audioSampleSize;
 
     mutable QMutex m_encodedFrameCountMutex;
+    mutable QMutex m_encodedAudioDataSizeMutex;
 };
 
 EncoderPrivate::EncoderPrivate(Encoder *e, QObject *parent)
@@ -236,10 +247,26 @@ VideoCodecSettings EncoderPrivate::videoCodecSettings() const
     return m_videoSettings;
 }
 
+void EncoderPrivate::setAudioCodecSettings(const AudioCodecSettings &settings)
+{
+    m_audioSettings = settings;
+}
+
+AudioCodecSettings EncoderPrivate::audioCodecSettings() const
+{
+    return m_audioSettings;
+}
+
 int EncoderPrivate::encodedFrameCount() const
 {
     QMutexLocker locker(&m_encodedFrameCountMutex);
     return m_encodedFrameCount;
+}
+
+int EncoderPrivate::encodedAudioDataSize() const
+{
+    QMutexLocker locker(&m_encodedAudioDataSizeMutex);
+    return m_encodedAudioDataSize;
 }
 
 void EncoderPrivate::start()
@@ -277,12 +304,16 @@ void EncoderPrivate::start()
 
     m_formatContext->oformat = m_outputFormat;
 
-    //create streams
     if (!createVideoStream())
         return;
 
-    //open streams
     if (!openVideoStream())
+        return;
+
+    if (!createAudioStream())
+        return;
+
+    if (!openAudioStream())
         return;
 
     if (avio_open(&m_formatContext->pb, filePath().toUtf8().constData(), AVIO_FLAG_WRITE) < 0) {
@@ -338,6 +369,52 @@ void EncoderPrivate::encodeVideoFrame(const QImage &frame, int duration)
     }
 }
 
+void EncoderPrivate::encodeAudioData(const QByteArray &data)
+{
+    QByteArray bytesBuffer = data;
+    int bytesReady = data.size();
+
+    QByteArray samples;
+
+    do
+    {
+        samples.clear();
+
+        if (m_audioInputBuffer.size() + bytesReady == m_audioSampleSize) {
+            samples.append(m_audioInputBuffer + bytesBuffer);
+            m_audioInputBuffer.clear();
+        } else if (m_audioInputBuffer.size() + bytesReady > m_audioSampleSize) {
+            m_audioInputBuffer.append(bytesBuffer);
+            samples.append(m_audioInputBuffer.left(m_audioSampleSize));
+            m_audioInputBuffer.remove(0, m_audioSampleSize);
+        } else if (m_audioInputBuffer.size() + bytesReady < m_audioSampleSize) {
+            m_audioInputBuffer.append(bytesBuffer);
+            return;
+        }
+
+        bytesReady = 0;
+        bytesBuffer.clear();
+
+        int outSize = avcodec_encode_audio(m_audioStream->codec, m_audioOutputBuffer, m_audioOutputBufferSize, (short *)samples.data());
+        if (outSize > 0) {
+            AVPacket pkt;
+            av_init_packet(&pkt);
+
+            pkt.size = ;
+
+            pkt.pts = av_rescale_q(m_audioStream->codec->coded_frame->pts, m_audioStream->codec->time_base, m_audioStream->time_base);
+            pkt.flags |= AV_PKT_FLAG_KEY;
+            pkt.stream_index = m_audioStream->index;
+            pkt.data = m_audioOutputBuffer;
+
+            av_interleaved_write_frame(m_formatContext, &pkt);
+
+            QMutexLocker locker(&m_encodedAudioDataSizeMutex);
+            m_encodedAudioDataSize += m_audioSampleSize;
+        }
+    } while (m_audioInputBuffer.size() > m_audioSampleSize);
+}
+
 void EncoderPrivate::onError()
 {
     q_ptr->setState(Encoder::StoppedState);
@@ -361,6 +438,7 @@ void EncoderPrivate::initFfmpegStuff()
     m_prevFrameDuration = 0;
     m_pts = 0;
     m_encodedFrameCount = 0;
+    m_encodedAudioDataSize = 0;
 
     //video stuff
     m_outputFormat = NULL;
@@ -446,6 +524,20 @@ bool EncoderPrivate::createVideoStream()
 
 bool EncoderPrivate::createAudioStream()
 {
+    m_audioStream = av_new_stream(m_formatContext, 1);
+    if(!m_audioStream ) {
+        q_ptr->setError(Encoder::InvalidAudioStreamError, tr("Unable to add audio stream."));
+        return false;
+    }
+
+    //set up codec
+    m_audioCodecContext = m_audioStream->codec;
+    m_audioCodecContext->codec_id = (audioCodec() == EncoderGlobal::DEFAULT_AUDIO_CODEC) ? m_outputFormat->audio_codec : static_cast<CodecID>(audioCodec());
+
+    m_audioCodecContext->codec_type = AVMEDIA_TYPE_AUDIO;
+
+    applyAudioCodecSettings();
+
     return true;
 }
 
@@ -465,13 +557,13 @@ bool EncoderPrivate::openVideoStream()
 
     //allocate frame buffer
     m_videoBufferSize = videoSize().width() * videoSize().height() * 1.5;
-    m_videoBuffer = new uint8_t[m_videoBufferSize];
+    m_videoBuffer = new AVBuffer[m_videoBufferSize];
 
     //init frame
     m_videoPicture = avcodec_alloc_frame();
 
     int size = avpicture_get_size(m_videoCodecContext->pix_fmt, m_videoCodecContext->width, m_videoCodecContext->height);
-    m_pictureBuffer = new uint8_t[size];
+    m_pictureBuffer = new AVBuffer[size];
 
     // Setup the planes
     avpicture_fill((AVPicture *)m_videoPicture, m_pictureBuffer,m_videoCodecContext->pix_fmt, m_videoCodecContext->width, m_videoCodecContext->height);
@@ -481,6 +573,23 @@ bool EncoderPrivate::openVideoStream()
 
 bool EncoderPrivate::openAudioStream()
 {
+    m_audioCodec = avcodec_find_encoder(m_audioCodecContext->codec_id);
+    if (!m_audioCodec) {
+        q_ptr->setError(Encoder::AudioEncoderNotFoundError, tr("Unable to find audio encoder by codec id."));
+        return false;
+    }
+
+    // open the codec
+    if (avcodec_open2(m_audioCodecContext, m_audioCodec, NULL) < 0) {
+        q_ptr->setError(Encoder::InvalidAudioCodecError, tr("Unable to open audio codec."));
+        return false;
+    }
+
+    m_audioOutputBufferSize = AVCODEC_MAX_AUDIO_FRAME_SIZE;
+    m_audioOutputBuffer = new AVBuffer[m_audioOutputBufferSize];
+
+    m_audioSampleSize = 2 * m_audioStream->codec->frame_size * m_audioStream->codec->channels;
+
     return true;
 }
 
@@ -581,6 +690,26 @@ void EncoderPrivate::setVideoCodecOption(T1 AVCodecContext::*option, T2 (VideoCo
     T2 value = (m_videoSettings.*f)();
     if (value != -1) {
         m_videoCodecContext->*option = (m_videoSettings.*f)();
+    }
+}
+
+void EncoderPrivate::applyAudioCodecSettings()
+{
+    if (m_audioSettings.sampleFormat() != -1) {
+        m_audioCodecContext->sample_fmt = static_cast<AVSampleFormat>(m_audioSettings.sampleFormat());
+    }
+
+    setAudioCodecOption<int, int>(&AVCodecContext::bit_rate, &AudioCodecSettings::bitrate);
+    setAudioCodecOption<int, int>(&AVCodecContext::sample_rate, &AudioCodecSettings::sampleRate);
+    setAudioCodecOption<int, int>(&AVCodecContext::channels, &AudioCodecSettings::channelCount);
+}
+
+template <class T1, class T2>
+void EncoderPrivate::setAudioCodecOption(T1 AVCodecContext::*option, T2 (AudioCodecSettings::*f)() const)
+{
+    T2 value = (m_audioSettings.*f)();
+    if (value != -1) {
+        m_audioCodecContext->*option = (m_audioSettings.*f)();
     }
 }
 
@@ -698,9 +827,25 @@ VideoCodecSettings Encoder::videoCodecSettings() const
     return d_ptr->videoCodecSettings();
 }
 
+void Encoder::setAudioCodecSettings(const AudioCodecSettings &settings)
+{
+    if (state() != Encoder::ActiveState)
+        d_ptr->setAudioCodecSettings(settings);
+}
+
+AudioCodecSettings Encoder::audioCodecSettings() const
+{
+    return d_ptr->audioCodecSettings();
+}
+
 int Encoder::encodedFrameCount() const
 {
     return d_ptr->encodedFrameCount();
+}
+
+int Encoder::encodedAudioDataSize() const
+{
+    return d_ptr->encodedAudioDataSize();
 }
 
 Encoder::State Encoder::state() const
@@ -744,6 +889,14 @@ void Encoder::encodeVideoFrame(const QImage &frame, int duration)
         QMetaObject::invokeMethod(d_ptr, "encodeVideoFrame", Qt::QueuedConnection,
                                   Q_ARG(QImage, frame),
                                   Q_ARG(int, duration));
+    }
+}
+
+void Encoder::encodeAudioData(const QByteArray &data)
+{
+    if (state() == Encoder::ActiveState) {
+        QMetaObject::invokeMethod(d_ptr, "encodeAudioData", Qt::QueuedConnection,
+                                  Q_ARG(QByteArray, data));
     }
 }
 

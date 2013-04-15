@@ -4,6 +4,7 @@
 #include "../qvacl_global.h"
 #include "encoderglobal.h"
 #include "videocodecsettings.h"
+#include "audiocodecsettings.h"
 #include <QObject>
 #include <QSize>
 #include <QImage>
@@ -94,7 +95,11 @@ public:
     void setVideoCodecSettings(const VideoCodecSettings &settings);
     VideoCodecSettings videoCodecSettings() const;
 
+    void setAudioCodecSettings(const AudioCodecSettings &settings);
+    AudioCodecSettings audioCodecSettings() const;
+
     int encodedFrameCount() const;
+    int encodedAudioDataSize() const;
 
     /*!
       Returns the state of the encoder.
@@ -119,6 +124,7 @@ public slots:
     void stop();
 
     void encodeVideoFrame(const QImage &frame, int duration = -1);
+    void encodeAudioData(const QByteArray &data);
 
 signals:
     void stateChanged(Encoder::State state);
