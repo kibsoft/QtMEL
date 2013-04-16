@@ -23,7 +23,7 @@
 #ifndef SCREENGRABBER_H
 #define SCREENGRABBER_H
 
-#include "../../qvacl_global.h"
+#include "../../qtmel_global.h"
 #include "abstractimagegrabber.h"
 #include <QRect>
 #include <QMutex>
@@ -43,7 +43,7 @@
   grabber->start();
   @endcode
 */
-class QVACLSHARED_EXPORT ScreenGrabber : public AbstractImageGrabber
+class QTMELSHARED_EXPORT ScreenGrabber : public AbstractImageGrabber
 {
     Q_OBJECT
 

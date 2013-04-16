@@ -23,10 +23,10 @@
 #ifndef VIDEOCODECSETTINGS_H
 #define VIDEOCODECSETTINGS_H
 
-#include "../qvacl_global.h"
+#include "../qtmel_global.h"
 #include "encoderglobal.h"
 
-class QVACLSHARED_EXPORT VideoCodecSettings
+class QTMELSHARED_EXPORT VideoCodecSettings
 {
 public:
     VideoCodecSettings();

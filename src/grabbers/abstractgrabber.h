@@ -23,7 +23,7 @@
 #ifndef ABSTRACTGRABBER_H
 #define ABSTRACTGRABBER_H
 
-#include "../qvacl_global.h"
+#include "../qtmel_global.h"
 #include <QObject>
 
 //! The AbstractGrabber class is the base of all grabbers.
@@ -35,7 +35,7 @@
   AbstractGrabber will emit stateChanged() whenever its state changes.
 */
 
-class QVACLSHARED_EXPORT AbstractGrabber : public QObject {
+class QTMELSHARED_EXPORT AbstractGrabber : public QObject {
     Q_OBJECT
 
 public:

@@ -23,10 +23,10 @@
 #ifndef AUDIOCODECSETTINGS_H
 #define AUDIOCODECSETTINGS_H
 
-#include "../qvacl_global.h"
+#include "../qtmel_global.h"
 #include "encoderglobal.h"
 
-class QVACLSHARED_EXPORT AudioCodecSettings
+class QTMELSHARED_EXPORT AudioCodecSettings
 {
 public:
     AudioCodecSettings();

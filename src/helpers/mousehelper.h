@@ -23,7 +23,7 @@
 #ifndef MOUSEHELPER_H
 #define MOUSEHELPER_H
 
-#include "../qvacl_global.h"
+#include "../qtmel_global.h"
 #include <QObject>
 #include <QPoint>
 #include <QPixmap>
@@ -65,7 +65,7 @@ class MouseHelperPrivate;
 
   \sa MouseEvent
 */
-class QVACLSHARED_EXPORT MouseHelper : public QObject
+class QTMELSHARED_EXPORT MouseHelper : public QObject
 {
     Q_OBJECT
 public:    

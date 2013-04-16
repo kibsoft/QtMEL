@@ -1,4 +1,4 @@
-TARGET = qvacl
+TARGET = qtmel
 TEMPLATE = lib
 VERSION = 1.0.0
 
@@ -6,7 +6,7 @@ DESTDIR = $$PWD/lib
 OBJECTS_DIR = obj
 MOC_DIR = moc
 
-DEFINES += QVACL_LIBRARY
+DEFINES += QTMEL_LIBRARY
 
 QT += multimedia
 CONFIG += no_keywords
@@ -33,7 +33,7 @@ SOURCES += src/grabbers/abstractgrabber.cpp \
 win32: SOURCES += src/helpers/mousehelper_win.cpp
 
 HEADERS += src/grabbers/abstractgrabber.h\
-        src/qvacl_global.h \
+        src/qtmel_global.h \
     src/grabbers/image/abstractimagegrabber.h \
     src/grabbers/image/screengrabber.h \
     src/helpers/mousehelper.h \

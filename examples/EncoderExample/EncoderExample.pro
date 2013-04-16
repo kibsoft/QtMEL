@@ -13,7 +13,7 @@ TEMPLATE = app
 
 #add QVACL library
 INCLUDEPATH += ../../include
-LIBS += -L../../lib -lqvacl1
+LIBS += -L../../lib -lqtmel1
 
 SOURCES += main.cpp\
         mainwindow.cpp

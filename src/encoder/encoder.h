@@ -23,7 +23,7 @@
 #ifndef ENCODER_H
 #define ENCODER_H
 
-#include "../qvacl_global.h"
+#include "../qtmel_global.h"
 #include "encoderglobal.h"
 #include "videocodecsettings.h"
 #include "audiocodecsettings.h"
@@ -49,7 +49,7 @@ class QThread;
   encoder->start();
   @endcode
 */
-class QVACLSHARED_EXPORT Encoder : public QObject
+class QTMELSHARED_EXPORT Encoder : public QObject
 {
     Q_OBJECT
 

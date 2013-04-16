@@ -20,15 +20,15 @@
 **
 ****************************************************************************/
 
-#ifndef QVACL_GLOBAL_H
-#define QVACL_GLOBAL_H
+#ifndef QTMEL_GLOBAL_H
+#define QTMEL_GLOBAL_H
 
 #include <QtCore/qglobal.h>
 
-#if defined(QVACL_LIBRARY)
-#  define QVACLSHARED_EXPORT Q_DECL_EXPORT
+#if defined(QTMEL_LIBRARY)
+#  define QTMELSHARED_EXPORT Q_DECL_EXPORT
 #else
-#  define QVACLSHARED_EXPORT Q_DECL_IMPORT
+#  define QTMELSHARED_EXPORT Q_DECL_IMPORT
 #endif
 
-#endif // QVACL_GLOBAL_H
+#endif // QTMEL_GLOBAL_H

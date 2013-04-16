@@ -23,7 +23,7 @@
 #ifndef AUDIOGRABBER_H
 #define AUDIOGRABBER_H
 
-#include "../../qvacl_global.h"
+#include "../../qtmel_global.h"
 #include "../abstractgrabber.h"
 
 #include <QAudioDeviceInfo>
@@ -32,7 +32,7 @@
 
 class QAudioInput;
 
-class QVACLSHARED_EXPORT AudioGrabber : public AbstractGrabber
+class QTMELSHARED_EXPORT AudioGrabber : public AbstractGrabber
 {
     Q_OBJECT
 

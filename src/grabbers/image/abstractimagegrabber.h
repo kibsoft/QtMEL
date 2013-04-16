@@ -23,7 +23,7 @@
 #ifndef ABSTRACTIMAGEGRABBER_H
 #define ABSTRACTIMAGEGRABBER_H
 
-#include "../../qvacl_global.h"
+#include "../../qtmel_global.h"
 #include "../abstractgrabber.h"
 #include <QImage>
 #include <QMutex>
@@ -34,7 +34,7 @@
 
   AbstractImageGrabber will emit frameAvailable() whenever a new image will be available.
 */
-class QVACLSHARED_EXPORT AbstractImageGrabber : public AbstractGrabber
+class QTMELSHARED_EXPORT AbstractImageGrabber : public AbstractGrabber
 {
     Q_OBJECT
 
