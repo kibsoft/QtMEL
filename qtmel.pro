@@ -1,19 +1,29 @@
-TARGET = qtmel
 TEMPLATE = lib
+
 VERSION = 1.0.0
+QMAKE_TARGET_COMPANY = "Kirill Bukaev(aka KIBSOFT)"
+QMAKE_TARGET_COPYRIGHT = "Copyright © 2013 Kirill Bukaev(aka KIBSOFT)"
+QMAKE_TARGET_PRODUCT = "QtMEL"
+QMAKE_TARGET_DESCRIPTION = "Qt Media Encoding Library"
 
 DESTDIR = $$PWD/lib
-OBJECTS_DIR = obj
-MOC_DIR = moc
+OBJECTS_DIR = build/obj
+MOC_DIR = build/moc
 
 DEFINES += QTMEL_LIBRARY
-
 QT += multimedia
-CONFIG += no_keywords
+CONFIG += debug_and_release build_all no_keywords
+
+CONFIG(debug, debug|release) {
+    TARGET = qtmeld
+} else {
+    TARGET = qtmel
+}
 
 win32 {
     LIBS += -L$$(FFMPEG_LIBRARY_PATH)
     INCLUDEPATH += $$(FFMPEG_INCLUDE_PATH)
+    SOURCES += src/helpers/mousehelper_win.cpp
 }
 
 LIBS += -lavcodec-53 \
@@ -29,8 +39,6 @@ SOURCES += src/grabbers/abstractgrabber.cpp \
     src/encoder/videocodecsettings.cpp \
     src/grabbers/audio/audiograbber.cpp \
     src/encoder/audiocodecsettings.cpp
-
-win32: SOURCES += src/helpers/mousehelper_win.cpp
 
 HEADERS += src/grabbers/abstractgrabber.h\
         src/qtmel_global.h \
