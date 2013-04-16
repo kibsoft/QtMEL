@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QTimer>
 #include <MouseHelper>
 
 namespace Ui {
@@ -25,6 +26,7 @@ protected:
 private slots:
     void on_MHStart_clicked();
     void on_MHStop_clicked();
+    void updateCursorLabel();
 
     void updateMHStatusLabel(const MouseEvent &event);
     void restoreLabelBackground();
@@ -39,6 +41,7 @@ private slots:
 private:
     Ui::MainWindow *ui;
     MouseHelper *m_helper;
+    QTimer m_cursorTimer;
     ScreenGrabber *m_screenGrabber;
 
     AudioGrabber *m_audioGrabber;

@@ -31,10 +31,14 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->widthSpinBox->setValue(fullScreenRect.width());
     ui->heightSpinBox->setValue(fullScreenRect.height());
 
+    //setup timer
+    m_cursorTimer.setInterval(50);
+
     //connect signals
     connect(m_helper, SIGNAL(mouseEvent(MouseEvent)), this, SLOT(updateMHStatusLabel(MouseEvent)));
     connect(m_screenGrabber, SIGNAL(frameAvailable(QImage,int)), this, SLOT(updateAverageFrameRate(QImage,int)));
     connect(m_audioGrabber, SIGNAL(frameAvailable(QByteArray)), this, SLOT(updateSoundPB(QByteArray)));
+    connect(&m_cursorTimer, SIGNAL(timeout()), this, SLOT(updateCursorLabel()));
 }
 
 MainWindow::~MainWindow()
@@ -59,6 +63,7 @@ void MainWindow::on_MHStart_clicked()
     ui->MHStop->setEnabled(true);
 
     m_helper->startGrabbing();
+    m_cursorTimer.start();
 }
 
 void MainWindow::on_MHStop_clicked()
@@ -68,6 +73,12 @@ void MainWindow::on_MHStop_clicked()
     ui->MHStatusLabel->setText("-");
 
     m_helper->stopGrabbing();
+    m_cursorTimer.stop();
+}
+
+void MainWindow::updateCursorLabel()
+{
+    ui->cursorLabel->setPixmap(MouseHelper::cursorPixmap());
 }
 
 void MainWindow::updateMHStatusLabel(const MouseEvent &event)
