@@ -58,7 +58,7 @@ class QTMELSHARED_EXPORT ScreenGrabber : public AbstractImageGrabber
       \sa setCaptureCursor()
       \sa captureCursor()
     */
-    Q_PROPERTY(bool captureCursor READ captureCursor WRITE setCaptureCursor NOTIFY captureCursorChanged)
+    Q_PROPERTY(bool isCaptureCursor READ isCaptureCursor WRITE setCaptureCursor NOTIFY isCaptureCursorChanged)
 public:
     /*! Constructs a screen grabber with the given parent. */
     explicit ScreenGrabber(QObject *parent = 0);
@@ -78,20 +78,20 @@ public:
     QRect captureRect() const;
 
     void setCaptureCursor(bool capture); 
-    bool captureCursor() const;
+    bool isCaptureCursor() const;
 
 public Q_SLOTS:
     bool start();
 
 Q_SIGNALS:
     void captureRectChanged(const QRect &rect);
-    void captureCursorChanged(bool capture);
+    void isCaptureCursorChanged(bool capture);
 
 private:
     void grab();
 
     QRect m_captureRect;
-    bool m_captureCursor;
+    bool m_isCaptureCursor;
 
     mutable QMutex m_captureRectMutex;
     mutable QMutex m_captureCursorMutex;

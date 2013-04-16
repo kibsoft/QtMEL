@@ -35,7 +35,7 @@
 
 ScreenGrabber::ScreenGrabber(QObject *parent)
     : AbstractImageGrabber(parent)
-    , m_captureCursor(true)
+    , m_isCaptureCursor(true)
 {
 }
 
@@ -62,17 +62,17 @@ QRect ScreenGrabber::captureRect() const
 void ScreenGrabber::setCaptureCursor(bool capture)
 {
     QMutexLocker locker(&m_captureCursorMutex);
-    if (m_captureCursor != capture) {
-        m_captureCursor = capture;
+    if (m_isCaptureCursor != capture) {
+        m_isCaptureCursor = capture;
 
-        Q_EMIT captureCursorChanged(capture);
+        Q_EMIT isCaptureCursorChanged(capture);
     }
 }
 
-bool ScreenGrabber::captureCursor() const
+bool ScreenGrabber::isCaptureCursor() const
 {
     QMutexLocker locker(&m_captureCursorMutex);
-    return m_captureCursor;
+    return m_isCaptureCursor;
 }
 
 bool ScreenGrabber::start()
@@ -103,7 +103,7 @@ void ScreenGrabber::grab()
 
     Q_FOREVER {
         //check if we must finish grabbing
-        if (stopRequest() || pauseRequest())
+        if (isStopRequest() || isPauseRequest())
             break;
 
         //restart the timer in order to get right duration of the image capture
@@ -113,7 +113,7 @@ void ScreenGrabber::grab()
                                     rectWidth, rectHeight).toImage();//convert to QImage because we can't use QPixmap in the thread other than GUI
 
         //draw cursor if needed
-        if (captureCursor()) {
+        if (isCaptureCursor()) {
             int xDiff = QCursor::pos().x() - rectLeft;
             int yDiff = QCursor::pos().y() - rectTop;
 
@@ -131,7 +131,7 @@ void ScreenGrabber::grab()
         Q_EMIT frameAvailable(frame, durationTimer.elapsed());
     }
 
-    setState(stopRequest() ? AbstractGrabber::StoppedState : AbstractGrabber::SuspendedState);
+    setState(isStopRequest() ? AbstractGrabber::StoppedState : AbstractGrabber::SuspendedState);
 
     //reset stop and pause flags
     setStopRequest(false);

@@ -121,7 +121,7 @@ protected:
       Returns the stop flag. If the flag is true then grabing device is going to be stopped (if it is active)
       \sa setStopRequest()
     */
-    bool stopRequest() const;
+    bool isStopRequest() const;
 
     /*!
       Sets the pause flag.
@@ -133,12 +133,12 @@ protected:
       Returns the pause flag. If the flag is true then grabing device is going to be paused (if it is active)
       \sa setPauseRequest()
     */
-    bool pauseRequest() const;
+    bool isPauseRequest() const;
 
 private:
     int m_latency;
-    bool m_stopRequest;
-    bool m_pauseRequest;
+    bool m_isStopRequest;
+    bool m_isPauseRequest;
     mutable QMutex m_stopPauseMutex;
 };
 
