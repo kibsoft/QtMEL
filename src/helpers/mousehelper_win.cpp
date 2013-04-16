@@ -94,7 +94,10 @@ QPixmap MouseHelperPrivate::cursorPixmap()
                 if (cursorPixmap.isNull()) {//if the cursor hasn't color image (for example, Ibeam cursor)
                     //copy bottom part of the mask image in order to get the cursor
                     cursorPixmap = QPixmap::fromWinHBITMAP(iconInfo.hbmMask, QPixmap::Alpha).mask();
-                    cursorPixmap = cursorPixmap.copy(0, cursorPixmap.height() / 2, cursorPixmap.width(), cursorPixmap.height() / 2);
+                    //replace white color with transparent
+                    QImage cursorImage = cursorPixmap.copy(0, cursorPixmap.height() / 2, cursorPixmap.width(), cursorPixmap.height() / 2).toImage();
+                    cursorImage.setColor(0, Qt::transparent);
+                    cursorPixmap = QPixmap::fromImage(cursorImage);
                 }
             }
         }
