@@ -27,7 +27,7 @@ void ScreenGrabber::setCaptureRect(const QRect &rect)
     if (m_captureRect != rect) {
         m_captureRect = rect;
 
-        emit captureRectChanged(rect);
+        Q_EMIT captureRectChanged(rect);
     }
 }
 
@@ -43,7 +43,7 @@ void ScreenGrabber::setCaptureCursor(bool capture)
     if (m_captureCursor != capture) {
         m_captureCursor = capture;
 
-        emit captureCursorChanged(capture);
+        Q_EMIT captureCursorChanged(capture);
     }
 }
 
@@ -79,7 +79,7 @@ void ScreenGrabber::grab()
     QImage frame;//this stores grabbed image
     QEventLoop latencyLoop;
 
-    forever {
+    Q_FOREVER {
         //check if we must finish grabbing
         if (stopRequest() || pauseRequest())
             break;
@@ -106,7 +106,7 @@ void ScreenGrabber::grab()
         QTimer::singleShot(latency(), &latencyLoop, SLOT(quit()));
         latencyLoop.exec();
 
-        emit frameAvailable(frame, durationTimer.elapsed());
+        Q_EMIT frameAvailable(frame, durationTimer.elapsed());
     }
 
     setState(stopRequest() ? AbstractGrabber::StoppedState : AbstractGrabber::SuspendedState);

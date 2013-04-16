@@ -58,10 +58,10 @@ public:
     void setCaptureCursor(bool capture); 
     bool captureCursor() const;
 
-public slots:
+public Q_SLOTS:
     bool start();
 
-signals:
+Q_SIGNALS:
     void captureRectChanged(const QRect &rect);
     void captureCursorChanged(bool capture);
 

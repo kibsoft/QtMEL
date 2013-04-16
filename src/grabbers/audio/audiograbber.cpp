@@ -104,7 +104,7 @@ void AudioGrabber::onReadyRead()
         QByteArray data = m_buffer->readAll();
         m_grabbedAudioDataSize += data.size();
 
-        emit frameAvailable(data);
+        Q_EMIT frameAvailable(data);
     }
 }
 

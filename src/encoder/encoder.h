@@ -126,14 +126,14 @@ public:
     */
     QString errorString() const;
 
-public slots:
+public Q_SLOTS:
     void start();
     void stop();
 
     void encodeVideoFrame(const QImage &frame, int duration = -1);
     void encodeAudioData(const QByteArray &data);
 
-signals:
+Q_SIGNALS:
     void stateChanged(Encoder::State state);
     void error(Encoder::Error errorCode);
 

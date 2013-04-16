@@ -19,7 +19,7 @@ void AbstractImageGrabber::setLatency(int latency)
     if (m_latency != latency) {
         m_latency = latency;
 
-        emit latencyChanged(latency);
+        Q_EMIT latencyChanged(latency);
     }
 }
 

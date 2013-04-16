@@ -26,16 +26,16 @@ public:
 
     int grabbedAudioDataSize() const;
 
-public slots:
+public Q_SLOTS:
     bool start();
     void stop();
     void suspend();
     void resume();
 
-signals:
+Q_SIGNALS:
     void frameAvailable(const QByteArray &frame);
 
-private slots:
+private Q_SLOTS:
     void onReadyRead();
 
 private:

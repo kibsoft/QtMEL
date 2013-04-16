@@ -58,14 +58,14 @@ public:
     int encodedFrameCount() const;
     int encodedAudioDataSize() const;
 
-public slots:
+public Q_SLOTS:
     void start();
     void stop();
 
     void encodeVideoFrame(const QImage &frame, int duration);
     void encodeAudioData(const QByteArray &data);
 
-private slots:
+private Q_SLOTS:
     void onError();
 
 private:
@@ -872,7 +872,7 @@ void Encoder::setState(Encoder::State state)
 {
     if (m_state != state) {
         m_state = state;
-        emit stateChanged(state);
+        Q_EMIT stateChanged(state);
     }
 }
 
@@ -917,7 +917,7 @@ void Encoder::setError(Encoder::Error errorCode, const QString &errorString)
     m_error = errorCode;
     m_errorString = errorString;
 
-    emit error(errorCode);
+    Q_EMIT error(errorCode);
 }
 
 #include "encoder.moc"

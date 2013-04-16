@@ -57,7 +57,7 @@ public:
     */
     QString errorString() const;
 
-public slots:
+public Q_SLOTS:
     //! A pure virtual function.
     /*! Starts data grabbing. The state() is set to AbstractGrabber::ActiveState if no errors occurred. */
     virtual bool start() = 0;
@@ -74,7 +74,7 @@ public slots:
     /*! Resumes data grabbing after a suspend(). The state() is set to AbstractGrabber::ActiveState. */
     virtual void resume() = 0;
 
-signals:
+Q_SIGNALS:
     /*! This signal is emitted when the grabber state has changed. */
     void stateChanged();
 

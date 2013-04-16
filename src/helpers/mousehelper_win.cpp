@@ -12,7 +12,7 @@ public:
     static EventHandler* instance();
     static void destroy();
 
-signals:
+Q_SIGNALS:
     void mouseEvent(const MouseEvent &event);
 
 private:
@@ -105,7 +105,7 @@ QPixmap MouseHelperPrivate::cursorPixmap()
 
 void MouseHelperPrivate::handleEvent(const MouseEvent &event)
 {
-    emit mouseEvent(event);
+    Q_EMIT mouseEvent(event);
 
     switch (event.type) {
     case MouseEvent::MouseButtonPress:
@@ -133,7 +133,7 @@ void MouseHelperPrivate::sendClickEvent(MouseEvent::MouseButton button, const QP
         clickEvent.button = button;
         clickEvent.position = position;
 
-        emit mouseEvent(clickEvent);
+        Q_EMIT mouseEvent(clickEvent);
     }
 }
 
@@ -146,25 +146,25 @@ LRESULT CALLBACK HookProc(int nCode, WPARAM wParam, LPARAM lParam)
     case WM_LBUTTONDOWN: {
         event.type = MouseEvent::MouseButtonPress;
         event.button = MouseEvent::LeftButton;
-        emit EventHandler::instance()->mouseEvent(event);
+        Q_EMIT EventHandler::instance()->mouseEvent(event);
     } break;
 
     case WM_LBUTTONUP: {
         event.type = MouseEvent::MouseButtonRelease;
         event.button = MouseEvent::LeftButton;
-        emit EventHandler::instance()->mouseEvent(event);
+        Q_EMIT EventHandler::instance()->mouseEvent(event);
     } break;
 
     case WM_RBUTTONDOWN: {
         event.type = MouseEvent::MouseButtonPress;
         event.button = MouseEvent::RightButton;
-        emit EventHandler::instance()->mouseEvent(event);
+        Q_EMIT EventHandler::instance()->mouseEvent(event);
     } break;
 
     case WM_RBUTTONUP: {
         event.type = MouseEvent::MouseButtonRelease;
         event.button = MouseEvent::RightButton;
-        emit EventHandler::instance()->mouseEvent(event);
+        Q_EMIT EventHandler::instance()->mouseEvent(event);
     } break;
     }
 

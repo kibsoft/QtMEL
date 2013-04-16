@@ -9,6 +9,7 @@ MOC_DIR = moc
 DEFINES += QVACL_LIBRARY
 
 QT += multimedia
+CONFIG += no_keywords
 
 win32 {
     LIBS += -L$$(FFMPEG_LIBRARY_PATH)

@@ -52,7 +52,7 @@ public:
     */
     int latency() const;
 
-public slots:
+public Q_SLOTS:
     /*! Starts data grabbing. The state() is set to AbstractGrabber::ActiveState if no errors occurred. */
     virtual bool start();
 
@@ -65,7 +65,7 @@ public slots:
     /*! Resumes data grabbing after a suspend(). The state() is set to AbstractGrabber::ActiveState. */
     virtual void resume();
 
-signals:
+Q_SIGNALS:
     /*!
       This signal is emitted when a new image was captured from a device.
       \param frame an image grabbed from a device.

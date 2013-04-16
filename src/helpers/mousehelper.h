@@ -66,7 +66,7 @@ public:
     */
     static QPixmap cursorPixmap();
 
-signals:
+Q_SIGNALS:
     /*!
       This signal is emmited when new global mouse event occurs.
       \sa startGrabbing()

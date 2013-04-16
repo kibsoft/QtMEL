@@ -21,10 +21,10 @@ public:
 
     static QPixmap cursorPixmap();
 
-signals:
+Q_SIGNALS:
     void mouseEvent(const MouseEvent &event);
 
-private slots:
+private Q_SLOTS:
     void handleEvent(const MouseEvent &event);
 
 private:

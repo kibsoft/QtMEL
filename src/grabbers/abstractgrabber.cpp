@@ -32,7 +32,7 @@ void AbstractGrabber::setState(AbstractGrabber::State state)
     if (m_state != state) {
         m_state = state;
 
-        emit stateChanged();
+        Q_EMIT stateChanged();
     }
 }
 
@@ -41,5 +41,5 @@ void AbstractGrabber::setError(AbstractGrabber::Error errorCode, const QString &
     m_error = errorCode;
     m_errorString = errorString;
 
-    emit error(errorCode);
+    Q_EMIT error(errorCode);
 }
