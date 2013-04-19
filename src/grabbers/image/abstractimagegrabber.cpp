@@ -27,6 +27,7 @@
 AbstractImageGrabber::AbstractImageGrabber(QObject *parent)
     : AbstractGrabber(parent)
     , m_latency(0)
+    , m_grabbedFrameCount(0)
     , m_isStopRequest(false)
     , m_isPauseRequest(false)
 {
@@ -38,6 +39,7 @@ AbstractImageGrabber::~AbstractImageGrabber()
 
 void AbstractImageGrabber::setLatency(int latency)
 {
+    QMutexLocker locker(&m_latencyMutex);
     if (m_latency != latency) {
         m_latency = latency;
 
@@ -47,7 +49,14 @@ void AbstractImageGrabber::setLatency(int latency)
 
 int AbstractImageGrabber::latency() const
 {
+    QMutexLocker locker(&m_latencyMutex);
     return m_latency;
+}
+
+int AbstractImageGrabber::grabbedFrameCount() const
+{
+    QMutexLocker locker(&m_grabbedFrameCountMutex);
+    return m_grabbedFrameCount;
 }
 
 bool AbstractImageGrabber::start()
@@ -83,8 +92,21 @@ void AbstractImageGrabber::resume()
 
 void AbstractImageGrabber::startGrabbing()
 {
+    //init grabbed frames
+    m_grabbedFrameCount = 0;
+
     QtConcurrent::run(this, &AbstractImageGrabber::grab);
     setState(AbstractGrabber::ActiveState);
+}
+
+void AbstractImageGrabber::setGrabbedFrameCount(int count)
+{
+    QMutexLocker locker(&m_grabbedFrameCountMutex);
+    if (m_grabbedFrameCount != count) {
+        m_grabbedFrameCount = count;
+
+        Q_EMIT grabbedFrameCountChanged(count);
+    }
 }
 
 void AbstractImageGrabber::setStopRequest(bool stop)

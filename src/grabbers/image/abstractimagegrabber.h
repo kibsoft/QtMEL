@@ -54,6 +54,8 @@ class QTMELSHARED_EXPORT AbstractImageGrabber : public AbstractGrabber
     */
     Q_PROPERTY(int latency READ latency WRITE setLatency NOTIFY latencyChanged)
 
+    Q_PROPERTY(QString grabbedFrameCount READ grabbedFrameCount NOTIFY grabbedFrameCountChanged)
+
 public:
     /*! Constructs an abstract image grabber with the given parent. */
     AbstractImageGrabber(QObject *parent = 0);
@@ -73,6 +75,8 @@ public:
       \sa setLatency()
     */
     int latency() const;
+
+    int grabbedFrameCount() const;
 
 public Q_SLOTS:
     /*! Starts data grabbing. The state() is set to AbstractGrabber::ActiveState if no errors occurred. */
@@ -100,6 +104,8 @@ Q_SIGNALS:
      */
     void latencyChanged(int latency);
 
+    void grabbedFrameCountChanged(int count);
+
 protected:
     /*!
       Starts an image grabbing in a different thread.
@@ -110,6 +116,8 @@ protected:
     //! A pure virtual function.
     /*! Captures images from a device. */
     virtual void grab() = 0;
+
+    void setGrabbedFrameCount(int count);
 
     /*!
       Sets the stop flag.
@@ -137,8 +145,11 @@ protected:
 
 private:
     int m_latency;
+    int m_grabbedFrameCount;
     bool m_isStopRequest;
     bool m_isPauseRequest;
+    mutable QMutex m_latencyMutex;
+    mutable QMutex m_grabbedFrameCountMutex;
     mutable QMutex m_stopPauseMutex;
 };
 

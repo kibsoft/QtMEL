@@ -129,6 +129,8 @@ void ScreenGrabber::grab()
         latencyLoop.exec();
 
         Q_EMIT frameAvailable(frame, durationTimer.elapsed());
+
+        setGrabbedFrameCount(grabbedFrameCount() + 1);
     }
 
     setState(isStopRequest() ? AbstractGrabber::StoppedState : AbstractGrabber::SuspendedState);
