@@ -21,12 +21,12 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    Q_ASSERT(connect(m_encoder, SIGNAL(error(Encoder::Error)), this, SLOT(onEncoderError(Encoder::Error))));
-    Q_ASSERT(connect(m_encoder, SIGNAL(stateChanged(Encoder::State)), this, SLOT(onState(Encoder::State))));
-    Q_ASSERT(connect(m_screenGrabber, SIGNAL(frameAvailable(QImage,int)), m_encoder, SLOT(encodeVideoFrame(QImage,int))));
-    Q_ASSERT(connect(m_audioGrabber, SIGNAL(frameAvailable(QByteArray)), m_encoder, SLOT(encodeAudioData(QByteArray))));
-    Q_ASSERT(connect(m_screenGrabber, SIGNAL(error(AbstractGrabber::Error)), this, SLOT(onImageGrabberError(AbstractGrabber::Error))));
-    Q_ASSERT(connect(m_audioGrabber, SIGNAL(error(AbstractGrabber::Error)), this, SLOT(onAudioGrabberError(AbstractGrabber::Error))));
+    connect(m_encoder, SIGNAL(error(Encoder::Error)), this, SLOT(onEncoderError(Encoder::Error)));
+    connect(m_encoder, SIGNAL(stateChanged(Encoder::State)), this, SLOT(onState(Encoder::State)));
+    connect(m_screenGrabber, SIGNAL(frameAvailable(QImage,int)), m_encoder, SLOT(encodeVideoFrame(QImage,int)));
+    connect(m_audioGrabber, SIGNAL(frameAvailable(QByteArray)), m_encoder, SLOT(encodeAudioData(QByteArray)));
+    connect(m_screenGrabber, SIGNAL(error(AbstractGrabber::Error)), this, SLOT(onImageGrabberError(AbstractGrabber::Error)));
+    connect(m_audioGrabber, SIGNAL(error(AbstractGrabber::Error)), this, SLOT(onAudioGrabberError(AbstractGrabber::Error)));
 
     m_screenGrabber->setLatency(40);
 
