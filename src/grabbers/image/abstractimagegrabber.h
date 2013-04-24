@@ -76,6 +76,10 @@ public:
     */
     int latency() const;
 
+    /*!
+      Returns count of grabbed frames.
+      \sa setGrabbedFrameCount()
+    */
     int grabbedFrameCount() const;
 
 public Q_SLOTS:
@@ -95,15 +99,18 @@ Q_SIGNALS:
     /*!
       This signal is emitted when a new image was captured from a device.
       \param frame an image grabbed from a device.
-      \param duration a time of image capture.
-     */
+      \param duration time of image capture.
+    */
     void frameAvailable(const QImage &frame, int duration);
 
     /*!
       This signal is emitted immediately after the latency value has been changed.
-     */
+    */
     void latencyChanged(int latency);
 
+    /*!
+      This signal is emitted immediately after the new frame has been grabbed.
+    */
     void grabbedFrameCountChanged(int count);
 
 protected:

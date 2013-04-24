@@ -93,12 +93,12 @@ public:
     ~Encoder();
 
     /*!
-      Sets the file path.
+      Sets the output file path.
       \sa filePath()
     */
     void setFilePath(const QString &filePath);
     /*!
-      Returns current file path.
+      Returns output file path.
       \sa setFilePath()
     */
     QString filePath() const;
@@ -127,7 +127,13 @@ public:
     void setAudioCodecSettings(const AudioCodecSettings &settings);
     AudioCodecSettings audioCodecSettings() const;
 
+    /*!
+      Returns count of encoded video frames.
+    */
     int encodedFrameCount() const;
+    /*!
+      Returns size of encoded audio data.
+    */
     int encodedAudioDataSize() const;
 
     /*!
@@ -149,21 +155,29 @@ public:
     QString errorString() const;
 
 public Q_SLOTS:
+    /*! Starts encoding thread. The state() is set to Encoder::ActiveState if no errors occurred. */
     void start();
+    /*! Stops encoding thread. The state() is set to Encoder::StoppedState. */
     void stop();
 
+    /*!
+      Encodes video frame. If encoding thread is in Encoder::StoppedState nothing happens.
+      \param frame an image is to be encoded.
+      \param duration time of frame display.
+    */
     void encodeVideoFrame(const QImage &frame, int duration = -1);
+    /*!
+      Encodes audio data from passed byte array. If encoding thread is in Encoder::StoppedState nothing happens.
+    */
     void encodeAudioData(const QByteArray &data);
 
 Q_SIGNALS:
+    /*! This signal is emitted when the encoder state has changed. */
     void stateChanged(Encoder::State state);
+    /*! This signal is emitted when an error occurs. */
     void error(Encoder::Error errorCode);
 
 private:
-    /*!
-      Sets the encoder's state to the given state.
-      \sa state()
-    */
     void setState(Encoder::State state);
 
     void setError(Encoder::Error errorCode, const QString &errorString);

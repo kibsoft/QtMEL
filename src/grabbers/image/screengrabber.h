@@ -56,7 +56,7 @@ class QTMELSHARED_EXPORT ScreenGrabber : public AbstractImageGrabber
     /*!
       This property holds whether to capture the cursor while grabbing.
       \sa setCaptureCursor()
-      \sa captureCursor()
+      \sa isCaptureCursor()
     */
     Q_PROPERTY(bool isCaptureCursor READ isCaptureCursor WRITE setCaptureCursor NOTIFY isCaptureCursorChanged)
 public:

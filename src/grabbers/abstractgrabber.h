@@ -100,6 +100,7 @@ Q_SIGNALS:
     /*! This signal is emitted when the grabber state has changed. */
     void stateChanged();
 
+    /*! This signal is emitted when an error occurs. */
     void error(AbstractGrabber::Error error);
 
 protected:
