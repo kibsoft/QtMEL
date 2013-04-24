@@ -6,14 +6,18 @@
 
 QT       += core gui multimedia
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
-
 TARGET = EncoderExample
 TEMPLATE = app
 
-#add QVACL library
+#add QtMEL library
 INCLUDEPATH += ../../include
-LIBS += -L../../lib -lqtmel1
+LIBS += -L../../lib
+
+CONFIG(debug, debug|release) {
+    LIBS += -lqtmeld1
+} else {
+    LIBS += -lqtmel1
+}
 
 SOURCES += main.cpp\
         mainwindow.cpp

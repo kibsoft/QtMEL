@@ -9,9 +9,14 @@ QT       += core gui multimedia
 TARGET = TestExample
 TEMPLATE = app
 
-#add QVACL library
+#add QtMEL library
 INCLUDEPATH += ../../include
-LIBS += -L../../lib -lqtmel1
+LIBS += -L../../lib
+CONFIG(debug, debug|release) {
+    LIBS += -lqtmeld1
+} else {
+    LIBS += -lqtmel1
+}
 
 SOURCES += main.cpp\
         mainwindow.cpp
