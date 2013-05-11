@@ -21,15 +21,16 @@ CONFIG(debug, debug|release) {
 }
 
 win32 {
-    LIBS += -L$$(FFMPEG_LIBRARY_PATH)
-    INCLUDEPATH += $$(FFMPEG_INCLUDE_PATH)
+    LIBS += -L$$(FFMPEG_LIBRARY_PATH) -L$$(OPENCV_LIBRARY_PATH)
+    INCLUDEPATH += $$(FFMPEG_INCLUDE_PATH) $$(OPENCV_INCLUDE_PATH)
     SOURCES += src/helpers/mousehelper_win.cpp
 }
 
 LIBS += -lavcodec-53 \
     -lavformat-53 \
     -lswscale-2 \
-    -lavutil-51
+    -lavutil-51 \
+    -llibopencv_highgui243
 
 SOURCES += src/grabbers/abstractgrabber.cpp \
     src/grabbers/image/abstractimagegrabber.cpp \
@@ -38,7 +39,8 @@ SOURCES += src/grabbers/abstractgrabber.cpp \
     src/encoder/encoder.cpp \
     src/encoder/videocodecsettings.cpp \
     src/grabbers/audio/audiograbber.cpp \
-    src/encoder/audiocodecsettings.cpp
+    src/encoder/audiocodecsettings.cpp \
+    src/grabbers/image/cameragrabber.cpp
 
 HEADERS += src/grabbers/abstractgrabber.h\
         src/qtmel_global.h \
@@ -50,4 +52,5 @@ HEADERS += src/grabbers/abstractgrabber.h\
     src/encoder/encoderglobal.h \
     src/encoder/videocodecsettings.h \
     src/grabbers/audio/audiograbber.h \
-    src/encoder/audiocodecsettings.h
+    src/encoder/audiocodecsettings.h \
+    src/grabbers/image/cameragrabber.h
