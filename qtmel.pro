@@ -11,8 +11,8 @@ OBJECTS_DIR = build/obj
 MOC_DIR = build/moc
 
 DEFINES += QTMEL_LIBRARY
-QT += multimedia
-CONFIG += debug_and_release build_all no_keywords
+CONFIG += mobility debug_and_release build_all no_keywords
+MOBILITY += multimedia
 
 CONFIG(debug, debug|release) {
     TARGET = qtmeld
@@ -22,7 +22,7 @@ CONFIG(debug, debug|release) {
 
 win32 {
     LIBS += -L$$(FFMPEG_LIBRARY_PATH) -L$$(OPENCV_LIBRARY_PATH)
-    INCLUDEPATH += $$(FFMPEG_INCLUDE_PATH) $$(OPENCV_INCLUDE_PATH)
+    INCLUDEPATH += $$(FFMPEG_INCLUDE_PATH) $$(OPENCV_INCLUDE_PATH) $$(QTMULTIMEDIAKIT_INCLUDE_PATH)
     SOURCES += src/helpers/mousehelper_win.cpp
 }
 

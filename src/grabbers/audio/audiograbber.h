@@ -26,7 +26,6 @@
 #include "../../qtmel_global.h"
 #include "../abstractgrabber.h"
 
-#include <QAudioDeviceInfo>
 #include <QAudioFormat>
 #include <QPointer>
 
@@ -40,13 +39,15 @@ public:
     explicit AudioGrabber(QObject *parent = 0);
     ~AudioGrabber();
 
-    void setDevice(const QAudioDeviceInfo &device);
-    QAudioDeviceInfo device() const;
+    void setDeviceIndex(int index);
+    int deviceIndex() const;
 
     void setFormat(const QAudioFormat &format);
     QAudioFormat format() const;
 
     int grabbedAudioDataSize() const;
+
+    static QStringList availableDeviceNames();
 
 public Q_SLOTS:
     bool start();
@@ -65,9 +66,9 @@ private:
     void cleanup();
 
     QPointer<QAudioInput> m_inputDevice;
-    QAudioDeviceInfo m_deviceInfo;
     QAudioFormat m_format;
     QIODevice *m_buffer;
+    int m_deviceIndex;
     int m_grabbedAudioDataSize;
 };
 

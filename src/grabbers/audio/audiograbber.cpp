@@ -26,6 +26,7 @@
 
 AudioGrabber::AudioGrabber(QObject *parent)
     : AbstractGrabber(parent)
+    , m_deviceIndex(-1)
 {
     init();
 }
@@ -36,14 +37,16 @@ AudioGrabber::~AudioGrabber()
 }
 
 
-void AudioGrabber::setDevice(const QAudioDeviceInfo &device)
+void AudioGrabber::setDeviceIndex(int index)
 {
-    m_deviceInfo = device;
+    if (m_deviceIndex != index) {
+        m_deviceIndex = index;
+    }
 }
 
-QAudioDeviceInfo AudioGrabber::device() const
+int AudioGrabber::deviceIndex() const
 {
-    return m_deviceInfo;
+    return m_deviceIndex;
 }
 
 void AudioGrabber::setFormat(const QAudioFormat &format)
@@ -61,20 +64,35 @@ int AudioGrabber::grabbedAudioDataSize() const
     return m_grabbedAudioDataSize;
 }
 
+QStringList AudioGrabber::availableDeviceNames()
+{
+    QAudioDeviceInfo device;
+    QList<QAudioDeviceInfo> devices = QAudioDeviceInfo::availableDevices(QAudio::AudioInput);
+    QStringList names;
+
+    Q_FOREACH (device, devices) {
+        names.append(device.deviceName());
+    }
+
+    return names;
+}
+
 bool AudioGrabber::start()
 {
     if (state() == AbstractGrabber::StoppedState) {
-        if (m_deviceInfo.isNull()) {
+        if (m_deviceIndex < 0 || m_deviceIndex > availableDeviceNames().count()) {
             setError(AbstractGrabber::DeviceNotFoundError, tr("Device to be grabbed was not found."));
             return false;
         }
 
-        if (!m_deviceInfo.isFormatSupported(m_format)) {
+        QAudioDeviceInfo device = QAudioDeviceInfo::availableDevices(QAudio::AudioInput).at(m_deviceIndex);
+
+        if (!device.isFormatSupported(m_format)) {
             setError(AbstractGrabber::InvalidFormatError, tr("The format is not supported by the device."));
             return false;
         }
 
-        m_inputDevice = new QAudioInput(m_deviceInfo, m_format);
+        m_inputDevice = new QAudioInput(device, m_format);
         m_buffer = m_inputDevice->start();
         if (m_inputDevice->error() == QAudio::OpenError) {
             setError(AbstractGrabber::DeviceOpenError, tr("Unable to open device."));
