@@ -98,7 +98,7 @@ public Q_SLOTS:
 
 Q_SIGNALS:
     /*! This signal is emitted when the grabber state has changed. */
-    void stateChanged();
+    void stateChanged(AbstractGrabber::State state);
 
     /*! This signal is emitted when an error occurs. */
     void error(AbstractGrabber::Error error);

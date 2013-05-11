@@ -23,6 +23,14 @@
 #include "abstractimagegrabber.h"
 #include <QtConcurrentRun>
 #include <QMutexLocker>
+#include <QEventLoop>
+#include <QTimer>
+
+#ifdef Q_WS_WIN
+#include <windows.h>
+#else
+#include <QTime>
+#endif
 
 AbstractImageGrabber::AbstractImageGrabber(QObject *parent)
     : AbstractGrabber(parent)
@@ -97,6 +105,48 @@ void AbstractImageGrabber::startGrabbing()
 
     QtConcurrent::run(this, &AbstractImageGrabber::grab);
     setState(AbstractGrabber::ActiveState);
+}
+
+void AbstractImageGrabber::grab()
+{
+    QImage frame;//this stores grabbed image
+    QEventLoop latencyLoop;
+#ifdef Q_WS_WIN
+    int start = 0;
+#else
+    QTime time;
+#endif
+    Q_FOREVER {
+#ifdef Q_WS_WIN
+        start = GetTickCount();
+#else
+        time.start();
+#endif
+
+        //check if we must finish grabbing
+        if (isStopRequest() || isPauseRequest())
+            break;
+
+        frame = captureFrame();
+
+        //wait for set by user milliseconds
+        QTimer::singleShot(latency(), &latencyLoop, SLOT(quit()));
+        latencyLoop.exec();
+
+        setGrabbedFrameCount(grabbedFrameCount() + 1);
+
+#ifdef Q_WS_WIN
+        Q_EMIT frameAvailable(frame, GetTickCount() - start);
+#else
+        Q_EMIT frameAvailable(frame, time.restart());
+#endif
+    }
+
+    setState(isStopRequest() ? AbstractGrabber::StoppedState : AbstractGrabber::SuspendedState);
+
+    //reset stop and pause flags
+    setStopRequest(false);
+    setPauseRequest(false);
 }
 
 void AbstractImageGrabber::setGrabbedFrameCount(int count)

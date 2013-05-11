@@ -88,7 +88,7 @@ Q_SIGNALS:
     void isCaptureCursorChanged(bool capture);
 
 private:
-    void grab();
+    QImage captureFrame();
 
     QRect m_captureRect;
     bool m_isCaptureCursor;

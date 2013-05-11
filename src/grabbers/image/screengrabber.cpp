@@ -88,54 +88,27 @@ bool ScreenGrabber::start()
     return AbstractImageGrabber::start();
 }
 
-void ScreenGrabber::grab()
+QImage ScreenGrabber::captureFrame()
 {
-    QElapsedTimer durationTimer;
-    durationTimer.start();
-
     int rectLeft = captureRect().left();
     int rectTop = captureRect().top();
     int rectWidth = captureRect().width();
     int rectHeight = captureRect().height();
 
-    QImage frame;//this stores grabbed image
-    QEventLoop latencyLoop;
+    QImage frame = QPixmap::grabWindow(qApp->desktop()->winId(), rectLeft, rectTop,
+                                       rectWidth, rectHeight).toImage();//convert to QImage because we can't use QPixmap in the thread other than GUI
 
-    Q_FOREVER {
-        //check if we must finish grabbing
-        if (isStopRequest() || isPauseRequest())
-            break;
+    //draw cursor if needed
+    if (isCaptureCursor()) {
+        int xDiff = QCursor::pos().x() - rectLeft;
+        int yDiff = QCursor::pos().y() - rectTop;
 
-        //restart the timer in order to get right duration of the image capture
-        durationTimer.restart();
-
-        frame = QPixmap::grabWindow(qApp->desktop()->winId(), rectLeft, rectTop,
-                                    rectWidth, rectHeight).toImage();//convert to QImage because we can't use QPixmap in the thread other than GUI
-
-        //draw cursor if needed
-        if (isCaptureCursor()) {
-            int xDiff = QCursor::pos().x() - rectLeft;
-            int yDiff = QCursor::pos().y() - rectTop;
-
-            if (xDiff > 0 && xDiff < rectWidth
-                    && yDiff > 0 && yDiff < rectHeight) {
-                QPainter painter(&frame);
-                painter.drawImage(QCursor::pos(), MouseHelper::cursorPixmap().toImage());
-            }
+        if (xDiff > 0 && xDiff < rectWidth
+                && yDiff > 0 && yDiff < rectHeight) {
+            QPainter painter(&frame);
+            painter.drawImage(QCursor::pos(), MouseHelper::cursorPixmap().toImage());
         }
-
-        //wait for set by user milliseconds
-        QTimer::singleShot(latency(), &latencyLoop, SLOT(quit()));
-        latencyLoop.exec();
-
-        Q_EMIT frameAvailable(frame, durationTimer.elapsed());
-
-        setGrabbedFrameCount(grabbedFrameCount() + 1);
     }
 
-    setState(isStopRequest() ? AbstractGrabber::StoppedState : AbstractGrabber::SuspendedState);
-
-    //reset stop and pause flags
-    setStopRequest(false);
-    setPauseRequest(false);
+    return frame;
 }

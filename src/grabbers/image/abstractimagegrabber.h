@@ -122,7 +122,8 @@ protected:
 
     //! A pure virtual function.
     /*! Captures images from a device. */
-    virtual void grab() = 0;
+    virtual void grab();
+    virtual QImage captureFrame() = 0;
 
     void setGrabbedFrameCount(int count);
 

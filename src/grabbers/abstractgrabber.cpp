@@ -22,12 +22,15 @@
 
 #include "abstractgrabber.h"
 
+#include <QMetaType>
 
 AbstractGrabber::AbstractGrabber(QObject *parent)
     : QObject(parent)
     , m_state(AbstractGrabber::StoppedState)
     , m_error(AbstractGrabber::NoError)
 {
+    qRegisterMetaType<AbstractGrabber::State>("AbstractGrabber::State");
+    qRegisterMetaType<AbstractGrabber::Error>("AbstractGrabber::Error");
 }
 
 AbstractGrabber::~AbstractGrabber()
@@ -54,7 +57,7 @@ void AbstractGrabber::setState(AbstractGrabber::State state)
     if (m_state != state) {
         m_state = state;
 
-        Q_EMIT stateChanged();
+        Q_EMIT stateChanged(m_state);
     }
 }
 
