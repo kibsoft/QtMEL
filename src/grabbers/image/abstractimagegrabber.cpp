@@ -25,12 +25,7 @@
 #include <QMutexLocker>
 #include <QEventLoop>
 #include <QTimer>
-
-#ifdef Q_WS_WIN
-#include <windows.h>
-#else
-#include <QTime>
-#endif
+#include <QElapsedTimer>
 
 AbstractImageGrabber::AbstractImageGrabber(QObject *parent)
     : AbstractGrabber(parent)
@@ -111,22 +106,10 @@ void AbstractImageGrabber::grab()
 {
     QImage frame;//this stores grabbed image
     QEventLoop latencyLoop;
-#ifdef Q_WS_WIN
-    int start = 0;
-#else
-    QTime time;
-#endif
+    QElapsedTimer timer;
+    timer.start();
+
     Q_FOREVER {
-#ifdef Q_WS_WIN
-        start = GetTickCount();
-#else
-        time.start();
-#endif
-
-        //check if we must finish grabbing
-        if (isStopRequest() || isPauseRequest())
-            break;
-
         frame = captureFrame();
 
         //wait for set by user milliseconds
@@ -135,11 +118,11 @@ void AbstractImageGrabber::grab()
 
         setGrabbedFrameCount(grabbedFrameCount() + 1);
 
-#ifdef Q_WS_WIN
-        Q_EMIT frameAvailable(frame, GetTickCount() - start);
-#else
-        Q_EMIT frameAvailable(frame, time.restart());
-#endif
+        Q_EMIT frameAvailable(frame, timer.elapsed());
+
+        //check if we must finish grabbing
+        if (isStopRequest() || isPauseRequest())
+            break;
     }
 
     setState(isStopRequest() ? AbstractGrabber::StoppedState : AbstractGrabber::SuspendedState);
