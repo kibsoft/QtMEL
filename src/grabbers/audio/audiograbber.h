@@ -26,26 +26,65 @@
 #include "../../qtmel_global.h"
 #include "../abstractgrabber.h"
 
-#include <QAudioFormat>
-#include <QPointer>
+#include <QStringList>
 
 class QAudioInput;
+class RtAudio;
+
+typedef unsigned int RtAudioStreamStatus;
+
+int handleData(void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames,
+                double streamTime, RtAudioStreamStatus status, void *data);
+
+class AudioFormat {
+public:
+    enum Format {
+        SignedInt8 = 0x1,
+        SignedInt16 = 0x2,
+        SignedInt24 = 0x4,
+        SignedInt32 = 0x8,
+        Float32 = 0x10,
+        Float64 = 0x20
+    };
+
+    AudioFormat();
+    ~AudioFormat();
+
+    void setSampleRate(int rate);
+    int sampleRate() const;
+
+    void setFormat(AudioFormat::Format format);
+    AudioFormat::Format format() const;
+
+    void setChannelCount(int count);
+    int channelCount() const;
+
+private:
+    int m_sampleRate;
+    AudioFormat::Format m_format;
+    int m_channelCount;
+};
 
 class QTMELSHARED_EXPORT AudioGrabber : public AbstractGrabber
 {
     Q_OBJECT
 
 public:
+    friend int handleData(void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames,
+                          double streamTime, RtAudioStreamStatus status, void *data);
+
     explicit AudioGrabber(QObject *parent = 0);
     ~AudioGrabber();
 
     void setDeviceIndex(int index);
     int deviceIndex() const;
 
-    void setFormat(const QAudioFormat &format);
-    QAudioFormat format() const;
+    void setFormat(const AudioFormat &format);
+    AudioFormat format() const;
 
     int grabbedAudioDataSize() const;
+
+    int elapsedMilliseconds() const;
 
     static QStringList availableDeviceNames();
 
@@ -56,20 +95,17 @@ public Q_SLOTS:
     void resume();
 
 Q_SIGNALS:
-    void frameAvailable(const QByteArray &frame);
-
-private Q_SLOTS:
-    void onReadyRead();
+    void dataAvailable(const QByteArray &data);
 
 private:
     void init();
     void cleanup();
+    void onDataAvailable(const QByteArray &data);
 
-    QPointer<QAudioInput> m_inputDevice;
-    QAudioFormat m_format;
-    QIODevice *m_buffer;
+    AudioFormat m_format;
     int m_deviceIndex;
     int m_grabbedAudioDataSize;
+    RtAudio *m_rtAudio;
 };
 
 #endif // AUDIOGRABBER_H

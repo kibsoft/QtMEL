@@ -21,8 +21,67 @@
 ****************************************************************************/
 
 #include "audiograbber.h"
+#include "../../3rdparty/RtAudio.h"
 
-#include <QAudioInput>
+int handleData(void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames,
+               double streamTime, RtAudioStreamStatus status, void *data)
+{
+    Q_UNUSED(outputBuffer)
+    Q_UNUSED(streamTime)
+    Q_UNUSED(status)
+
+    AudioGrabber *grabber = static_cast<AudioGrabber *>(data);
+
+    int bytesReady = nBufferFrames * grabber->format().channelCount() * 2;
+    QByteArray array;
+    array.resize(bytesReady);
+    memcpy(array.data(), inputBuffer, bytesReady);
+
+    grabber->onDataAvailable(array);
+
+    return 0;
+}
+
+AudioFormat::AudioFormat()
+    : m_sampleRate(-1)
+    , m_format(AudioFormat::SignedInt16)
+    , m_channelCount(-1)
+{
+}
+
+AudioFormat::~AudioFormat()
+{
+}
+
+void AudioFormat::setSampleRate(int rate)
+{
+    m_sampleRate = rate;
+}
+
+int AudioFormat::sampleRate() const
+{
+    return m_sampleRate;
+}
+
+void AudioFormat::setFormat(AudioFormat::Format format)
+{
+    m_format = format;
+}
+
+AudioFormat::Format AudioFormat::format() const
+{
+    return m_format;
+}
+
+void AudioFormat::setChannelCount(int count)
+{
+    m_channelCount = count;
+}
+
+int AudioFormat::channelCount() const
+{
+    return m_channelCount;
+}
 
 AudioGrabber::AudioGrabber(QObject *parent)
     : AbstractGrabber(parent)
@@ -49,12 +108,12 @@ int AudioGrabber::deviceIndex() const
     return m_deviceIndex;
 }
 
-void AudioGrabber::setFormat(const QAudioFormat &format)
+void AudioGrabber::setFormat(const AudioFormat &format)
 {
     m_format = format;
 }
 
-QAudioFormat AudioGrabber::format() const
+AudioFormat AudioGrabber::format() const
 {
     return m_format;
 }
@@ -64,14 +123,27 @@ int AudioGrabber::grabbedAudioDataSize() const
     return m_grabbedAudioDataSize;
 }
 
+int AudioGrabber::elapsedMilliseconds() const
+{ 
+    if (!m_rtAudio || !m_rtAudio->isStreamRunning())
+        return -1;
+
+    return m_rtAudio->getStreamTime() * 1000;
+}
+
 QStringList AudioGrabber::availableDeviceNames()
 {
-    QAudioDeviceInfo device;
-    QList<QAudioDeviceInfo> devices = QAudioDeviceInfo::availableDevices(QAudio::AudioInput);
+    RtAudio rtAudio;
+    int deviceCount = rtAudio.getDeviceCount();
+    RtAudio::DeviceInfo info;
     QStringList names;
 
-    Q_FOREACH (device, devices) {
-        names.append(device.deviceName());
+    for (int i = 0; i < deviceCount; ++i) {
+        info = rtAudio.getDeviceInfo(i);
+
+        if (info.inputChannels > 0) {
+            names.append(QString::fromStdString(info.name));
+        }
     }
 
     return names;
@@ -80,26 +152,26 @@ QStringList AudioGrabber::availableDeviceNames()
 bool AudioGrabber::start()
 {
     if (state() == AbstractGrabber::StoppedState) {
-        if (m_deviceIndex < 0 || m_deviceIndex > availableDeviceNames().count()) {
+        if (deviceIndex() < 0 || deviceIndex() > availableDeviceNames().count()) {
             setError(AbstractGrabber::DeviceNotFoundError, tr("Device to be grabbed was not found."));
             return false;
         }
 
-        QAudioDeviceInfo device = QAudioDeviceInfo::availableDevices(QAudio::AudioInput).at(m_deviceIndex);
+        m_rtAudio = new RtAudio;
 
-        if (!device.isFormatSupported(m_format)) {
-            setError(AbstractGrabber::InvalidFormatError, tr("The format is not supported by the device."));
-            return false;
-        }
+        unsigned int bufferFrames = 1024;
+        RtAudio::StreamParameters params;
+        params.deviceId = deviceIndex();
+        params.nChannels = format().channelCount();
+        params.firstChannel = 0;
 
-        m_inputDevice = new QAudioInput(device, m_format);
-        m_buffer = m_inputDevice->start();
-        if (m_inputDevice->error() == QAudio::OpenError) {
+        try {
+            m_rtAudio->openStream(NULL, &params, format().format(), format().sampleRate(), &bufferFrames, &handleData, this);
+            m_rtAudio->startStream();
+        } catch (RtError&) {
             setError(AbstractGrabber::DeviceOpenError, tr("Unable to open device."));
             return false;
         }
-
-        connect(m_buffer, SIGNAL(readyRead()), this, SLOT(onReadyRead()));
 
         setState(AbstractGrabber::ActiveState);
 
@@ -112,7 +184,7 @@ bool AudioGrabber::start()
 void AudioGrabber::stop()
 {
     if (state() != AbstractGrabber::StoppedState) {
-        m_inputDevice->stop();
+        m_rtAudio->closeStream();
         cleanup();
 
         setState(AbstractGrabber::StoppedState);
@@ -122,7 +194,7 @@ void AudioGrabber::stop()
 void AudioGrabber::suspend()
 {
     if (state() == AbstractGrabber::ActiveState) {
-        m_inputDevice->suspend();
+        m_rtAudio->stopStream();
 
         setState(AbstractGrabber::SuspendedState);
     }
@@ -131,33 +203,32 @@ void AudioGrabber::suspend()
 void AudioGrabber::resume()
 {
     if (state() == AbstractGrabber::SuspendedState) {
-        m_inputDevice->resume();
+        m_rtAudio->startStream();
 
         setState(AbstractGrabber::ActiveState);
     }
 }
 
-
-void AudioGrabber::onReadyRead()
-{
-    if (m_buffer) {
-        QByteArray data = m_buffer->readAll();
-        m_grabbedAudioDataSize += data.size();
-
-        Q_EMIT frameAvailable(data);
-    }
-}
-
 void AudioGrabber::init()
 {
-    m_buffer = 0;
     m_grabbedAudioDataSize = 0;
 }
 
 void AudioGrabber::cleanup()
 {
-    if (m_inputDevice)
-        delete m_inputDevice;
+    if (m_rtAudio) {
+        delete m_rtAudio;
+        m_rtAudio = 0;
+    }
 
     init();
+}
+
+void AudioGrabber::onDataAvailable(const QByteArray &data)
+{
+    if (data.size() > 0) {
+        m_grabbedAudioDataSize += data.size();
+
+        Q_EMIT dataAvailable(data);
+    }
 }

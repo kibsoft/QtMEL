@@ -21,8 +21,9 @@ CONFIG(debug, debug|release) {
 }
 
 win32 {
-    LIBS += -L$$(FFMPEG_LIBRARY_PATH) -L$$(OPENCV_LIBRARY_PATH)
-    INCLUDEPATH += $$(FFMPEG_INCLUDE_PATH) $$(OPENCV_INCLUDE_PATH) $$(QTMULTIMEDIAKIT_INCLUDE_PATH)
+    DEFINES += __WINDOWS_DS__
+    LIBS += -L$$(FFMPEG_LIBRARY_PATH) -L$$(OPENCV_LIBRARY_PATH) -ldsound -lole32 -lwinmm
+    INCLUDEPATH += $$(FFMPEG_INCLUDE_PATH) $$(OPENCV_INCLUDE_PATH) $$(QTMULTIMEDIAKIT_INCLUDE_PATH) ./include/rtaudio/
     SOURCES += src/helpers/mousehelper_win.cpp
 }
 
@@ -40,7 +41,8 @@ SOURCES += src/grabbers/abstractgrabber.cpp \
     src/encoder/videocodecsettings.cpp \
     src/grabbers/audio/audiograbber.cpp \
     src/encoder/audiocodecsettings.cpp \
-    src/grabbers/image/cameragrabber.cpp
+    src/grabbers/image/cameragrabber.cpp \
+    src/3rdparty/RtAudio.cpp
 
 HEADERS += src/grabbers/abstractgrabber.h\
         src/qtmel_global.h \
@@ -53,4 +55,6 @@ HEADERS += src/grabbers/abstractgrabber.h\
     src/encoder/videocodecsettings.h \
     src/grabbers/audio/audiograbber.h \
     src/encoder/audiocodecsettings.h \
-    src/grabbers/image/cameragrabber.h
+    src/grabbers/image/cameragrabber.h \
+    src/3rdparty/RtError.h \
+    src/3rdparty/RtAudio.h
