@@ -84,7 +84,7 @@ public Q_SLOTS:
     void start();
     void stop();
 
-    void encodeVideoFrame(const QImage &frame, int duration);
+    void encodeVideoFrame(const QImage &frame, int pts);
     void encodeAudioData(const QByteArray &data);
 
 private Q_SLOTS:
@@ -123,7 +123,6 @@ private:
     int m_fixedFrameRate;
     Encoder::EncodingMode m_encodingMode;
 
-    int m_prevFrameDuration;
     int m_pts;
     int m_encodedFrameCount;
     int m_encodedAudioDataSize;
@@ -363,19 +362,15 @@ void EncoderPrivate::stop()
     cleanup();
 }
 
-void EncoderPrivate::encodeVideoFrame(const QImage &frame, int duration)
+void EncoderPrivate::encodeVideoFrame(const QImage &frame, int pts)
 {
-    if (duration) {//if duration is -1(fixed fps) or greater than 0
+    if (pts) {//if pts is -1(fixed fps) or greater than 0
         if (convertImage(frame)) {
             int outSize = avcodec_encode_video(m_videoCodecContext, m_videoBuffer, m_videoBufferSize, m_videoPicture);
 
             if (outSize > 0) {
-                if (!isFixedFrameRate()) {
-                    m_pts += m_prevFrameDuration;
-                    m_prevFrameDuration = duration;
-
-                    m_videoCodecContext->coded_frame->pts = m_pts;
-                }
+                if (!isFixedFrameRate())
+                    m_videoCodecContext->coded_frame->pts = pts;
 
                 AVPacket pkt;
                 av_init_packet(&pkt);
@@ -388,7 +383,7 @@ void EncoderPrivate::encodeVideoFrame(const QImage &frame, int duration)
                 pkt.stream_index = m_videoStream->index;
                 pkt.data = m_videoBuffer;
                 pkt.size = outSize;
-                av_interleaved_write_frame(m_formatContext, &pkt);
+                av_write_frame(m_formatContext, &pkt);
 
                 QMutexLocker locker(&m_encodedFrameCountMutex);
                 ++m_encodedFrameCount;
@@ -436,7 +431,7 @@ void EncoderPrivate::encodeAudioData(const QByteArray &data)
             pkt.stream_index = m_audioStream->index;
             pkt.data = m_audioOutputBuffer;
             pkt.size = outSize;
-            av_interleaved_write_frame(m_formatContext, &pkt);
+            av_write_frame(m_formatContext, &pkt);
 
             QMutexLocker locker(&m_encodedAudioDataSizeMutex);
             m_encodedAudioDataSize += m_audioSampleSize;
@@ -464,7 +459,6 @@ void EncoderPrivate::initData()
 
 void EncoderPrivate::initFfmpegStuff()
 {
-    m_prevFrameDuration = 0;
     m_pts = 0;
     m_encodedFrameCount = 0;
     m_encodedAudioDataSize = 0;
@@ -494,11 +488,21 @@ void EncoderPrivate::initFfmpegStuff()
 void EncoderPrivate::cleanup()
 {
     //close codecs
-    if (m_videoCodecContext != NULL)
+    if (m_videoCodecContext != NULL) {
         avcodec_close(m_videoCodecContext);
+        av_free(m_videoCodecContext);
+    }
 
-    if (m_audioCodecContext != NULL)
+    if (m_audioCodecContext != NULL) {
         avcodec_close(m_audioCodecContext);
+        av_free(m_audioCodecContext);
+    }
+
+    if (m_videoStream != NULL)
+        av_free(m_videoStream);
+
+    if (m_audioStream != NULL)
+        av_free(m_audioStream);
 
     //remove subsidiary objects
     if (m_imageConvertContext != NULL)
@@ -517,14 +521,7 @@ void EncoderPrivate::cleanup()
         av_free(m_videoPicture);
 
     if (m_formatContext != NULL) {
-        //remove ffmpeg objects
-        for (unsigned i = 0; i < m_formatContext->nb_streams; i++) {
-            av_free(&m_formatContext->streams[i]->codec);
-            av_free(&m_formatContext->streams[i]);
-        }
-
         avio_close(m_formatContext->pb);
-
         av_free(m_formatContext);
     }
 
@@ -915,13 +912,13 @@ void Encoder::stop()
         QMetaObject::invokeMethod(d_ptr, "stop", Qt::QueuedConnection);
 }
 
-void Encoder::encodeVideoFrame(const QImage &frame, int duration)
+void Encoder::encodeVideoFrame(const QImage &frame, int pts)
 {
     if (state() == Encoder::ActiveState
             && (encodingMode() == Encoder::VideoMode || encodingMode() == Encoder::VideoAudioMode)) {
         QMetaObject::invokeMethod(d_ptr, "encodeVideoFrame", Qt::QueuedConnection,
                                   Q_ARG(QImage, frame),
-                                  Q_ARG(int, duration));
+                                  Q_ARG(int, pts));
     }
 }
 

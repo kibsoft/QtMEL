@@ -163,9 +163,9 @@ public Q_SLOTS:
     /*!
       Encodes video frame. If encoding thread is in Encoder::StoppedState nothing happens.
       \param frame an image is to be encoded.
-      \param duration time of frame display.
+      \param pts presentation time stamp.
     */
-    void encodeVideoFrame(const QImage &frame, int duration = -1);
+    void encodeVideoFrame(const QImage &frame, int pts = -1);
     /*!
       Encodes audio data from passed byte array. If encoding thread is in Encoder::StoppedState nothing happens.
     */
