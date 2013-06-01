@@ -350,11 +350,13 @@ void EncoderPrivate::start()
 
     avformat_write_header(m_formatContext, 0);
 
+    Q_EMIT q_ptr->started();
     q_ptr->setState(Encoder::ActiveState);
 }
 
 void EncoderPrivate::stop()
 {
+    Q_EMIT q_ptr->stopped();
     q_ptr->setState(Encoder::StoppedState);
 
     av_write_trailer(m_formatContext);

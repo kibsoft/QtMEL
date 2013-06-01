@@ -21,6 +21,8 @@
 ****************************************************************************/
 
 #include "abstractimagegrabber.h"
+#include "../../helpers/audiotimer.h"
+
 #include <QtConcurrentRun>
 #include <QMutexLocker>
 #include <QEventLoop>
@@ -33,6 +35,7 @@ AbstractImageGrabber::AbstractImageGrabber(QObject *parent)
     , m_grabbedFrameCount(0)
     , m_isStopRequest(false)
     , m_isPauseRequest(false)
+    , m_timer(0)
 {
 }
 
@@ -107,22 +110,32 @@ void AbstractImageGrabber::grab()
     QImage frame;//this stores grabbed image
     QEventLoop latencyLoop;
     QElapsedTimer timer;
-    timer.start();
+
+    if (!m_timer) {
+        timer.start();
+    }
+
+    int prevPts = -1;
+    int pts = -1;
 
     Q_FOREVER {
         frame = captureFrame();
 
-        //wait for set by user milliseconds
-        QTimer::singleShot(latency(), &latencyLoop, SLOT(quit()));
-        latencyLoop.exec();
-
         setGrabbedFrameCount(grabbedFrameCount() + 1);
 
-        Q_EMIT frameAvailable(frame, timer.elapsed());
+        pts = m_timer ? m_timer->elapsed() : timer.elapsed();
+        if (prevPts != pts) {
+            prevPts = pts;
+            Q_EMIT frameAvailable(frame, pts);
+        }
 
         //check if we must finish grabbing
         if (isStopRequest() || isPauseRequest())
             break;
+
+        //wait for set by user milliseconds
+        QTimer::singleShot(latency(), &latencyLoop, SLOT(quit()));
+        latencyLoop.exec();
     }
 
     setState(isStopRequest() ? AbstractGrabber::StoppedState : AbstractGrabber::SuspendedState);
@@ -172,4 +185,9 @@ bool AbstractImageGrabber::isPauseRequest() const
     QMutexLocker locker(&m_stopPauseMutex);
 
     return m_isPauseRequest;
+}
+
+void AbstractImageGrabber::setTimer(AudioTimer *timer)
+{
+    m_timer = timer;
 }

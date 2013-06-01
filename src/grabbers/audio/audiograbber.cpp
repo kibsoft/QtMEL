@@ -159,7 +159,7 @@ bool AudioGrabber::start()
 
         m_rtAudio = new RtAudio;
 
-        unsigned int bufferFrames = 1024;
+        unsigned int bufferFrames = 2048;
         RtAudio::StreamParameters params;
         params.deviceId = deviceIndex();
         params.nChannels = format().channelCount();

@@ -28,6 +28,9 @@
 #include <QImage>
 #include <QMutex>
 
+class AudioTimer;
+class Recorder;
+
 //! The AbstractImageGrabber class is the base of all image grabbers.
 /*!
   The class defines the functions for the functionality shared by image grabbers. By inheriting this class, you can create custom grabbers that grab images from any devices.
@@ -55,6 +58,8 @@ class QTMELSHARED_EXPORT AbstractImageGrabber : public AbstractGrabber
     Q_PROPERTY(int latency READ latency WRITE setLatency NOTIFY latencyChanged)
 
     Q_PROPERTY(QString grabbedFrameCount READ grabbedFrameCount NOTIFY grabbedFrameCountChanged)
+
+    friend class Recorder;
 
 public:
     /*! Constructs an abstract image grabber with the given parent. */
@@ -152,6 +157,8 @@ protected:
     bool isPauseRequest() const;
 
 private:
+    void setTimer(AudioTimer *timer);
+
     int m_latency;
     int m_grabbedFrameCount;
     bool m_isStopRequest;
@@ -159,6 +166,7 @@ private:
     mutable QMutex m_latencyMutex;
     mutable QMutex m_grabbedFrameCountMutex;
     mutable QMutex m_stopPauseMutex;
+    AudioTimer *m_timer;
 };
 
 #endif // ABSTRACTIMAGEGRABBER_H

@@ -172,6 +172,8 @@ public Q_SLOTS:
     void encodeAudioData(const QByteArray &data);
 
 Q_SIGNALS:
+    void started();
+    void stopped();
     /*! This signal is emitted when the encoder state has changed. */
     void stateChanged(Encoder::State state);
     /*! This signal is emitted when an error occurs. */

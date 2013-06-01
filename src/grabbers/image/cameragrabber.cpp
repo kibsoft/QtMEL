@@ -102,6 +102,8 @@ bool CameraGrabber::start()
     QTimer::singleShot(m_initTime, &initLoop, SLOT(quit()));
     initLoop.exec();
 
+    Q_EMIT initialized();
+
     return AbstractImageGrabber::start();
 }
 

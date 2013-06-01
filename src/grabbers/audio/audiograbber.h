@@ -36,7 +36,7 @@ typedef unsigned int RtAudioStreamStatus;
 int handleData(void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames,
                 double streamTime, RtAudioStreamStatus status, void *data);
 
-class AudioFormat {
+class QTMELSHARED_EXPORT AudioFormat {
 public:
     enum Format {
         SignedInt8 = 0x1,

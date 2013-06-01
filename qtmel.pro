@@ -42,7 +42,9 @@ SOURCES += src/grabbers/abstractgrabber.cpp \
     src/grabbers/audio/audiograbber.cpp \
     src/encoder/audiocodecsettings.cpp \
     src/grabbers/image/cameragrabber.cpp \
-    src/3rdparty/RtAudio.cpp
+    src/3rdparty/RtAudio.cpp \
+    src/helpers/recorder.cpp \
+    src/helpers/audiotimer.cpp
 
 HEADERS += src/grabbers/abstractgrabber.h\
         src/qtmel_global.h \
@@ -57,4 +59,6 @@ HEADERS += src/grabbers/abstractgrabber.h\
     src/encoder/audiocodecsettings.h \
     src/grabbers/image/cameragrabber.h \
     src/3rdparty/RtError.h \
-    src/3rdparty/RtAudio.h
+    src/3rdparty/RtAudio.h \
+    src/helpers/recorder.h \
+    src/helpers/audiotimer.h

@@ -51,6 +51,9 @@ public:
 public Q_SLOTS:
     bool start();
 
+Q_SIGNALS:
+    void initialized();
+
 private Q_SLOTS:
     void onStateChanged(AbstractGrabber::State state);
 
