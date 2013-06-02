@@ -159,6 +159,7 @@ protected:
 private:
     void setTimer(AudioTimer *timer);
 
+    int m_prevPts;
     int m_latency;
     int m_grabbedFrameCount;
     bool m_isStopRequest;

@@ -31,6 +31,7 @@
 
 AbstractImageGrabber::AbstractImageGrabber(QObject *parent)
     : AbstractGrabber(parent)
+    , m_prevPts(-1)
     , m_latency(0)
     , m_grabbedFrameCount(0)
     , m_isStopRequest(false)
@@ -115,7 +116,7 @@ void AbstractImageGrabber::grab()
         timer.start();
     }
 
-    int prevPts = -1;
+    m_prevPts = -1;
     int pts = -1;
 
     Q_FOREVER {
@@ -124,8 +125,8 @@ void AbstractImageGrabber::grab()
         setGrabbedFrameCount(grabbedFrameCount() + 1);
 
         pts = m_timer ? m_timer->elapsed() : timer.elapsed();
-        if (prevPts != pts) {
-            prevPts = pts;
+        if (m_prevPts != pts) {
+            m_prevPts = pts;
             Q_EMIT frameAvailable(frame, pts);
         }
 
@@ -139,6 +140,9 @@ void AbstractImageGrabber::grab()
     }
 
     setState(isStopRequest() ? AbstractGrabber::StoppedState : AbstractGrabber::SuspendedState);
+
+    if (isStopRequest())
+        m_prevPts = -1;
 
     //reset stop and pause flags
     setStopRequest(false);
