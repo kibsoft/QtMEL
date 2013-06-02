@@ -90,25 +90,43 @@ bool ScreenGrabber::start()
 
 QImage ScreenGrabber::captureFrame()
 {
-    int rectLeft = captureRect().left();
-    int rectTop = captureRect().top();
-    int rectWidth = captureRect().width();
-    int rectHeight = captureRect().height();
-
-    QImage frame = QPixmap::grabWindow(qApp->desktop()->winId(), rectLeft, rectTop,
-                                       rectWidth, rectHeight).toImage();//convert to QImage because we can't use QPixmap in the thread other than GUI
+    QImage frame;
+    QMetaObject::invokeMethod(this, "currentFrame", Qt::BlockingQueuedConnection, Q_RETURN_ARG(QImage, frame));
 
     //draw cursor if needed
     if (isCaptureCursor()) {
+        int rectLeft = captureRect().left();
+        int rectTop = captureRect().top();
+        int rectWidth = captureRect().width();
+        int rectHeight = captureRect().height();
+
         int xDiff = QCursor::pos().x() - rectLeft;
         int yDiff = QCursor::pos().y() - rectTop;
 
         if (xDiff > 0 && xDiff < rectWidth
                 && yDiff > 0 && yDiff < rectHeight) {
-            QPainter painter(&frame);
-            painter.drawImage(QCursor::pos(), MouseHelper::cursorPixmap().toImage());
+            QImage cursor;
+            QMetaObject::invokeMethod(this, "currentCursor", Qt::BlockingQueuedConnection, Q_RETURN_ARG(QImage, cursor));
+            if (!cursor.isNull()) {
+                QPainter painter(&frame);
+                painter.drawImage(QCursor::pos(), cursor);
+            }
         }
     }
 
     return frame;
+}
+
+
+QImage ScreenGrabber::currentCursor()
+{
+    return MouseHelper::cursorPixmap().toImage();
+}
+
+QImage ScreenGrabber::currentFrame()
+{
+    QPixmap pixmap = QPixmap::grabWindow(qApp->desktop()->winId(), captureRect().left(), captureRect().top(),
+                                         captureRect().width(), captureRect().height());
+
+    return pixmap.toImage();
 }

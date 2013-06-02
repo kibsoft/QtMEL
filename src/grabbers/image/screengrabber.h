@@ -87,6 +87,10 @@ Q_SIGNALS:
     void captureRectChanged(const QRect &rect);
     void isCaptureCursorChanged(bool capture);
 
+private Q_SLOTS:
+    QImage currentCursor();
+    QImage currentFrame();
+
 private:
     QImage captureFrame();
 
