@@ -98,6 +98,9 @@ void MouseHelperPrivate::stopGrabbing()
 
 QPixmap MouseHelperPrivate::cursorPixmap()
 {
+    static HCURSOR cursor = NULL;
+    static QPixmap cachedCursor = QPixmap();
+
     QPixmap cursorPixmap;
     HICON icon;
     CURSORINFO cursorInfo;
@@ -106,15 +109,17 @@ QPixmap MouseHelperPrivate::cursorPixmap()
 
     if(GetCursorInfo(&cursorInfo))
     {
+        if (cursor == cursorInfo.hCursor)
+            return cachedCursor;
+
         if (cursorInfo.flags == CURSOR_SHOWING)
         {
             icon = CopyIcon(cursorInfo.hCursor);
-            if(GetIconInfo(icon, &iconInfo))
+            if (GetIconInfo(icon, &iconInfo))
             {
-                cursorPixmap = QPixmap::fromWinHBITMAP(iconInfo.hbmColor, QPixmap::Alpha);
-
-                if (cursorPixmap.isNull()) {//if the cursor hasn't color image (for example, Ibeam cursor)
-                    //copy bottom part of the mask image in order to get the cursor
+                if (iconInfo.hbmColor != NULL) {
+                    cursorPixmap = QPixmap::fromWinHBITMAP(iconInfo.hbmColor, QPixmap::Alpha);
+                } else if (iconInfo.hbmMask != NULL){//if the cursor hasn't color image (for example, Ibeam cursor)
                     cursorPixmap = QPixmap::fromWinHBITMAP(iconInfo.hbmMask, QPixmap::Alpha).mask();
                     //replace white color with transparent
                     QImage cursorImage = cursorPixmap.copy(0, cursorPixmap.height() / 2, cursorPixmap.width(), cursorPixmap.height() / 2).toImage();
@@ -124,6 +129,9 @@ QPixmap MouseHelperPrivate::cursorPixmap()
             }
         }
     }
+
+    cursor = cursorInfo.hCursor;
+    cachedCursor = cursorPixmap;
 
     return cursorPixmap;
 }
