@@ -47,6 +47,7 @@ public:
     QSize size() const;
 
     static QStringList availableDeviceNames();
+    static QSize maximumFrameSize(int deviceIndex);
 
 public Q_SLOTS:
     bool start();

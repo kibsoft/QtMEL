@@ -93,6 +93,20 @@ QStringList CameraGrabber::availableDeviceNames()
     return names;
 }
 
+QSize CameraGrabber::maximumFrameSize(int deviceIndex)
+{
+    if (deviceIndex < 0 || deviceIndex > CameraGrabber::availableDeviceNames().count())
+        return QSize();
+
+    CvCapture *capture = cvCreateCameraCapture(deviceIndex);
+    QSize size;
+    size.setWidth(cvGetCaptureProperty(capture, CV_CAP_PROP_FRAME_WIDTH));
+    size.setHeight(cvGetCaptureProperty(capture, CV_CAP_PROP_FRAME_HEIGHT));
+    cvReleaseCapture(&capture);
+
+    return size;
+}
+
 bool CameraGrabber::start()
 {
     if (!createCamera())
@@ -109,8 +123,7 @@ bool CameraGrabber::start()
 
 void CameraGrabber::onStateChanged(AbstractGrabber::State state)
 {
-    if (state == AbstractGrabber::StoppedState
-            || state == AbstractGrabber::SuspendedState) {
+    if (state == AbstractGrabber::StoppedState) {
         releaseCamera();
     }
 }

@@ -9,7 +9,7 @@
 
 #include <QTimer>
 #include <QEventLoop>
-#include <QDebug>
+#include <QMetaType>
 
 Recorder::Recorder(QObject *parent) :
     QObject(parent)
@@ -17,18 +17,23 @@ Recorder::Recorder(QObject *parent) :
   , m_cameraGrabber(0)
   , m_audioGrabber(0)
   , m_encoder(new Encoder(this))
+  , m_state(Recorder::StoppedState)
 {
+    qRegisterMetaType<AbstractGrabber::State>("Recorder::State");
+
     connect(m_encoder, SIGNAL(started()), this, SLOT(startGrabbers()));
 }
 
 void Recorder::setImageGrabber(AbstractImageGrabber *grabber)
 {
-    if (dynamic_cast<ScreenGrabber *>(grabber)) {
-        m_screenGrabber = dynamic_cast<ScreenGrabber *>(grabber);
-        m_cameraGrabber = 0;
-    } else if (dynamic_cast<CameraGrabber *>(grabber)) {
-        m_cameraGrabber = dynamic_cast<CameraGrabber *>(grabber);
-        m_screenGrabber = 0;
+    if (state() == Recorder::StoppedState) {
+        if (dynamic_cast<ScreenGrabber *>(grabber)) {
+            m_screenGrabber = dynamic_cast<ScreenGrabber *>(grabber);
+            m_cameraGrabber = 0;
+        } else if (dynamic_cast<CameraGrabber *>(grabber)) {
+            m_cameraGrabber = dynamic_cast<CameraGrabber *>(grabber);
+            m_screenGrabber = 0;
+        }
     }
 }
 
@@ -39,7 +44,8 @@ AbstractImageGrabber *Recorder::imageGrabber() const
 
 void Recorder::setAudioGrabber(AudioGrabber *grabber)
 {
-    m_audioGrabber = grabber;
+    if (state() == Recorder::StoppedState)
+        m_audioGrabber = grabber;
 }
 
 AudioGrabber *Recorder::audioGrabber() const
@@ -52,57 +58,72 @@ Encoder *Recorder::encoder() const
     return m_encoder;
 }
 
+Recorder::State Recorder::state() const
+{
+    return m_state;
+}
+
 void Recorder::start()
 {
-    if (!m_screenGrabber && !m_cameraGrabber && !m_audioGrabber) {
-        setError(tr("There are no any grabbers."));
-        return;
-    }
+    if (state() == Recorder::StoppedState) {
+        if (!m_screenGrabber && !m_cameraGrabber && !m_audioGrabber) {
+            setError(tr("There are no any grabbers."));
+            return;
+        }
 
-    m_encoder->start();
+        m_encoder->start();
+    }
 }
 
 void Recorder::pause()
 {
-    AbstractImageGrabber *grabber = castImageGrabber();
+    if (state() == Recorder::ActiveState) {
+        AbstractImageGrabber *grabber = castImageGrabber();
 
-    if (grabber)
-        grabber->suspend();
+        if (grabber)
+            grabber->suspend();
 
-    if (m_audioGrabber)
-        m_audioGrabber->suspend();
+        if (m_audioGrabber)
+            m_audioGrabber->suspend();
+
+        setState(Recorder::SuspendedState);
+    }
 }
 
 void Recorder::resume()
 {
-    AbstractImageGrabber *grabber = castImageGrabber();
+    if (state() == Recorder::SuspendedState) {
+        AbstractImageGrabber *grabber = castImageGrabber();
 
-    if (grabber)
-        grabber->resume();
+        if (grabber)
+            grabber->resume();
 
-    if (m_audioGrabber)
-        m_audioGrabber->resume();
+        if (m_audioGrabber)
+            m_audioGrabber->resume();
+
+        setState(Recorder::ActiveState);
+    }
 }
 
 void Recorder::stop()
 {
-    AbstractImageGrabber *grabber = castImageGrabber();
+    if (state() != Recorder::StoppedState) {
+        AbstractImageGrabber *grabber = castImageGrabber();
 
-    if (grabber) {
-        qDebug()<<"Grabbed frames:"<<grabber->grabbedFrameCount();
-        grabber->stop();
+        if (grabber) {
+            grabber->stop();
+        }
+
+        if (m_audioGrabber) {
+            m_audioGrabber->stop();
+            grabber->setTimer(0);
+            delete m_timer;
+        }
+
+        m_encoder->stop();
+
+        setState(Recorder::StoppedState);
     }
-
-    if (m_audioGrabber) {
-        qDebug()<<"Grabbed audio data:"<<m_audioGrabber->grabbedAudioDataSize();
-        m_audioGrabber->stop();
-    }
-
-    qDebug()<<"Encoded frame count: "<<m_encoder->encodedFrameCount();
-    qDebug()<<"Encoded audio data: "<<m_encoder->encodedAudioDataSize();
-
-    m_encoder->stop();
-
 }
 
 void Recorder::startGrabbers()
@@ -116,7 +137,8 @@ void Recorder::startGrabbers()
             connect(m_cameraGrabber, SIGNAL(initialized()), m_audioGrabber, SLOT(start()));
 
         if (m_audioGrabber) {
-            grabber->setTimer(new AudioTimer(m_audioGrabber, this));
+            m_timer = new AudioTimer(m_audioGrabber, this);
+            grabber->setTimer(m_timer);
         }
     }
 
@@ -138,6 +160,17 @@ void Recorder::startGrabbers()
             onGrabbersError();
             return;
         }
+    }
+
+    setState(Recorder::ActiveState);
+}
+
+void Recorder::setState(Recorder::State state)
+{
+    if (m_state != state) {
+        m_state = state;
+
+        Q_EMIT stateChanged(state);
     }
 }
 

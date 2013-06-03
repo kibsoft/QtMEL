@@ -11,6 +11,7 @@ class ScreenGrabber;
 class CameraGrabber;
 class AudioGrabber;
 class Encoder;
+class AudioTimer;
 
 class QTMELSHARED_EXPORT Recorder : public QObject
 {
@@ -33,6 +34,8 @@ public:
 
     Encoder* encoder() const;
 
+    Recorder::State state() const;
+
 public Q_SLOTS:
     void start();
     void pause();
@@ -40,12 +43,14 @@ public Q_SLOTS:
     void stop();
 
 Q_SIGNALS:
+    void stateChanged(Recorder::State state);
     void error(const QString &errorString);
 
 private Q_SLOTS:
     void startGrabbers();
 
 private:
+    void setState(Recorder::State state);
     void setError(const QString &errorString);
     void onGrabbersError();
     AbstractImageGrabber* castImageGrabber() const;
@@ -54,6 +59,8 @@ private:
     CameraGrabber *m_cameraGrabber;
     AudioGrabber *m_audioGrabber;
     Encoder *m_encoder;
+    AudioTimer *m_timer;
+    Recorder::State m_state;
 };
 
 #endif // RECORDER_H
