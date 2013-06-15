@@ -42,6 +42,9 @@ public Q_SLOTS:
     void resume();
     void stop();
 
+    void mute();
+    void unmute();
+
 Q_SIGNALS:
     void stateChanged(Recorder::State state);
     void error(const QString &errorString);
@@ -55,12 +58,18 @@ private:
     void onGrabbersError();
     AbstractImageGrabber* castImageGrabber() const;
 
+    bool connectAudioGrabber();
+    bool disconnectAudioGrabber();
+
+    void encodeSilence(int milliseconds);
+
     ScreenGrabber *m_screenGrabber;
     CameraGrabber *m_cameraGrabber;
     AudioGrabber *m_audioGrabber;
     Encoder *m_encoder;
     AudioTimer *m_timer;
     Recorder::State m_state;
+    int m_startMuteTime;
 };
 
 #endif // RECORDER_H

@@ -125,8 +125,8 @@ int AudioGrabber::grabbedAudioDataSize() const
 
 int AudioGrabber::elapsedMilliseconds() const
 { 
-    if (!m_rtAudio || !m_rtAudio->isStreamRunning())
-        return -1;
+    if (!m_rtAudio || state() == AudioGrabber::StoppedState)
+        return 0;
 
     return m_rtAudio->getStreamTime() * 1000;
 }

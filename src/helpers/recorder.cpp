@@ -18,6 +18,7 @@ Recorder::Recorder(QObject *parent) :
   , m_audioGrabber(0)
   , m_encoder(new Encoder(this))
   , m_state(Recorder::StoppedState)
+  , m_startMuteTime(-1)
 {
     qRegisterMetaType<AbstractGrabber::State>("Recorder::State");
 
@@ -122,7 +123,29 @@ void Recorder::stop()
 
         m_encoder->stop();
 
+        m_startMuteTime = -1;
+
         setState(Recorder::StoppedState);
+    }
+}
+
+void Recorder::mute()
+{
+    if (m_audioGrabber) {
+        disconnectAudioGrabber();
+        m_startMuteTime = m_audioGrabber->elapsedMilliseconds();
+    }
+}
+
+void Recorder::unmute()
+{
+    if (m_audioGrabber) {
+        if (m_startMuteTime != -1) {
+            int muteTime = m_audioGrabber->elapsedMilliseconds() - m_startMuteTime;
+            encodeSilence(muteTime);
+        }
+
+        connectAudioGrabber();
     }
 }
 
@@ -142,9 +165,9 @@ void Recorder::startGrabbers()
         }
     }
 
-    if (m_audioGrabber) {
-        connect(m_audioGrabber, SIGNAL(dataAvailable(QByteArray)), m_encoder, SLOT(encodeAudioData(QByteArray)));
-    }
+    //if audio mute is not turned on
+    if (m_startMuteTime == -1 && m_audioGrabber)
+        connectAudioGrabber();
 
     if (grabber) {
         if (!grabber->start()) {
@@ -156,7 +179,7 @@ void Recorder::startGrabbers()
 
     if (m_audioGrabber && (m_screenGrabber || (!m_screenGrabber && !m_cameraGrabber))) {
         if (!m_audioGrabber->start()) {
-            m_audioGrabber->disconnect();
+            disconnectAudioGrabber();
             onGrabbersError();
             return;
         }
@@ -189,4 +212,51 @@ void Recorder::onGrabbersError()
 AbstractImageGrabber *Recorder::castImageGrabber() const
 {
     return m_screenGrabber ? dynamic_cast<AbstractImageGrabber *>(m_screenGrabber) : dynamic_cast<AbstractImageGrabber *>(m_cameraGrabber);
+}
+
+bool Recorder::connectAudioGrabber()
+{
+    return connect(m_audioGrabber, SIGNAL(dataAvailable(QByteArray)), m_encoder, SLOT(encodeAudioData(QByteArray)));
+}
+
+bool Recorder::disconnectAudioGrabber()
+{
+    return disconnect(m_audioGrabber, SIGNAL(dataAvailable(QByteArray)), m_encoder, SLOT(encodeAudioData(QByteArray)));
+}
+
+void Recorder::encodeSilence(int milliseconds)
+{
+    if (m_audioGrabber) {
+        AudioFormat format = m_audioGrabber->format();
+
+        int sampleSize = 0;
+        switch (format.format()) {
+        case AudioFormat::SignedInt8:
+            sampleSize = 1;
+            break;
+
+        case AudioFormat::SignedInt16:
+            sampleSize = 2;
+            break;
+
+        case AudioFormat::SignedInt24:
+            sampleSize = 3;
+            break;
+
+        case AudioFormat::SignedInt32:
+        case AudioFormat::Float32:
+            sampleSize = 4;
+            break;
+
+        case AudioFormat::Float64:
+            sampleSize = 8;
+            break;
+        }
+
+
+        int silenceDataSize = ((format.sampleRate() * format.channelCount() * sampleSize) / 1000) * milliseconds;
+        QByteArray silenceData;
+        silenceData.fill('\0', silenceDataSize);
+        m_encoder->encodeAudioData(silenceData);
+    }
 }
