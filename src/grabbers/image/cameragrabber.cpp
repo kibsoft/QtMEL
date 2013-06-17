@@ -26,6 +26,7 @@
 #include <QTimer>
 #include <QElapsedTimer>
 #include <QDateTime>
+#include <QPainter>
 
 #include <QCamera>
 
@@ -136,6 +137,14 @@ bool CameraGrabber::createCamera()
     }
     m_camera = cvCreateCameraCapture(m_deviceIndex);
 
+    //init size
+    if (!size().isValid()) {
+        QSize size;
+        size.setWidth(cvGetCaptureProperty(m_camera, CV_CAP_PROP_FRAME_WIDTH));
+        size.setHeight(cvGetCaptureProperty(m_camera, CV_CAP_PROP_FRAME_HEIGHT));
+        setSize(size);
+    }
+
     return true;
 }
 
@@ -155,6 +164,24 @@ QImage CameraGrabber::captureFrame()
     if (iplImage->depth == IPL_DEPTH_8U && iplImage->nChannels == 3) {
         uchar *data = (uchar*)iplImage->imageData;
         frame = QImage(data, width, height, QImage::Format_RGB888).rgbSwapped();
+
+        //resize the frame to a given size
+        if (frame.size() != size()) {
+            QImage scaledFrame = frame.scaled(size(), Qt::KeepAspectRatio);
+
+            if (scaledFrame.size() != size()) {
+                QImage newFrame(size(), QImage::Format_RGB888);
+                newFrame.fill(Qt::black);
+                QPainter painter(&newFrame);
+
+                painter.drawImage(scaledFrame.width() < size().width() ? (newFrame.width() - scaledFrame.width()) / 2 : 0,
+                                  scaledFrame.height() < size().height() ? (newFrame.height() - scaledFrame.height()) / 2 : 0, scaledFrame);
+
+                scaledFrame = newFrame;
+            }
+
+            frame = scaledFrame;
+        }
     }
 
     return frame;
