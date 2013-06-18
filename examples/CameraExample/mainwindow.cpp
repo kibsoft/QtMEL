@@ -23,6 +23,7 @@ MainWindow::MainWindow(QWidget *parent) :
     //setup the camera grabber
     m_cameraGrabber->setDeviceIndex(0);
     m_cameraGrabber->setLatency(65);
+    m_cameraGrabber->setSize(QSize(640, 360));
     m_recorder->setImageGrabber(m_cameraGrabber);
 
     //setup the audio grabber
@@ -41,7 +42,8 @@ MainWindow::MainWindow(QWidget *parent) :
     m_recorder->encoder()->setVideoCodec(EncoderGlobal::H264);
     m_recorder->encoder()->setAudioCodec(EncoderGlobal::MP3);
     m_recorder->encoder()->setOutputPixelFormat(EncoderGlobal::YUV420P);
-    m_recorder->encoder()->setVideoSize(CameraGrabber::maximumFrameSize(0));
+//    m_recorder->encoder()->setVideoSize(m_cameraGrabber->size());
+    m_recorder->encoder()->setVideoSize(m_cameraGrabber->size());
 
     initFrameLabel();
 
@@ -171,4 +173,14 @@ AudioCodecSettings MainWindow::audioCodecSettings() const
     settings.setSampleFormat(EncoderGlobal::Signed16);
 
     return settings;
+}
+
+void MainWindow::on_muteButton_clicked()
+{
+    m_recorder->mute();
+}
+
+void MainWindow::on_unmuteButton_clicked()
+{
+    m_recorder->unmute();
 }

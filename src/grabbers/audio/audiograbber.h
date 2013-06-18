@@ -34,7 +34,7 @@ class RtAudio;
 typedef unsigned int RtAudioStreamStatus;
 
 int handleData(void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames,
-                double streamTime, RtAudioStreamStatus status, void *data);
+               double streamTime, RtAudioStreamStatus status, void *data);
 
 class QTMELSHARED_EXPORT AudioFormat {
 public:
@@ -65,27 +65,78 @@ private:
     int m_channelCount;
 };
 
+//! The AudioGrabber class allows the application to capture data from audio input devices.
+/*!
+  Using this class you can capture audio data from devices available on your system. In order to get available devices
+  call the availableDeviceNames() static function. To let AudioGrabber know which input device it must grab pass the device index to the setDeviceIndex() function.
+  Also you can adjust the quality of audio by passing AudioFormat object to the setFormat() function. During the process of capture you can call the grabbedAudioDataSize()
+  function that returns the size of grabbed audio data.
+
+  The signal dataAvailable() is emmited whenever a new data chunk is available.
+
+  Here is an example of AudioGrabber usage:
+  @code
+    AudioFormat format;
+    format.setChannelCount(2);
+    format.setSampleRate(44100);
+    format.setFormat(AudioFormat::SignedInt16);
+
+    AudioGrabber *audioGrabber = new AudioGrabber(this);
+    audioGrabber->setDeviceIndex(0);
+    audioGrabber->setFormat(format);
+    audioGrabber->start();
+  @endcode
+*/
 class QTMELSHARED_EXPORT AudioGrabber : public AbstractGrabber
 {
     Q_OBJECT
 
-public:
     friend int handleData(void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames,
                           double streamTime, RtAudioStreamStatus status, void *data);
 
+public:
     explicit AudioGrabber(QObject *parent = 0);
     ~AudioGrabber();
 
+    /*!
+      Lets AudioGrabber know which device it must grab.
+      \sa deviceIndex()
+      \sa availableDeviceNames()
+    */
     void setDeviceIndex(int index);
+    /*!
+      Returns current device index.
+      \sa setDeviceIndex()
+    */
     int deviceIndex() const;
 
+    /*!
+      Sets the given format.
+      \sa format()
+    */
     void setFormat(const AudioFormat &format);
+    /*!
+      Returns current audio format.
+      \sa setFormat()
+    */
     AudioFormat format() const;
 
+    /*!
+      Returns the size of grabbed audio data.
+      When the grabber is not active returns 0.
+      \sa elapsedMilliseconds()
+    */
     int grabbedAudioDataSize() const;
-
+    /*!
+      Returns time in milliseconds from start of grabbing process till this moment.
+      When the grabber is not active returns 0.
+      \sa grabbedAudioDataSize()
+    */
     int elapsedMilliseconds() const;
 
+    /*!
+      Returns names of available cameras.
+    */
     static QStringList availableDeviceNames();
 
 public Q_SLOTS:
@@ -95,6 +146,9 @@ public Q_SLOTS:
     void resume();
 
 Q_SIGNALS:
+    /*!
+      This signal is emmited whenever a new data chunk is available.
+    */
     void dataAvailable(const QByteArray &data);
 
 private:

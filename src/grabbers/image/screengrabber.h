@@ -28,14 +28,14 @@
 #include <QRect>
 #include <QMutex>
 
-//! The ScreenGrabber provides a desktop screen image grabber.
+//! The ScreenGrabber class allows the application to capture frames from a desktop screen.
 /*!
-  The class is used to capture full or part screen images from desktop. You can capture the screen with or without the cursor, use setCaptureCursor() for that.
+  This class is used to capture full or part screen images from the desktop. You can capture the screen with or without the cursor, use setCaptureCursor() for that.
   In order to capture part of the screen use setCaptureRect() function.
 
   ScreenGrabber will emit frameAvailable() whenever a new image will be available.
 
-  Here is an example of the ScreenGrabber usage:
+  Here is an example of ScreenGrabber usage:
   @code
   ScreenGrabber *grabber = new ScreenGrabber(this);
   grabber->setCaptureRect(QRect(0, 0, 640, 480));//capture the rectangle from (0, 0) point of the screen with the size 640x480
@@ -55,6 +55,7 @@ class QTMELSHARED_EXPORT ScreenGrabber : public AbstractImageGrabber
     Q_PROPERTY(QRect captureRect READ captureRect WRITE setCaptureRect NOTIFY captureRectChanged)
     /*!
       This property holds whether to capture the cursor while grabbing.
+      Default value is true.
       \sa setCaptureCursor()
       \sa isCaptureCursor()
     */
@@ -72,7 +73,7 @@ public:
     */
     void setCaptureRect(const QRect &rect);
     /*!
-      Returns the current capture rectangle.
+      Returns current capture rectangle.
       \sa setCaptureRect()
     */
     QRect captureRect() const;

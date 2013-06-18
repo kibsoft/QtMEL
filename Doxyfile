@@ -579,7 +579,7 @@ SHOW_USED_FILES        = YES
 # This will remove the Files entry from the Quick Index and from the 
 # Folder Tree View (if specified). The default is YES.
 
-SHOW_FILES             = YES
+SHOW_FILES             = NO
 
 # Set the SHOW_NAMESPACES tag to NO to disable the generation of the 
 # Namespaces page.  This will remove the Namespaces entry from the Quick Index 
@@ -765,7 +765,12 @@ EXCLUDE_PATTERNS       =
 # AClass::ANamespace, ANamespace::*Test
 
 EXCLUDE_SYMBOLS        = *Private \
-                         EventHandler
+                         EventHandler \
+                         Rt* \
+                         AudioTimer \
+                         S24 \
+                         CallbackInfo \
+                         Mouse*
 
 # The EXAMPLE_PATH tag can be used to specify one or more files or 
 # directories that contain example code fragments that are included (see 
@@ -958,7 +963,7 @@ HTML_FOOTER            =
 # HTML_EXTRA_STYLESHEET instead of this one, as it is more robust and this 
 # tag will in the future become obsolete.
 
-HTML_STYLESHEET        = 
+HTML_STYLESHEET        = ../../../doxygen.css
 
 # The HTML_EXTRA_STYLESHEET tag can be used to specify an additional 
 # user-defined cascading style sheet that is included after the standard 

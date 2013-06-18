@@ -35,7 +35,7 @@ class Recorder;
 /*!
   The class defines the functions for the functionality shared by image grabbers. By inheriting this class, you can create custom grabbers that grab images from any devices.
 
-  AbstractImageGrabber will emit frameAvailable() whenever a new image will be available.
+  AbstractImageGrabber will emit frameAvailable() whenever a new frame will be available.
 */
 class QTMELSHARED_EXPORT AbstractImageGrabber : public AbstractGrabber
 {
@@ -104,9 +104,9 @@ Q_SIGNALS:
     /*!
       This signal is emitted when a new image was captured from a device.
       \param frame an image grabbed from a device.
-      \param duration time of image capture.
+      \param pts presentation time stamp.
     */
-    void frameAvailable(const QImage &frame, int duration);
+    void frameAvailable(const QImage &frame, int pts);
 
     /*!
       This signal is emitted immediately after the latency value has been changed.
@@ -125,11 +125,14 @@ protected:
     */
     void startGrabbing();
 
-    //! A pure virtual function.
     /*! Captures images from a device. */
     virtual void grab();
+
+    //! A pure virtual function.
+    /*! Implement this function to get a frame from a device. */
     virtual QImage captureFrame() = 0;
 
+    /*! Sets count of grabbed frames. */
     void setGrabbedFrameCount(int count);
 
     /*!

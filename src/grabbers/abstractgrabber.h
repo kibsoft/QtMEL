@@ -110,6 +110,11 @@ protected:
     */
     void setState(AbstractGrabber::State state);
 
+    /*!
+      Sets the grabber error and its description.
+      \sa error()
+      \sa errorString()
+    */
     void setError(AbstractGrabber::Error errorCode, const QString &errorString);
 
 private:

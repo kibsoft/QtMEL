@@ -65,7 +65,7 @@ class MouseHelperPrivate;
 
   \sa MouseEvent
 */
-class QTMELSHARED_EXPORT MouseHelper : public QObject
+class MouseHelper : public QObject
 {
     Q_OBJECT
 public:    

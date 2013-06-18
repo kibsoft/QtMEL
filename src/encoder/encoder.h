@@ -161,7 +161,7 @@ public Q_SLOTS:
     void stop();
 
     /*!
-      Encodes video frame. If encoding thread is in Encoder::StoppedState nothing happens.
+      Encodes a video frame. If encoding thread is in Encoder::StoppedState nothing happens.
       \param frame an image is to be encoded.
       \param pts presentation time stamp.
     */

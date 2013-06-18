@@ -11,6 +11,8 @@
 #include <QMetaObject>
 
 #include <AudioGrabber>
+#include <CameraGrabber>
+#include <Recorder>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -18,34 +20,28 @@ MainWindow::MainWindow(QWidget *parent) :
   , m_screenGrabber(new ScreenGrabber(this))
   , m_audioGrabber(new AudioGrabber(this))
   , m_encoder(new Encoder(this))
+  , m_recorder(new Recorder(this))
 {
     ui->setupUi(this);
 
-    connect(m_encoder, SIGNAL(error(Encoder::Error)), this, SLOT(onEncoderError(Encoder::Error)));
-    connect(m_encoder, SIGNAL(stateChanged(Encoder::State)), this, SLOT(onState(Encoder::State)));
-    connect(m_screenGrabber, SIGNAL(frameAvailable(QImage,int)), m_encoder, SLOT(encodeVideoFrame(QImage,int)));
-    connect(m_audioGrabber, SIGNAL(frameAvailable(QByteArray)), m_encoder, SLOT(encodeAudioData(QByteArray)));
-    connect(m_screenGrabber, SIGNAL(error(AbstractGrabber::Error)), this, SLOT(onImageGrabberError(AbstractGrabber::Error)));
-    connect(m_audioGrabber, SIGNAL(error(AbstractGrabber::Error)), this, SLOT(onAudioGrabberError(AbstractGrabber::Error)));
+    connect(m_recorder->encoder(), SIGNAL(error(Encoder::Error)), this, SLOT(onEncoderError(Encoder::Error)));
+    connect(m_recorder->encoder(), SIGNAL(stateChanged(Encoder::State)), this, SLOT(onState(Encoder::State)));
 
     m_screenGrabber->setLatency(40);
 
-    QAudioFormat format = QAudioDeviceInfo::defaultInputDevice().preferredFormat();
-    format.setCodec("audio/pcm");
-    format.setChannelCount(1);
-    format.setSampleRate(8000);
-    format.setSampleSize(16);
-    format.setByteOrder(QAudioFormat::LittleEndian);
-    format.setSampleType(QAudioFormat::SignedInt);
+    AudioFormat format;
+    format.setChannelCount(2);
+    format.setSampleRate(44100);
+    format.setFormat(AudioFormat::SignedInt16);
 
-    m_audioGrabber->setDevice(QAudioDeviceInfo::defaultInputDevice());
+    m_audioGrabber->setDeviceIndex(0);
     m_audioGrabber->setFormat(format);
 
-    m_encoder->setVideoCodecSettings(videoCodecSettings());
-    m_encoder->setAudioCodecSettings(audioCodecSettings());
-    m_encoder->setVideoCodec(EncoderGlobal::H264);
-    m_encoder->setAudioCodec(EncoderGlobal::MP3);
-    m_encoder->setOutputPixelFormat(EncoderGlobal::YUV420P);
+    m_recorder->encoder()->setVideoCodecSettings(videoCodecSettings());
+    m_recorder->encoder()->setAudioCodecSettings(audioCodecSettings());
+    m_recorder->encoder()->setVideoCodec(EncoderGlobal::H264);
+    m_recorder->encoder()->setAudioCodec(EncoderGlobal::MP3);
+    m_recorder->encoder()->setOutputPixelFormat(EncoderGlobal::YUV420P);
 }
 
 MainWindow::~MainWindow()
@@ -84,20 +80,6 @@ void MainWindow::onState(Encoder::State state)
     if (state == Encoder::ActiveState) {
         //if screen recording example
         if (ui->screenRecrdGB->isEnabled()) {
-            if (m_encoder->encodingMode() == Encoder::VideoAudioMode || m_encoder->encodingMode() == Encoder::VideoMode) {
-                if (!m_screenGrabber->start()) {
-                    m_encoder->stop();
-                    return;
-                }
-            }
-
-            if (m_encoder->encodingMode() == Encoder::VideoAudioMode || m_encoder->encodingMode() == Encoder::AudioMode) {
-                if (!m_audioGrabber->start()) {
-                    m_encoder->stop();
-                    return;
-                }
-            }
-
             ui->StartButton->setEnabled(false);
             ui->StopButton->setEnabled(true);
             ui->fixedFPSGB->setEnabled(false);
@@ -129,14 +111,16 @@ void MainWindow::on_chooseFileButton_clicked()
 void MainWindow::on_StartButton_clicked()
 {
     QString filePath = ui->filePathLabel->text() == tr("None") ? "" : ui->filePathLabel->text();
-    m_encoder->setFilePath(filePath);
+    m_recorder->setImageGrabber(m_screenGrabber);
+    m_recorder->setAudioGrabber(m_audioGrabber);
+    m_recorder->encoder()->setFilePath(filePath);
 
     QRect captureRect(ui->xSpinBox->value(), ui->ySpinBox->value(), ui->widthSpinBox->value(), ui->heightSpinBox->value());
     m_screenGrabber->setCaptureRect(captureRect);
-    m_encoder->setVideoSize(captureRect.size());
-    m_encoder->setEncodingMode(ui->encodeSoundCB->isChecked() ? Encoder::VideoAudioMode : Encoder::VideoMode);
+    m_recorder->encoder()->setVideoSize(captureRect.size());
+    m_recorder->encoder()->setEncodingMode(ui->encodeSoundCB->isChecked() ? Encoder::VideoAudioMode : Encoder::VideoMode);
 
-    m_encoder->start();
+    m_recorder->start();
 }
 
 void MainWindow::showMessage(const QString &title, const QString &message)
@@ -175,7 +159,6 @@ VideoCodecSettings MainWindow::videoCodecSettings() const
 AudioCodecSettings MainWindow::audioCodecSettings() const
 {
     AudioCodecSettings settings;
-    settings.setBitrate(32000);
     settings.setSampleRate(m_audioGrabber->format().sampleRate());
     settings.setChannelCount(m_audioGrabber->format().channelCount());
     settings.setSampleFormat(EncoderGlobal::Signed16);
@@ -185,9 +168,7 @@ AudioCodecSettings MainWindow::audioCodecSettings() const
 
 void MainWindow::on_StopButton_clicked()
 {
-    m_screenGrabber->stop();
-    m_audioGrabber->stop();
-    m_encoder->stop();
+    m_recorder->stop();
 
     ui->StartButton->setEnabled(true);
     ui->StopButton->setEnabled(false);

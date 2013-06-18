@@ -14,6 +14,7 @@ class MainWindow;
 class ScreenGrabber;
 class AudioGrabber;
 class Encoder;
+class Recorder;
 
 class MainWindow : public QMainWindow
 {
@@ -50,6 +51,7 @@ private:
     ScreenGrabber *m_screenGrabber;
     AudioGrabber *m_audioGrabber;
     Encoder *m_encoder;
+    Recorder *m_recorder;
 };
 
 #endif // MAINWINDOW_H
