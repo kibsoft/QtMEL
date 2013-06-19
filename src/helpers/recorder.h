@@ -67,6 +67,9 @@ public:
 
     Recorder::State state() const;
 
+    /*! Returns a boolean value if audio is muted or no */
+    bool isMuted() const;
+
 public Q_SLOTS:
     /*! Starts audio/video recodring. The state() is set to Recorder::ActiveState if no errors occurred. */
     void start();
@@ -109,6 +112,7 @@ private:
     AudioTimer *m_timer;
     Recorder::State m_state;
     int m_startMuteTime;
+    bool m_muted;
 };
 
 #endif // RECORDER_H

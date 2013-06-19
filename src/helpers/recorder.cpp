@@ -41,6 +41,7 @@ Recorder::Recorder(QObject *parent) :
   , m_encoder(new Encoder(this))
   , m_state(Recorder::StoppedState)
   , m_startMuteTime(-1)
+  , m_muted(false)
 {
     qRegisterMetaType<AbstractGrabber::State>("Recorder::State");
 
@@ -105,6 +106,11 @@ Encoder *Recorder::encoder() const
 Recorder::State Recorder::state() const
 {
     return m_state;
+}
+
+bool Recorder::isMuted() const
+{
+    return m_muted;
 }
 
 void Recorder::start()
@@ -175,6 +181,7 @@ void Recorder::stop()
 void Recorder::mute()
 {
     if (m_audioGrabber) {
+        m_muted = true;
         disconnectAudioGrabber();
         m_startMuteTime = m_audioGrabber->elapsedMilliseconds();
     }
@@ -183,6 +190,7 @@ void Recorder::mute()
 void Recorder::unmute()
 {
     if (m_audioGrabber) {
+        m_muted = false;
         if (m_startMuteTime != -1) {
             int muteTime = m_audioGrabber->elapsedMilliseconds() - m_startMuteTime;
             encodeSilence(muteTime);
