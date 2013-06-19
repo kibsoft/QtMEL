@@ -49,13 +49,34 @@ Recorder::Recorder(QObject *parent) :
 
 void Recorder::setImageGrabber(AbstractImageGrabber *grabber)
 {
-    if (state() == Recorder::StoppedState) {
+    if (grabber->state() == AbstractImageGrabber::StoppedState) {
         if (dynamic_cast<ScreenGrabber *>(grabber)) {
             m_screenGrabber = dynamic_cast<ScreenGrabber *>(grabber);
-            m_cameraGrabber = 0;
+            if (m_cameraGrabber) {
+                m_cameraGrabber->stop();
+                m_cameraGrabber = 0;
+            }
         } else if (dynamic_cast<CameraGrabber *>(grabber)) {
             m_cameraGrabber = dynamic_cast<CameraGrabber *>(grabber);
-            m_screenGrabber = 0;
+            if (m_screenGrabber) {
+                m_screenGrabber->stop();
+                m_screenGrabber = 0;
+            }
+        } else {
+            return;
+        }
+
+        if (m_audioGrabber) {
+            grabber->setTimer(m_timer);
+        }
+
+        if (state() == Recorder::ActiveState || state() == Recorder::SuspendedState) {
+            connect(grabber, SIGNAL(frameAvailable(QImage,int)), m_encoder, SLOT(encodeVideoFrame(QImage,int)), Qt::UniqueConnection);
+
+            grabber->start();
+
+            if (state() == Recorder::SuspendedState)
+                grabber->suspend();
         }
     }
 }
@@ -176,7 +197,7 @@ void Recorder::startGrabbers()
     AbstractImageGrabber *grabber = castImageGrabber();
 
     if (grabber) {
-        connect(grabber, SIGNAL(frameAvailable(QImage,int)), m_encoder, SLOT(encodeVideoFrame(QImage,int)));
+        connect(grabber, SIGNAL(frameAvailable(QImage,int)), m_encoder, SLOT(encodeVideoFrame(QImage,int)), Qt::UniqueConnection);
 
         if (m_cameraGrabber)
             connect(m_cameraGrabber, SIGNAL(initialized()), m_audioGrabber, SLOT(start()));
