@@ -267,7 +267,7 @@ AbstractImageGrabber *Recorder::castImageGrabber() const
 
 bool Recorder::connectAudioGrabber()
 {
-    return connect(m_audioGrabber, SIGNAL(dataAvailable(QByteArray)), m_encoder, SLOT(encodeAudioData(QByteArray)));
+    return connect(m_audioGrabber, SIGNAL(dataAvailable(QByteArray)), m_encoder, SLOT(encodeAudioData(QByteArray)), Qt::UniqueConnection);
 }
 
 bool Recorder::disconnectAudioGrabber()
