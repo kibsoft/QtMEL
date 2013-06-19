@@ -26,7 +26,7 @@
 #include "../../qtmel_global.h"
 #include "../abstractgrabber.h"
 
-#include <QStringList>
+#include <QHash>
 
 class QAudioInput;
 class RtAudio;
@@ -135,9 +135,10 @@ public:
     int elapsedMilliseconds() const;
 
     /*!
-      Returns names of available cameras.
+      Returns available audio input devices.
+      Return value consists of <b>deviceId</b> and <b>deviceName</b> parameters.
     */
-    static QStringList availableDeviceNames();
+    static QHash<int /*id*/, QString /*name*/> availableDevices();
 
 public Q_SLOTS:
     bool start();

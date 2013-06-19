@@ -131,28 +131,28 @@ int AudioGrabber::elapsedMilliseconds() const
     return m_rtAudio->getStreamTime() * 1000;
 }
 
-QStringList AudioGrabber::availableDeviceNames()
+QHash<int, QString> AudioGrabber::availableDevices()
 {
     RtAudio rtAudio;
     int deviceCount = rtAudio.getDeviceCount();
     RtAudio::DeviceInfo info;
-    QStringList names;
+    QHash<int, QString> devices;
 
     for (int i = 0; i < deviceCount; ++i) {
         info = rtAudio.getDeviceInfo(i);
 
         if (info.inputChannels > 0) {
-            names.append(QString::fromStdString(info.name));
+            devices.insert(i, QString::fromStdString(info.name));
         }
     }
 
-    return names;
+    return devices;
 }
 
 bool AudioGrabber::start()
 {
     if (state() == AbstractGrabber::StoppedState) {
-        if (deviceIndex() < 0 || deviceIndex() > availableDeviceNames().count()) {
+        if (deviceIndex() < 0 || deviceIndex() > availableDevices().count()) {
             setError(AbstractGrabber::DeviceNotFoundError, tr("Device to be grabbed was not found."));
             return false;
         }
