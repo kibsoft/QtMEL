@@ -109,7 +109,7 @@ QImage ScreenGrabber::captureFrame()
             QMetaObject::invokeMethod(this, "currentCursor", Qt::BlockingQueuedConnection, Q_RETURN_ARG(QImage, cursor));
             if (!cursor.isNull()) {
                 QPainter painter(&frame);
-                painter.drawImage(QCursor::pos(), cursor);
+                painter.drawImage(QPoint(xDiff, yDiff), cursor);
             }
         }
     }
