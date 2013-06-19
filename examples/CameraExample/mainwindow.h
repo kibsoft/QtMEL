@@ -40,9 +40,7 @@ private slots:
     void onEncoderError(Encoder::Error error);
     void onGrabberError(AbstractGrabber::Error error);
 
-    void on_muteButton_clicked();
-
-    void on_unmuteButton_clicked();
+    void on_muteUnmuteButton_clicked();
 
 private:
     void initFrameLabel();

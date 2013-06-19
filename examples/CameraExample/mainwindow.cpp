@@ -20,10 +20,10 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    ui->cbDevices->addItems(CameraGrabber::availableDeviceNames());
+
     //setup the camera grabber
-    m_cameraGrabber->setDeviceIndex(0);
     m_cameraGrabber->setLatency(65);
-    m_cameraGrabber->setSize(QSize(640, 360));
     m_recorder->setImageGrabber(m_cameraGrabber);
 
     //setup the audio grabber
@@ -42,8 +42,6 @@ MainWindow::MainWindow(QWidget *parent) :
     m_recorder->encoder()->setVideoCodec(EncoderGlobal::H264);
     m_recorder->encoder()->setAudioCodec(EncoderGlobal::MP3);
     m_recorder->encoder()->setOutputPixelFormat(EncoderGlobal::YUV420P);
-//    m_recorder->encoder()->setVideoSize(m_cameraGrabber->size());
-    m_recorder->encoder()->setVideoSize(m_cameraGrabber->size());
 
     initFrameLabel();
 
@@ -70,12 +68,17 @@ void MainWindow::on_pushButton_clicked()
 
 void MainWindow::on_startButton_clicked()
 {
-    connect(m_cameraGrabber, SIGNAL(frameAvailable(QImage,int)), this, SLOT(showFrame(QImage)));
-    m_recorder->start();
+    if (ui->cbDevices->currentIndex() != -1) {
+        m_cameraGrabber->setDeviceIndex(ui->cbDevices->currentIndex());
+        m_recorder->encoder()->setVideoSize(CameraGrabber::maximumFrameSize(m_cameraGrabber->deviceIndex()));
 
-    ui->startButton->setEnabled(false);
-    ui->pauseButton->setEnabled(true);
-    ui->stopButton->setEnabled(true);
+        connect(m_cameraGrabber, SIGNAL(frameAvailable(QImage,int)), this, SLOT(showFrame(QImage)));
+        m_recorder->start();
+
+        ui->startButton->setEnabled(false);
+        ui->pauseButton->setEnabled(true);
+        ui->stopButton->setEnabled(true);
+    }
 }
 
 void MainWindow::on_pauseButton_clicked()
@@ -175,12 +178,13 @@ AudioCodecSettings MainWindow::audioCodecSettings() const
     return settings;
 }
 
-void MainWindow::on_muteButton_clicked()
+void MainWindow::on_muteUnmuteButton_clicked()
 {
-    m_recorder->mute();
-}
-
-void MainWindow::on_unmuteButton_clicked()
-{
-    m_recorder->unmute();
+    if (m_recorder->isMuted()) {
+        m_recorder->unmute();
+        ui->muteUnmuteButton->setText(tr("Mute"));
+    } else {
+        m_recorder->mute();
+        ui->muteUnmuteButton->setText(tr("Unmute"));
+    }
 }
