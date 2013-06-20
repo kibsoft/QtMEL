@@ -4,11 +4,11 @@
   <head>
     <meta charset='utf-8' />
     <meta http-equiv="X-UA-Compatible" content="chrome=1" />
-    <meta name="description" content="Qtmel : Qt Media Encoding Library" />
+    <meta name="description" content="QtMEL : Qt Media Encoding Library" />
 
     <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
 
-    <title>Qtmel</title>
+    <title>QtMEL</title>
   </head>
 
   <body>
@@ -18,7 +18,7 @@
         <header class="inner">
           <a id="forkme_banner" href="https://github.com/kibsoft/QtMEL">View on GitHub</a>
 
-          <h1 id="project_title">Qtmel</h1>
+          <h1 id="project_title">QtMEL</h1>
           <h2 id="project_tagline">Qt Media Encoding Library</h2>
 
             <section id="downloads">
@@ -31,39 +31,90 @@
     <!-- MAIN CONTENT -->
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
-        <h3>Welcome to GitHub Pages.</h3>
+        <h3>
+<a name="welcome-to-the-qtmel-project-website" class="anchor" href="#welcome-to-the-qtmel-project-website"><span class="octicon octicon-link"></span></a>Welcome to the QtMEL project website.</h3>
 
-<p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here using GitHub Flavored Markdown, select a template crafted by a designer, and publish. After your page is generated, you can check out the new branch:</p>
+<p><strong>QtMEL</strong> is a <a href="http://qt-project.org/">Qt</a> library that wraps <a href="http://libav.org/">Libav</a>, <a href="http://opencv.org/">OpenCV</a> and <a href="http://www.music.mcgill.ca/%7Egary/rtaudio/">RtAudio</a> libraries and allows you easily grab your desktop screen, your cameras, your audio input devices and finally encode audio/video streams.</p>
 
-<pre><code>$ cd your_repo_root/repo_name
-$ git fetch origin
-$ git checkout gh-pages
+<h3>
+<a name="project-description" class="anchor" href="#project-description"><span class="octicon octicon-link"></span></a>Project description</h3>
+
+<p><strong>Platform:</strong> currently only Windows (Linux version is partially done)<br><strong>License:</strong> LGPL<br><strong>Current version:</strong> 1.0 Alpha<br><strong>Issue tracker:</strong> <a href="https://github.com/kibsoft/QtMEL/issues">Here</a></p>
+
+<h3>
+<a name="key-features" class="anchor" href="#key-features"><span class="octicon octicon-link"></span></a>Key features</h3>
+
+<ul>
+<li>desktop screen capture with variable frame rate</li>
+<li>web-cameras capture with variable frame rate</li>
+<li>changing the image source on the fly (screen&lt;-&gt;camera) while recording a video</li>
+<li>audio input devices capture</li>
+<li>video encoding with variable and fixed frame rate</li>
+<li>audio encoding</li>
+</ul><h3>
+<a name="dependencies-to-build-the-project" class="anchor" href="#dependencies-to-build-the-project"><span class="octicon octicon-link"></span></a>Dependencies to build the project</h3>
+
+<ol>
+<li>
+<strong>Libav</strong> - <a href="https://dl.dropboxusercontent.com/u/77719957/QtMEL_FFmpeg.zip">Here</a> is a <a href="http://ffmpeg.zeranoe.com/builds/source/ffmpeg/ffmpeg-git-14d94a1.tar.bz2">git-14d94a1</a> version (**QtMEL** is tested only with this version). It contains <em>inlude</em> and <em>lib</em> folders.</li>
+<li>
+<strong>OpenCV</strong> - Download <a href="http://sourceforge.net/projects/opencvlibrary/files/opencv-win/2.4.5/OpenCV-2.4.5.exe/download">here</a>.</li>
+<li>
+<strong>QtMultimediaKit</strong> - Download <a href="https://dl.dropboxusercontent.com/u/77719957/QtMultimediaKit.zip">here</a>. There are includes and dlls that were build using Qt 4.7.4/MinGW.</li>
+<li>
+<strong>RtAudio</strong> - you don't need to download anything it is in <strong>QtMEL</strong>.</li>
+</ol><h3>
+<a name="ready-to-use-builds" class="anchor" href="#ready-to-use-builds"><span class="octicon octicon-link"></span></a>Ready to use builds</h3>
+
+<p>Just download <a href="https://dl.dropboxusercontent.com/u/77719957/QtMEL_Library.zip">this</a> archive and you will be able to use the <strong>QtMEL</strong> library in your projects!
+All you need is to modify your .pro file like this:<br></p>
+
+<pre><code>#add QtMEL library
+INCLUDEPATH += QTMEL_INCLUDE_PATH //just replace this with the actual path
+LIBS += -LQTMEL_LIB_PATH //just replace this with the actual path
+
+CONFIG(debug, debug|release) {
+    LIBS += -lqtmeld1
+} else {
+    LIBS += -lqtmel1
+}
 </code></pre>
 
-<p>If you're using the GitHub for Mac, simply sync your repository and you'll see the new branch.</p>
+<p>Then you must to include the headers this way:</p>
 
-<h3>Designer Templates</h3>
+<pre><code>#include &lt;AudioGrabber&gt;
+#include &lt;CameraGrabber&gt;
+#include &lt;ScreenGrabber&gt;
+#include &lt;Recorder&gt;
+...
+</code></pre>
 
-<p>We've crafted some handsome templates for you to use. Go ahead and continue to layouts to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved if it remained markdown format.</p>
+<p>Happy coding!</p>
 
-<h3>Rather Drive Stick?</h3>
+<h3>
+<a name="examples" class="anchor" href="#examples"><span class="octicon octicon-link"></span></a>Examples</h3>
 
-<p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator written by our own Tom Preston-Werner. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
+<p>In order to understand how to use the classes provided by <strong>QtMEL</strong> you can look at the <a href="https://github.com/kibsoft/QtMEL/tree/master/examples">examples</a> folder in sources.</p>
 
-<h3>Authors and Contributors</h3>
+<ol>
+<li>
+<strong>EncoderExample</strong> - it is the first example that allows you to capture your desktop screen(or parts of it) and record the streams(video/audio) to a file. Also this example contains the code that generates 500 frames and then encodes them to a video using fixed frame rate.</li>
+<li>
+<strong>CameraExample</strong> - this example allows you to capture your web-cameras (with audio).</li>
+</ol><p>You can download these examples <a href="https://dl.dropboxusercontent.com/u/77719957/QtMEL_Examples.zip">here</a>(compiled).</p>
 
-<p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
+<h3>
+<a name="thanks" class="anchor" href="#thanks"><span class="octicon octicon-link"></span></a>Thanks</h3>
 
-<h3>Support or Contact</h3>
-
-<p>Having trouble with Pages? Check out the documentation at <a href="http://help.github.com/pages">http://help.github.com/pages</a> or contact <a href="mailto:support@github.com">support@github.com</a> and we’ll help you sort it out.</p>
+<p>I want to thank <strong>Daniel Roggen</strong> for his <a href="https://code.google.com/p/qtffmpegwrapper/">QtFFmpegWrapper</a>! 
+It became the starting point for my <strong>QtMEL</strong> project.</p>
       </section>
     </div>
 
     <!-- FOOTER  -->
     <div id="footer_wrap" class="outer">
       <footer class="inner">
-        <p class="copyright">Qtmel maintained by <a href="https://github.com/kibsoft">kibsoft</a></p>
+        <p class="copyright">QtMEL maintained by <a href="https://github.com/kibsoft">kibsoft</a></p>
         <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
       </footer>
     </div>
