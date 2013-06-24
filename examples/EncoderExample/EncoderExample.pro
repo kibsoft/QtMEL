@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui multimedia
+QT       += core gui
 
 TARGET = EncoderExample
 TEMPLATE = app
@@ -13,10 +13,18 @@ TEMPLATE = app
 INCLUDEPATH += ../../include
 LIBS += -L../../lib
 
+
+unix {
+    LIBS += -lpthread -lX11
+    QMAKE_CXXFLAGS += -std=c++0x
+}
+
 CONFIG(debug, debug|release) {
-    LIBS += -lqtmeld1
+    win32: LIBS += -lqtmeld1
+    unix: LIBS += -lqtmeld
 } else {
-    LIBS += -lqtmel1
+    win32: LIBS += -lqtmel1
+    unix: LIBS += -lqtmel
 }
 
 SOURCES += main.cpp\

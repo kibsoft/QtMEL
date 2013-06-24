@@ -16,9 +16,11 @@ INCLUDEPATH += ../../include
 LIBS += -L../../lib
 
 CONFIG(debug, debug|release) {
-    LIBS += -lqtmeld1
+    win32: LIBS += -lqtmeld1
+    unix: LIBS += -lqtmeld
 } else {
-    LIBS += -lqtmel1
+    win32: LIBS += -lqtmel1
+    unix: LIBS += -lqtmel
 }
 
 SOURCES += main.cpp\

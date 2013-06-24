@@ -20,18 +20,35 @@ CONFIG(debug, debug|release) {
     TARGET = qtmel
 }
 
+INCLUDEPATH += $$(FFMPEG_INCLUDE_PATH) $$(OPENCV_INCLUDE_PATH) $$(QTMULTIMEDIAKIT_INCLUDE_PATH) ./include/rtaudio/
+LIBS += -L$$(FFMPEG_LIBRARY_PATH) -L$$(OPENCV_LIBRARY_PATH)
+
 win32 {
     DEFINES += __WINDOWS_DS__
-    LIBS += -L$$(FFMPEG_LIBRARY_PATH) -L$$(OPENCV_LIBRARY_PATH) -ldsound -lole32 -lwinmm
-    INCLUDEPATH += $$(FFMPEG_INCLUDE_PATH) $$(OPENCV_INCLUDE_PATH) $$(QTMULTIMEDIAKIT_INCLUDE_PATH) ./include/rtaudio/
+    LIBS += -ldsound -lole32 -lwinmm
     SOURCES += src/helpers/mousehelper_win.cpp
-}
 
-LIBS += -lavcodec-53 \
+    LIBS += -lavcodec-53 \
     -lavformat-53 \
     -lswscale-2 \
     -lavutil-51 \
-    -llibopencv_highgui243
+    -llibopencv_highgui243 \
+    -ldsound \
+    -lole32 \
+    -lwinmm
+}
+
+unix {
+    DEFINES += __LINUX_ALSA__
+    SOURCES += src/helpers/mousehelper_x11.cpp
+
+    LIBS += -lavcodec \
+    -lavformat \
+    -lswscale \
+    -lavutil \
+    -lopencv_highgui \
+    -lasound
+}
 
 SOURCES += src/grabbers/abstractgrabber.cpp \
     src/grabbers/image/abstractimagegrabber.cpp \

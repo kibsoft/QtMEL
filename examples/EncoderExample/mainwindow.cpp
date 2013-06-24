@@ -26,6 +26,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(m_recorder->encoder(), SIGNAL(error(Encoder::Error)), this, SLOT(onEncoderError(Encoder::Error)));
     connect(m_recorder->encoder(), SIGNAL(stateChanged(Encoder::State)), this, SLOT(onState(Encoder::State)));
+    connect(m_encoder, SIGNAL(stateChanged(Encoder::State)), this, SLOT(onState(Encoder::State)));
 
     m_screenGrabber->setLatency(40);
 
@@ -186,6 +187,11 @@ void MainWindow::on_fixedFPSStart_clicked()
     ui->screenRecrdGB->setEnabled(false);
 
     //setup encoder
+    m_encoder->setVideoCodecSettings(videoCodecSettings());
+    m_encoder->setEncodingMode(Encoder::VideoMode);
+    m_encoder->setVideoCodec(EncoderGlobal::H264);
+    m_encoder->setAudioCodec(EncoderGlobal::MP3);
+    m_encoder->setOutputPixelFormat(EncoderGlobal::YUV420P);
     m_encoder->setFilePath(qApp->applicationDirPath() + "/fixed_fps_video.avi");
     m_encoder->setVideoSize(QSize(1024, 768));
     m_encoder->setFixedFrameRate(ui->fpsSpinBox->value());
