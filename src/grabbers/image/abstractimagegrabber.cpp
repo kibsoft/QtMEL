@@ -23,7 +23,12 @@
 #include "abstractimagegrabber.h"
 #include "../../helpers/audiotimer.h"
 
+#if QT_VERSION >= 0x050000
+#include <QtConcurrent/QtConcurrentRun>
+#else
 #include <QtConcurrentRun>
+#endif
+
 #include <QMutexLocker>
 #include <QEventLoop>
 #include <QTimer>

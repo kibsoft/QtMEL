@@ -6,12 +6,19 @@
 
 QT       += core gui
 
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+
 TARGET = EncoderExample
 TEMPLATE = app
 
 #add QtMEL library
 INCLUDEPATH += ../../include
-LIBS += -L../../lib
+
+greaterThan(QT_MAJOR_VERSION, 4) {
+LIBS += -L../../libsQt5
+} else {
+LIBS += -L../../libsQt4
+}
 
 
 unix {

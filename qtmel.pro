@@ -6,13 +6,25 @@ QMAKE_TARGET_COPYRIGHT = "Copyright © 2013 Kirill Bukaev(aka KIBSOFT)"
 QMAKE_TARGET_PRODUCT = "QtMEL"
 QMAKE_TARGET_DESCRIPTION = "Qt Media Encoding Library"
 
-DESTDIR = $$PWD/lib
 OBJECTS_DIR = build/obj
 MOC_DIR = build/moc
 
+#only for Qt 5.x
+greaterThan(QT_MAJOR_VERSION, 4) {
+    QT += widgets multimedia
+    DESTDIR = $$PWD/libsQt5
+} else {
+    #use Qt Mobility for Qt 4.x
+    CONFIG += mobility
+    MOBILITY += multimedia
+
+    DESTDIR = $$PWD/libsQt4
+    INCLUDEPATH += $$(QTMULTIMEDIAKIT_INCLUDE_PATH)
+}
+
 DEFINES += QTMEL_LIBRARY
-CONFIG += mobility debug_and_release build_all no_keywords
-MOBILITY += multimedia
+CONFIG += debug_and_release build_all no_keywords
+
 
 CONFIG(debug, debug|release) {
     TARGET = qtmeld
@@ -20,7 +32,7 @@ CONFIG(debug, debug|release) {
     TARGET = qtmel
 }
 
-INCLUDEPATH += $$(FFMPEG_INCLUDE_PATH) $$(OPENCV_INCLUDE_PATH) $$(QTMULTIMEDIAKIT_INCLUDE_PATH) ./include/rtaudio/
+INCLUDEPATH += $$(FFMPEG_INCLUDE_PATH) $$(OPENCV_INCLUDE_PATH) ./include/rtaudio/
 LIBS += -L$$(FFMPEG_LIBRARY_PATH) -L$$(OPENCV_LIBRARY_PATH)
 
 win32 {

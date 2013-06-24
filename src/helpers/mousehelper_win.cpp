@@ -26,6 +26,10 @@
 #include <QCursor>
 #include <QBitmap>
 
+#if QT_VERSION >= 0x050000
+extern QPixmap qt_pixmapFromWinHBITMAP(HBITMAP bitmap, int hbitmapFormat = 0);
+#endif
+
 class EventHandler : public QObject {
     Q_OBJECT
 public:
@@ -118,9 +122,17 @@ QPixmap MouseHelperPrivate::cursorPixmap()
             if (GetIconInfo(icon, &iconInfo))
             {
                 if (iconInfo.hbmColor != NULL) {
+#if QT_VERSION >= 0x050000
+                    cursorPixmap = qt_pixmapFromWinHBITMAP(iconInfo.hbmColor, 2);
+#else
                     cursorPixmap = QPixmap::fromWinHBITMAP(iconInfo.hbmColor, QPixmap::Alpha);
+#endif
                 } else if (iconInfo.hbmMask != NULL){//if the cursor hasn't color image (for example, Ibeam cursor)
+#if QT_VERSION >= 0x050000
+                    cursorPixmap = qt_pixmapFromWinHBITMAP(iconInfo.hbmMask, 2).mask();
+#else
                     cursorPixmap = QPixmap::fromWinHBITMAP(iconInfo.hbmMask, QPixmap::Alpha).mask();
+#endif
                     //replace white color with transparent
                     QImage cursorImage = cursorPixmap.copy(0, cursorPixmap.height() / 2, cursorPixmap.width(), cursorPixmap.height() / 2).toImage();
                     cursorImage.setColor(0, Qt::transparent);

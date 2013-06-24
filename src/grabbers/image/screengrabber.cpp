@@ -31,6 +31,10 @@
 #include <QDesktopWidget>
 #include <QMutexLocker>
 
+#if QT_VERSION >= 0x050000
+#include <QScreen>
+#endif
+
 #include "../../helpers/mousehelper.h"
 
 ScreenGrabber::ScreenGrabber(QObject *parent)
@@ -125,8 +129,14 @@ QImage ScreenGrabber::currentCursor()
 
 QImage ScreenGrabber::currentFrame()
 {
-    QPixmap pixmap = QPixmap::grabWindow(qApp->desktop()->winId(), captureRect().left(), captureRect().top(),
-                                         captureRect().width(), captureRect().height());
+    QPixmap pixmap;
+#if QT_VERSION >= 0x050000
+    pixmap = qApp->primaryScreen()->grabWindow(qApp->desktop()->winId(), captureRect().left(), captureRect().top(),
+                                               captureRect().width(), captureRect().height());
+#else
+    pixmap = QPixmap::grabWindow(qApp->desktop()->winId(), captureRect().left(), captureRect().top(),
+                                 captureRect().width(), captureRect().height());
+#endif
 
     return pixmap.toImage();
 }
