@@ -59,8 +59,11 @@ void MouseHelperPrivate::sendClickEvent(MouseEvent::MouseButton button, const QP
 
 QPixmap MouseHelperPrivate::cursorPixmap()
 {
-    XFixesCursorImage *xfCursorImage = XFixesGetCursorImage(XOpenDisplay(NULL));
+    Display *display = XOpenDisplay(NULL);
+    XFixesCursorImage *xfCursorImage = XFixesGetCursorImage(display);
     QImage cursorImage((uchar*)xfCursorImage->pixels, xfCursorImage->width, xfCursorImage->height, QImage::Format_ARGB32_Premultiplied);
+    delete xfCursorImage;
+    XCloseDisplay(display);
 
     return QPixmap::fromImage(cursorImage);
 }
