@@ -212,14 +212,13 @@ void AudioGrabber::resume()
 void AudioGrabber::init()
 {
     m_grabbedAudioDataSize = 0;
+    m_rtAudio = 0;
 }
 
 void AudioGrabber::cleanup()
 {
-    if (m_rtAudio) {
+    if (m_rtAudio)
         delete m_rtAudio;
-        m_rtAudio = 0;
-    }
 
     init();
 }
