@@ -1,1 +1,11 @@
+#if QT_VERSION >= 0x050000
+#define CONDITION defined(Q_OS_WIN) || (defined(Q_OS_LINUX) && defined(QTMEL_NOT_INSTALLED))
+#else
+#define CONDITION defined(Q_WS_WIN) || (defined(Q_WS_X11) && defined(QTMEL_NOT_INSTALLED))
+#endif
+
+#if CONDITION
 #include "../src/grabbers/image/cameragrabber.h"
+#else
+#include "./src/grabbers/image/cameragrabber.h"
+#endif

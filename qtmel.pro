@@ -32,7 +32,7 @@ CONFIG(debug, debug|release) {
     TARGET = qtmel
 }
 
-INCLUDEPATH += $$(FFMPEG_INCLUDE_PATH) $$(OPENCV_INCLUDE_PATH) ./include/rtaudio/
+INCLUDEPATH += $$(FFMPEG_INCLUDE_PATH) $$(OPENCV_INCLUDE_PATH) ./src/3rdparty/RtAudio/include
 LIBS += -L$$(FFMPEG_LIBRARY_PATH) -L$$(OPENCV_LIBRARY_PATH)
 
 win32 {
@@ -60,6 +60,37 @@ unix {
     -lavutil \
     -lopencv_highgui \
     -lasound
+
+    #make install
+    headers1.files = ./src/grabbers/image/*.h
+    headers1.path = /usr/local/include/src/grabbers/image
+
+    headers2.files = ./src/grabbers/audio/*.h
+    headers2.path = /usr/local/include/src/grabbers/audio
+
+    headers3.files = ./src/grabbers/*.h
+    headers3.path = /usr/local/include/src/grabbers
+
+    headers4.files = ./src/encoder/*.h
+    headers4.path = /usr/local/include/src/encoder
+
+    headers5.files = ./src/helpers/*.h
+    headers5.path = /usr/local/include/src/helpers
+
+    headers6.files = ./src/*.h
+    headers6.path = /usr/local/include/src
+
+    headers7.files = ./include/*
+    headers7.path = /usr/local/include
+
+    greaterThan(QT_MAJOR_VERSION, 4) {
+        libs.files = ./libsQt5/*
+    } else {
+        libs.files = ./libsQt4/*
+    }
+    libs.path = /usr/local/lib
+
+    INSTALLS += headers1 headers2 headers3 headers4 headers5 headers6 headers7 libs
 }
 
 SOURCES += src/grabbers/abstractgrabber.cpp \
@@ -71,7 +102,7 @@ SOURCES += src/grabbers/abstractgrabber.cpp \
     src/grabbers/audio/audiograbber.cpp \
     src/encoder/audiocodecsettings.cpp \
     src/grabbers/image/cameragrabber.cpp \
-    src/3rdparty/RtAudio.cpp \
+    src/3rdparty/RtAudio/RtAudio.cpp \
     src/helpers/recorder.cpp \
     src/helpers/audiotimer.cpp
 
@@ -87,7 +118,7 @@ HEADERS += src/grabbers/abstractgrabber.h\
     src/grabbers/audio/audiograbber.h \
     src/encoder/audiocodecsettings.h \
     src/grabbers/image/cameragrabber.h \
-    src/3rdparty/RtError.h \
-    src/3rdparty/RtAudio.h \
+    src/3rdparty/RtAudio/RtError.h \
+    src/3rdparty/RtAudio/RtAudio.h \
     src/helpers/recorder.h \
     src/helpers/audiotimer.h

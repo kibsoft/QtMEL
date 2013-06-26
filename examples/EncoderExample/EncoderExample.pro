@@ -15,13 +15,14 @@ TEMPLATE = app
 INCLUDEPATH += ../../include
 
 greaterThan(QT_MAJOR_VERSION, 4) {
-LIBS += -L../../libsQt5
+    LIBS += -L../../libsQt5
 } else {
-LIBS += -L../../libsQt4
+    LIBS += -L../../libsQt4
 }
 
 
 unix {
+    DEFINES += QTMEL_NOT_INSTALLED
     LIBS += -lpthread -lX11
     QMAKE_CXXFLAGS += -std=c++0x
 }

@@ -21,7 +21,7 @@
 ****************************************************************************/
 
 #include "audiograbber.h"
-#include "../../3rdparty/RtAudio.h"
+#include "../../3rdparty/RtAudio/RtAudio.h"
 
 int handleData(void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames,
                double streamTime, RtAudioStreamStatus status, void *data)
