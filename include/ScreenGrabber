@@ -4,7 +4,7 @@
 #define CONDITION defined(Q_WS_WIN) || (defined(Q_WS_X11) && defined(QTMEL_NOT_INSTALLED))
 #endif
 
-#if CONDITION
+#if CONDITION == TRUE
 #include "../src/grabbers/image/screengrabber.h"
 #else
 #include "./src/grabbers/image/screengrabber.h"

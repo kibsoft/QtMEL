@@ -2,7 +2,7 @@ TEMPLATE = lib
 
 VERSION = 1.0.0
 QMAKE_TARGET_COMPANY = "Kirill Bukaev(aka KIBSOFT)"
-QMAKE_TARGET_COPYRIGHT = "Copyright © 2013 Kirill Bukaev(aka KIBSOFT)"
+QMAKE_TARGET_COPYRIGHT = "Copyright Â© 2013 Kirill Bukaev(aka KIBSOFT)"
 QMAKE_TARGET_PRODUCT = "QtMEL"
 QMAKE_TARGET_DESCRIPTION = "Qt Media Encoding Library"
 
@@ -44,10 +44,15 @@ win32 {
     -lavformat-53 \
     -lswscale-2 \
     -lavutil-51 \
-    -llibopencv_highgui243 \
     -ldsound \
     -lole32 \
     -lwinmm
+
+    win32-g++ {
+        LIBS += -llibopencv_highgui243
+    } else {
+        LIBS += -lopencv_highgui243
+    }
 }
 
 unix {
