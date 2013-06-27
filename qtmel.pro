@@ -19,7 +19,6 @@ greaterThan(QT_MAJOR_VERSION, 4) {
     MOBILITY += multimedia
 
     DESTDIR = $$PWD/libsQt4
-    INCLUDEPATH += $$(QTMULTIMEDIAKIT_INCLUDE_PATH)
 }
 
 DEFINES += QTMEL_LIBRARY
