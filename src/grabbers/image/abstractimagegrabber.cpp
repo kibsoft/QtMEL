@@ -42,6 +42,7 @@ AbstractImageGrabber::AbstractImageGrabber(QObject *parent)
     , m_isStopRequest(false)
     , m_isPauseRequest(false)
     , m_timer(0)
+    , m_initTime(0)
 {
 }
 
@@ -65,6 +66,18 @@ int AbstractImageGrabber::latency() const
     return m_latency;
 }
 
+void AbstractImageGrabber::setInitializationTime(int ms)
+{
+    if (m_initTime != ms) {
+        m_initTime = ms;
+    }
+}
+
+int AbstractImageGrabber::initializationTime() const
+{
+    return m_initTime;
+}
+
 int AbstractImageGrabber::grabbedFrameCount() const
 {
     QMutexLocker locker(&m_grabbedFrameCountMutex);
@@ -74,6 +87,8 @@ int AbstractImageGrabber::grabbedFrameCount() const
 bool AbstractImageGrabber::start()
 {
     if (state() == AbstractGrabber::StoppedState) {
+        waitForInitialization();
+
         startGrabbing();
         return true;
     }
@@ -83,6 +98,11 @@ bool AbstractImageGrabber::start()
 
 void AbstractImageGrabber::stop()
 {
+    switch (state()) {
+    case AbstractGrabber::SuspendedState:
+
+    }
+
     if (state() != AbstractGrabber::StoppedState) {
         setStopRequest(true);
     }
@@ -194,6 +214,15 @@ bool AbstractImageGrabber::isPauseRequest() const
     QMutexLocker locker(&m_stopPauseMutex);
 
     return m_isPauseRequest;
+}
+
+void AbstractImageGrabber::waitForInitialization()
+{
+    QEventLoop initLoop;
+    QTimer::singleShot(m_initTime, &initLoop, SLOT(quit()));
+    initLoop.exec();
+
+    Q_EMIT initialized();
 }
 
 void AbstractImageGrabber::setTimer(AudioTimer *timer)

@@ -82,6 +82,18 @@ public:
     int latency() const;
 
     /*!
+      Sets device initialization time in milliseconds.
+      Default value is 1000ms.
+      \sa initializationTime()
+    */
+    void setInitializationTime(int ms);
+    /*!
+      Returns device initialization time in milliseconds.
+      \sa setInitializationTime()
+    */
+    int initializationTime() const;
+
+    /*!
       Returns count of grabbed frames.
       \sa setGrabbedFrameCount()
     */
@@ -117,6 +129,12 @@ Q_SIGNALS:
       This signal is emitted immediately after the new frame has been grabbed.
     */
     void grabbedFrameCountChanged(int count);
+
+    /*!
+      The signal is emmited when initialization time is out.
+      \sa setInitializationTime()
+    */
+    void initialized();
 
 protected:
     /*!
@@ -160,6 +178,7 @@ protected:
     bool isPauseRequest() const;
 
 private:
+    void waitForInitialization();
     void setTimer(AudioTimer *timer);
 
     int m_prevPts;
@@ -171,6 +190,7 @@ private:
     mutable QMutex m_grabbedFrameCountMutex;
     mutable QMutex m_stopPauseMutex;
     AudioTimer *m_timer;
+    int m_initTime;
 };
 
 #endif // ABSTRACTIMAGEGRABBER_H

@@ -60,18 +60,6 @@ public:
     int deviceIndex() const;
 
     /*!
-      Sets device initialization time in milliseconds.
-      Default value is 1000ms.
-      \sa initializationTime()
-    */
-    void setInitializationTime(int ms);
-    /*!
-      Returns device initialization time in milliseconds.
-      \sa setInitializationTime()
-    */
-    int initializationTime() const;
-
-    /*!
       Sets the frame size. A frame will be scaled as large as possible inside a given size, preserving the aspect ratio.
       \sa size()
     */
@@ -95,13 +83,6 @@ public:
 public Q_SLOTS:
     bool start();
 
-Q_SIGNALS:
-    /*!
-      The signal is emmited when initialization time is out.
-      \sa setInitializationTime()
-    */
-    void initialized();
-
 private Q_SLOTS:
     void onStateChanged(AbstractGrabber::State state);
 
@@ -113,7 +94,6 @@ private:
     CvCapture *m_camera;
     int m_deviceIndex;
     QSize m_size;
-    int m_initTime;
 };
 
 #endif // CAMERAGRABBER_H

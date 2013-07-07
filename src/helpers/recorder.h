@@ -98,15 +98,13 @@ private:
     void setState(Recorder::State state);
     void setError(const QString &errorString);
     void onGrabbersError();
-    AbstractImageGrabber* castImageGrabber() const;
 
     bool connectAudioGrabber();
     bool disconnectAudioGrabber();
 
     void encodeSilence(int milliseconds);
 
-    ScreenGrabber *m_screenGrabber;
-    CameraGrabber *m_cameraGrabber;
+    AbstractImageGrabber *m_imageGrabber;
     AudioGrabber *m_audioGrabber;
     Encoder *m_encoder;
     AudioTimer *m_timer;

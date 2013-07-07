@@ -36,8 +36,9 @@
 CameraGrabber::CameraGrabber(QObject *parent)
     : AbstractImageGrabber(parent)
     , m_deviceIndex(-1)
-    , m_initTime(1000)
 {
+    setInitializationTime(1000);
+
     connect(this, SIGNAL(stateChanged(AbstractGrabber::State)), this, SLOT(onStateChanged(AbstractGrabber::State)));
 }
 
@@ -55,18 +56,6 @@ void CameraGrabber::setDeviceIndex(int index)
 int CameraGrabber::deviceIndex() const
 {
     return m_deviceIndex;
-}
-
-void CameraGrabber::setInitializationTime(int ms)
-{
-    if (m_initTime != ms) {
-        m_initTime = ms;
-    }
-}
-
-int CameraGrabber::initializationTime() const
-{
-    return m_initTime;
 }
 
 void CameraGrabber::setSize(const QSize &size)
@@ -112,12 +101,6 @@ bool CameraGrabber::start()
 {
     if (!createCamera())
         return false;
-
-    QEventLoop initLoop;
-    QTimer::singleShot(m_initTime, &initLoop, SLOT(quit()));
-    initLoop.exec();
-
-    Q_EMIT initialized();
 
     return AbstractImageGrabber::start();
 }
