@@ -98,11 +98,6 @@ bool AbstractImageGrabber::start()
 
 void AbstractImageGrabber::stop()
 {
-    switch (state()) {
-    case AbstractGrabber::SuspendedState:
-
-    }
-
     if (state() != AbstractGrabber::StoppedState) {
         setStopRequest(true);
     }
@@ -111,8 +106,7 @@ void AbstractImageGrabber::stop()
 void AbstractImageGrabber::suspend()
 {
     if (state() == AbstractGrabber::ActiveState) {
-        QMutexLocker locker(&m_stopPauseMutex);
-        m_isPauseRequest = true;
+        setPauseRequest(true);
     }
 }
 
