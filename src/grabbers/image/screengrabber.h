@@ -28,6 +28,10 @@
 #include <QRect>
 #include <QMutex>
 
+//TODO delete
+//#include "../../../helpers/mousehelper.h"
+#include "../../helpers/mousehelper.h"
+
 //! The ScreenGrabber class allows the application to capture frames from a desktop screen.
 /*!
   This class is used to capture full or part screen images from the desktop. You can capture the screen with or without the cursor, use setCaptureCursor() for that.
@@ -80,7 +84,9 @@ public:
 
     void setCaptureCursor(bool capture); 
     bool isCaptureCursor() const;
-
+    
+    void setLeftClickFrames();
+    void setLeftClickFrames(const QStringList &frames);
 public Q_SLOTS:
     bool start();
 
@@ -91,12 +97,14 @@ Q_SIGNALS:
 private Q_SLOTS:
     QImage currentCursor();
     QImage currentFrame();
+    void onMousePress(const MouseEvent &event);
 
 private:
     QImage captureFrame();
-
+    
     QRect m_captureRect;
     bool m_isCaptureCursor;
+    MouseHelper* m_mouseHelper;
 
     mutable QMutex m_captureRectMutex;
     mutable QMutex m_captureCursorMutex;

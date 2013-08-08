@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/">
+        <file>resources/defaultClickAni/1.png</file>
+        <file>resources/defaultClickAni/2.png</file>		
+        <file>resources/defaultClickAni/3.png</file>		
+        <file>resources/defaultClickAni/4.png</file>
+        <file>resources/defaultClickAni/5.png</file>		
+    </qresource>
+</RCC>

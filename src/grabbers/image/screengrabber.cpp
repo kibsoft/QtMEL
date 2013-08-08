@@ -31,6 +31,10 @@
 #include <QDesktopWidget>
 #include <QMutexLocker>
 
+//TODO - delete
+#include <QDebug>
+#include <QPushButton>
+
 #if QT_VERSION >= 0x050000
 #include <QScreen>
 #endif
@@ -39,8 +43,10 @@
 
 ScreenGrabber::ScreenGrabber(QObject *parent)
     : AbstractImageGrabber(parent)
-    , m_isCaptureCursor(true)
+    , m_isCaptureCursor(true),m_mouseHelper(new MouseHelper())
 {
+  m_mouseHelper->startGrabbing();
+  connect(m_mouseHelper,SIGNAL(mouseEvent(MouseEvent)),SLOT(onMousePress(MouseEvent)));
 }
 
 ScreenGrabber::~ScreenGrabber()
@@ -77,6 +83,22 @@ bool ScreenGrabber::isCaptureCursor() const
 {
     QMutexLocker locker(&m_captureCursorMutex);
     return m_isCaptureCursor;
+}
+
+void ScreenGrabber::setLeftClickFrames()
+{
+  setLeftClickFrames(QStringList()<<":/resources/defaultClickAni/1.png");
+}
+
+void ScreenGrabber::setLeftClickFrames(const QStringList &frames)
+{
+  Q_FOREACH (QString str, frames) {
+    QPixmap map(str);
+    QPushButton* button = new QPushButton();
+    button->setIcon(map);
+    button->show();
+    qDebug() << str;
+  }
 }
 
 bool ScreenGrabber::start()
@@ -139,4 +161,16 @@ QImage ScreenGrabber::currentFrame()
 #endif
 
     return pixmap.toImage();
+}
+
+void ScreenGrabber::onMousePress(const MouseEvent &event)
+{
+  qDebug() << event.type <<event.button;
+  if(state() == AbstractGrabber::ActiveState)
+  {
+    if(event.type == MouseEvent::MouseButtonPress)
+    {
+      qDebug() << "mouse press";
+    }
+  }
 }

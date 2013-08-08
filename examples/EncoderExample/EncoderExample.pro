@@ -20,6 +20,8 @@ greaterThan(QT_MAJOR_VERSION, 4) {
     LIBS += -L../../libsQt4
 }
 
+#place EncoderExample.exe with qtmel1.dll
+DESTDIR  = ../../libsQt5
 
 unix {
     DEFINES += QTMEL_NOT_INSTALLED
