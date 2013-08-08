@@ -35,7 +35,6 @@
 #include <QElapsedTimer>
 #include <QPixmap>
 #include <QPainter>
-#include <QCursor>
 
 AbstractImageGrabber::AbstractImageGrabber(QObject *parent)
     : AbstractGrabber(parent)
