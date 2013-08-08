@@ -8,7 +8,7 @@ QMAKE_TARGET_DESCRIPTION = "Qt Media Encoding Library"
 
 OBJECTS_DIR = build/obj
 MOC_DIR = build/moc
-111
+111 dsfdsfds s
 #only for Qt 5.x
 greaterThan(QT_MAJOR_VERSION, 4) {
     QT += widgets multimedia
