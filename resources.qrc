@@ -1,0 +1,15 @@
+<RCC>
+    <qresource prefix="/">
+        <file>resources/defaultLeftClickFrames/1.png</file>
+        <file>resources/defaultLeftClickFrames/2.png</file>		
+        <file>resources/defaultLeftClickFrames/3.png</file>		
+        <file>resources/defaultLeftClickFrames/4.png</file>
+        <file>resources/defaultLeftClickFrames/5.png</file>
+
+        <file>resources/defaultRightClickFrames/1.png</file>
+        <file>resources/defaultRightClickFrames/2.png</file>		
+        <file>resources/defaultRightClickFrames/3.png</file>		
+        <file>resources/defaultRightClickFrames/4.png</file>
+        <file>resources/defaultRightClickFrames/5.png</file>
+    </qresource>
+</RCC>

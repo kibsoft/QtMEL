@@ -8,6 +8,7 @@ QMAKE_TARGET_DESCRIPTION = "Qt Media Encoding Library"
 
 OBJECTS_DIR = build/obj
 MOC_DIR = build/moc
+RESOURCES = resources.qrc
 
 #only for Qt 5.x
 greaterThan(QT_MAJOR_VERSION, 4) {
