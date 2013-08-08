@@ -29,8 +29,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_encoder, SIGNAL(stateChanged(Encoder::State)), this, SLOT(onState(Encoder::State)));
 
     m_screenGrabber->setLatency(40);
-    m_screenGrabber->setLeftClickFrames();
-    m_screenGrabber->setRightClickFrames();
 
     AudioFormat format;
     format.setChannelCount(2);
