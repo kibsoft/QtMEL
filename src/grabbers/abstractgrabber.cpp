@@ -37,7 +37,6 @@ AbstractGrabber::~AbstractGrabber()
 {
 }
 
-
 AbstractGrabber::State AbstractGrabber::state() const
 {
     return m_state;

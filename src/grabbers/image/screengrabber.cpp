@@ -30,10 +30,7 @@
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QMutexLocker>
-
-//TODO - delete
-#include <QDebug>
-#include <QPushButton>
+#include <QTime>
 
 #if QT_VERSION >= 0x050000
 #include <QScreen>
@@ -47,6 +44,8 @@ ScreenGrabber::ScreenGrabber(QObject *parent)
 {
   m_mouseHelper->startGrabbing();
   connect(m_mouseHelper,SIGNAL(mouseEvent(MouseEvent)),SLOT(onMousePress(MouseEvent)));
+  leftClickTimer = NULL;
+  rightClickTimer = NULL;
 }
 
 ScreenGrabber::~ScreenGrabber()
@@ -87,17 +86,41 @@ bool ScreenGrabber::isCaptureCursor() const
 
 void ScreenGrabber::setLeftClickFrames()
 {
-  setLeftClickFrames(QStringList()<<":/resources/defaultClickAni/1.png");
+  QStringList strList;
+  int numLeftFrames = 5;
+      
+  for(int i = 0;i < numLeftFrames; ++i)
+  {
+    strList << QString(":/resources/defaultLeftClickFrames/%1.png").arg(i);
+  }
+  setLeftClickFrames(strList);
 }
 
 void ScreenGrabber::setLeftClickFrames(const QStringList &frames)
 {
   Q_FOREACH (QString str, frames) {
-    QPixmap map(str);
-    QPushButton* button = new QPushButton();
-    button->setIcon(map);
-    button->show();
-    qDebug() << str;
+    QPixmap* map = new QPixmap(str);
+    leftClickFramesList << map;
+  }
+}
+
+void ScreenGrabber::setRightClickFrames()
+{
+  QStringList strList;
+  int numRightFrames = 5;
+      
+  for(int i = 0;i < numRightFrames; ++i)
+  {
+    strList << QString(":/resources/defaultRightClickFrames/%1.png").arg(i);
+  }
+  setRightClickFrames(strList);
+}
+
+void ScreenGrabber::setRightClickFrames(const QStringList &frames)
+{
+  Q_FOREACH (QString str, frames) {
+    QPixmap* map = new QPixmap(str);
+    rightClickFramesList << map;
   }
 }
 
@@ -143,6 +166,52 @@ QImage ScreenGrabber::captureFrame()
     return frame;
 }
 
+void ScreenGrabber::preprocessFrame(QImage &frame)
+{
+  float fpsLeftClickFrames = 10;
+  if(leftClickTimer != NULL)
+  {
+    int timeAfterClick = leftClickTimer->elapsed();//ms
+    int numFrame = (fpsLeftClickFrames/1000)*timeAfterClick;
+    
+    if(numFrame < leftClickFramesList.size())
+    {
+      QPixmap* map = leftClickFramesList.at(numFrame);
+      QPainter* painter = new QPainter(&frame);
+      int xCoord = leftClickPos.x() - map->width()/2 - captureRect().left();
+      int yCoord = leftClickPos.y() - map->height()/2 - captureRect().top();
+      
+      painter->drawPixmap(xCoord,yCoord,*map);
+      painter->end();
+    }
+    else
+    {
+      leftClickTimer = NULL;
+    }
+  }
+  
+  float fpsRightClickFrames = 10;
+  if(rightClickTimer != NULL)
+  {
+    int timeAfterClick = rightClickTimer->elapsed();//ms
+    int numFrame = (fpsRightClickFrames/1000)*timeAfterClick;
+    
+    if(numFrame < rightClickFramesList.size())
+    {
+      QPixmap* map = rightClickFramesList.at(numFrame);
+      QPainter* painter = new QPainter(&frame);
+      int xCoord = rightClickPos.x() - map->width()/2 - captureRect().left();
+      int yCoord = rightClickPos.y() - map->height()/2 - captureRect().top();
+      
+      painter->drawPixmap(xCoord,yCoord,*map);
+      painter->end();
+    }
+    else
+    {
+      rightClickTimer = NULL;
+    }
+  }
+}
 
 QImage ScreenGrabber::currentCursor()
 {
@@ -165,12 +234,22 @@ QImage ScreenGrabber::currentFrame()
 
 void ScreenGrabber::onMousePress(const MouseEvent &event)
 {
-  qDebug() << event.type <<event.button;
   if(state() == AbstractGrabber::ActiveState)
   {
     if(event.type == MouseEvent::MouseButtonPress)
     {
-      qDebug() << "mouse press";
+      if(event.button == MouseEvent::LeftButton)
+      {
+        leftClickTimer = new QTime();
+        leftClickTimer->start();
+        leftClickPos = event.position; 
+      }
+      if(event.button == MouseEvent::RightButton)
+      {
+        rightClickTimer = new QTime();
+        rightClickTimer->start();
+        rightClickPos = event.position; 
+      }
     }
   }
 }

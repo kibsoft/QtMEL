@@ -30,6 +30,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     m_screenGrabber->setLatency(40);
     m_screenGrabber->setLeftClickFrames();
+    m_screenGrabber->setRightClickFrames();
 
     AudioFormat format;
     format.setChannelCount(2);
