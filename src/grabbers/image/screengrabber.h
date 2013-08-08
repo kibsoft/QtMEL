@@ -27,6 +27,8 @@
 #include "abstractimagegrabber.h"
 #include <QRect>
 #include <QMutex>
+#include "../../helpers/mousehelper.h"
+#include <QTime>
 
 //! The ScreenGrabber class allows the application to capture frames from a desktop screen.
 /*!
@@ -60,6 +62,7 @@ class QTMELSHARED_EXPORT ScreenGrabber : public AbstractImageGrabber
       \sa isCaptureCursor()
     */
     Q_PROPERTY(bool isCaptureCursor READ isCaptureCursor WRITE setCaptureCursor NOTIFY isCaptureCursorChanged)
+    Q_PROPERTY(bool isDrawClicks READ isDrawClicks WRITE setDrawClicks NOTIFY isDrawClicksChanged)
 public:
     /*! Constructs a screen grabber with the given parent. */
     explicit ScreenGrabber(QObject *parent = 0);
@@ -80,26 +83,44 @@ public:
 
     void setCaptureCursor(bool capture); 
     bool isCaptureCursor() const;
-
+    
+    void setLeftClickFrames(const QStringList &strList);    
+    void setRightClickFrames(const QStringList &strList);
+    bool isDrawClicks() const;
+    
 public Q_SLOTS:
     bool start();
-
+    
+    void setDrawClicks(bool draw);
+    
 Q_SIGNALS:
     void captureRectChanged(const QRect &rect);
     void isCaptureCursorChanged(bool capture);
-
+    void isDrawClicksChanged(bool arg);
+    
 private Q_SLOTS:
     QImage currentCursor();
     QImage currentFrame();
+    void onMousePress(const MouseEvent &event);
 
 private:
     QImage captureFrame();
-
+    void drawClick(QImage &frame);
+    void initClickFrames();
+    
     QRect m_captureRect;
     bool m_isCaptureCursor;
+    MouseHelper* m_mouseHelper;
+    QList<QPixmap> m_leftClickFramesList;
+    QList<QPixmap> m_rightClickFramesList;
+    QTime m_leftClickTimer;
+    QPoint m_leftClickPos;
+    QTime m_rightClickTimer;
+    QPoint m_rightClickPos;    
 
     mutable QMutex m_captureRectMutex;
     mutable QMutex m_captureCursorMutex;
+    bool m_isDrawClicks;
 };
 
 #endif // SCREENGRABBER_H

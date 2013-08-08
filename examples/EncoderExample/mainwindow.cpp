@@ -23,7 +23,7 @@ MainWindow::MainWindow(QWidget *parent) :
   , m_recorder(new Recorder(this))
 {
     ui->setupUi(this);
-
+    
     connect(m_recorder->encoder(), SIGNAL(error(Encoder::Error)), this, SLOT(onEncoderError(Encoder::Error)));
     connect(m_recorder->encoder(), SIGNAL(stateChanged(Encoder::State)), this, SLOT(onState(Encoder::State)));
     connect(m_encoder, SIGNAL(stateChanged(Encoder::State)), this, SLOT(onState(Encoder::State)));
