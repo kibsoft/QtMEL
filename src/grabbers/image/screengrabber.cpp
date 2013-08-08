@@ -182,13 +182,11 @@ void ScreenGrabber::drawClick(QImage &frame)
     if(numFrame < m_leftClickFramesList.size())
     {
       QPixmap pixMap = m_leftClickFramesList.at(numFrame);
-      QPainter* painter = new QPainter(&frame);
+      QPainter painter = new QPainter(&frame);
       int xCoord = m_leftClickPos.x() - pixMap.width()/2 - captureRect().left();
       int yCoord = m_leftClickPos.y() - pixMap.height()/2 - captureRect().top();
       
-      painter->drawPixmap(xCoord,yCoord,pixMap);
-      painter->end();
-      delete painter;
+      painter.drawPixmap(xCoord,yCoord,pixMap);
     }
     else
     {
