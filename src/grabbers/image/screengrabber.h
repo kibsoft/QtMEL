@@ -84,24 +84,25 @@ public:
     void setCaptureCursor(bool capture); 
     bool isCaptureCursor() const;
     
-    void setLeftClickFrames(const QStringList &strList);    
-    void setRightClickFrames(const QStringList &strList);
+    void setLeftClickFrames(const QStringList &frames);
+    void setRightClickFrames(const QStringList &frames);
+
+    void setDrawClicks(bool draw);
     bool isDrawClicks() const;
     
 public Q_SLOTS:
     bool start();
-    
-    void setDrawClicks(bool draw);
-    
+
 Q_SIGNALS:
     void captureRectChanged(const QRect &rect);
     void isCaptureCursorChanged(bool capture);
-    void isDrawClicksChanged(bool arg);
+    void isDrawClicksChanged(bool draw);
     
 private Q_SLOTS:
     QImage currentCursor();
     QImage currentFrame();
     void onMousePress(const MouseEvent &event);
+    void onStateChanged(AbstractGrabber::State state);
 
 private:
     QImage captureFrame();
@@ -110,17 +111,20 @@ private:
     
     QRect m_captureRect;
     bool m_isCaptureCursor;
-    MouseHelper* m_mouseHelper;
+    bool m_isDrawClicks;
+
     QList<QPixmap> m_leftClickFramesList;
     QList<QPixmap> m_rightClickFramesList;
     QTime m_leftClickTimer;
     QPoint m_leftClickPos;
     QTime m_rightClickTimer;
-    QPoint m_rightClickPos;    
+    QPoint m_rightClickPos;
+
+    MouseHelper* m_mouseHelper;
 
     mutable QMutex m_captureRectMutex;
     mutable QMutex m_captureCursorMutex;
-    bool m_isDrawClicks;
+    mutable QMutex m_drawClickMutex;
 };
 
 #endif // SCREENGRABBER_H

@@ -33,8 +33,6 @@
 #include <QEventLoop>
 #include <QTimer>
 #include <QElapsedTimer>
-#include <QPixmap>
-#include <QPainter>
 
 AbstractImageGrabber::AbstractImageGrabber(QObject *parent)
     : AbstractGrabber(parent)
