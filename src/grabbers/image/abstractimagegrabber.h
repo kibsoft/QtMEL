@@ -98,7 +98,8 @@ public:
       \sa setGrabbedFrameCount()
     */
     int grabbedFrameCount() const;
-
+    
+    virtual void preprocessFrame(QImage &frame)=0;
 public Q_SLOTS:
     /*! Starts data grabbing. The state() is set to AbstractGrabber::ActiveState if no errors occurred. */
     virtual bool start();
