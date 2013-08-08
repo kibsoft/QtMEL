@@ -33,6 +33,8 @@
 #include <QEventLoop>
 #include <QTimer>
 #include <QElapsedTimer>
+#include <QPixmap>
+#include <QPainter>
 
 AbstractImageGrabber::AbstractImageGrabber(QObject *parent)
     : AbstractGrabber(parent)
@@ -140,9 +142,9 @@ void AbstractImageGrabber::grab()
 
     Q_FOREVER {
         frame = captureFrame();
-
+        
         setGrabbedFrameCount(grabbedFrameCount() + 1);
-
+        
         pts = m_timer ? m_timer->elapsed() : timer.elapsed();
         if (m_prevPts != pts) {
             m_prevPts = pts;

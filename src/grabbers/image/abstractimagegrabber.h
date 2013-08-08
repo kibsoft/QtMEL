@@ -98,7 +98,6 @@ public:
       \sa setGrabbedFrameCount()
     */
     int grabbedFrameCount() const;
-
 public Q_SLOTS:
     /*! Starts data grabbing. The state() is set to AbstractGrabber::ActiveState if no errors occurred. */
     virtual bool start();

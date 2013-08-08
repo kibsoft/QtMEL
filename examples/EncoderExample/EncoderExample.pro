@@ -20,7 +20,6 @@ greaterThan(QT_MAJOR_VERSION, 4) {
     LIBS += -L../../libsQt4
 }
 
-
 unix {
     DEFINES += QTMEL_NOT_INSTALLED
     LIBS += -lpthread -lX11
