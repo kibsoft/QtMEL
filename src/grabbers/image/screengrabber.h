@@ -28,7 +28,7 @@
 #include <QRect>
 #include <QMutex>
 #include "../../helpers/mousehelper.h"
-#include <QTime>
+#include <QElapsedTimer>
 
 //! The ScreenGrabber class allows the application to capture frames from a desktop screen.
 /*!
@@ -115,9 +115,9 @@ private:
 
     QList<QPixmap> m_leftClickFramesList;
     QList<QPixmap> m_rightClickFramesList;
-    QTime m_leftClickTimer;
+    QElapsedTimer m_leftClickTimer;
     QPoint m_leftClickPos;
-    QTime m_rightClickTimer;
+    QElapsedTimer m_rightClickTimer;
     QPoint m_rightClickPos;
 
     MouseHelper* m_mouseHelper;
@@ -125,6 +125,7 @@ private:
     mutable QMutex m_captureRectMutex;
     mutable QMutex m_captureCursorMutex;
     mutable QMutex m_drawClickMutex;
+    void drawPixmapsOntoFrame(const QList<QPixmap> &listPixmaps, QImage &frame, QElapsedTimer &timer, const QPoint &clickPos, float fpsFrames = 0.01);
 };
 
 #endif // SCREENGRABBER_H
