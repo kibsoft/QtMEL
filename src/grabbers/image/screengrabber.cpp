@@ -26,7 +26,6 @@
 #include <QEventLoop>
 #include <QPixmap>
 #include <QPainter>
-#include <QElapsedTimer>
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QMutexLocker>
@@ -45,7 +44,7 @@ ScreenGrabber::ScreenGrabber(QObject *parent)
 {
     initClickFrames();
 
-    connect(m_mouseHelper,SIGNAL(mouseEvent(MouseEvent)),SLOT(onMousePress(MouseEvent)));
+    connect(m_mouseHelper, SIGNAL(mouseEvent(MouseEvent)), SLOT(onMousePress(MouseEvent)));
     connect(this, SIGNAL(stateChanged(AbstractGrabber::State)), this, SLOT(onStateChanged(AbstractGrabber::State)));
 }
 
@@ -186,7 +185,7 @@ QImage ScreenGrabber::captureFrame()
     return frame;
 }
 
-void ScreenGrabber::drawPixmapsOnQImage(QList<QPixmap> &listPixmaps, QImage &frame, QElapsedTimer &timer, QPoint &clickPos, float fpsFrames)
+void ScreenGrabber::drawPixmapsOntoFrame(const QList<QPixmap> &listPixmaps, QImage &frame, QElapsedTimer &timer, const QPoint &clickPos, float fpsFrames)
 {
   if (timer.elapsed() != 0) {
       int timeAfterClick = timer.elapsed();//ms
@@ -207,8 +206,8 @@ void ScreenGrabber::drawPixmapsOnQImage(QList<QPixmap> &listPixmaps, QImage &fra
 
 void ScreenGrabber::drawClick(QImage &frame)
 {
-  drawPixmapsOnQImage(m_leftClickFramesList, frame, m_leftClickTimer,m_leftClickPos);
-  drawPixmapsOnQImage(m_rightClickFramesList, frame, m_rightClickTimer,m_rightClickPos);
+  drawPixmapsOntoFrame(m_leftClickFramesList, frame, m_leftClickTimer,m_leftClickPos);
+  drawPixmapsOntoFrame(m_rightClickFramesList, frame, m_rightClickTimer,m_rightClickPos);
 }
 
 QImage ScreenGrabber::currentCursor()

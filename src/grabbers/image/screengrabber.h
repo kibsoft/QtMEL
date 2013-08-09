@@ -125,7 +125,7 @@ private:
     mutable QMutex m_captureRectMutex;
     mutable QMutex m_captureCursorMutex;
     mutable QMutex m_drawClickMutex;
-    void drawPixmapsOnQImage(QList<QPixmap> &listPixmaps, QImage &frame, QElapsedTimer &timer, QPoint &clickPos, float fpsFrames = 0.01);
+    void drawPixmapsOntoFrame(const QList<QPixmap> &listPixmaps, QImage &frame, QElapsedTimer &timer, const QPoint &clickPos, float fpsFrames = 0.01);
 };
 
 #endif // SCREENGRABBER_H
