@@ -26,7 +26,6 @@
 #include <QEventLoop>
 #include <QPixmap>
 #include <QPainter>
-#include <QTimer>
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QMutexLocker>
@@ -45,7 +44,7 @@ ScreenGrabber::ScreenGrabber(QObject *parent)
 {
     initClickFrames();
 
-    connect(m_mouseHelper,SIGNAL(mouseEvent(MouseEvent)),SLOT(onMousePress(MouseEvent)));
+    connect(m_mouseHelper, SIGNAL(mouseEvent(MouseEvent)), SLOT(onMousePress(MouseEvent)));
     connect(this, SIGNAL(stateChanged(AbstractGrabber::State)), this, SLOT(onStateChanged(AbstractGrabber::State)));
 }
 
@@ -186,41 +185,29 @@ QImage ScreenGrabber::captureFrame()
     return frame;
 }
 
+void ScreenGrabber::drawPixmapsOntoFrame(const QList<QPixmap> &listPixmaps, QImage &frame, QElapsedTimer &timer, const QPoint &clickPos, float fpsFrames)
+{
+  if (timer.elapsed() != 0) {
+      int timeAfterClick = timer.elapsed();//ms
+      int numFrame = fpsFrames * timeAfterClick;
+
+      if(numFrame < listPixmaps.size()) {
+          QPixmap pixMap = listPixmaps.at(numFrame);
+          QPainter painter(&frame);
+          int xCoord = clickPos.x() - pixMap.width()/2 - captureRect().left();
+          int yCoord = clickPos.y() - pixMap.height()/2 - captureRect().top();
+
+          painter.drawPixmap(xCoord, yCoord, pixMap);
+      } else {
+          timer.invalidate();
+      }
+  }
+}
+
 void ScreenGrabber::drawClick(QImage &frame)
 {
-    float fpsLeftClickFrames = 10;
-    if (m_leftClickTimer.elapsed() != 0) {
-        int timeAfterClick = m_leftClickTimer.elapsed();//ms
-        int numFrame = (fpsLeftClickFrames/1000)*timeAfterClick;
-
-        if(numFrame < m_leftClickFramesList.size()) {
-            QPixmap pixMap = m_leftClickFramesList.at(numFrame);
-            QPainter painter(&frame);
-            int xCoord = m_leftClickPos.x() - pixMap.width()/2 - captureRect().left();
-            int yCoord = m_leftClickPos.y() - pixMap.height()/2 - captureRect().top();
-
-            painter.drawPixmap(xCoord, yCoord, pixMap);
-        } else {
-            m_leftClickTimer = QTime();
-        }
-    }
-
-    float fpsRightClickFrames = 10;
-    if (m_rightClickTimer.elapsed() != 0) {
-        int timeAfterClick = m_rightClickTimer.elapsed();//ms
-        int numFrame = (fpsRightClickFrames/1000) * timeAfterClick;
-
-        if(numFrame < m_rightClickFramesList.size()) {
-            QPixmap pixMap = m_rightClickFramesList.at(numFrame);
-            QPainter painter(&frame);
-            int xCoord = m_rightClickPos.x() - pixMap.width()/2 - captureRect().left();
-            int yCoord = m_rightClickPos.y() - pixMap.height()/2 - captureRect().top();
-
-            painter.drawPixmap(xCoord, yCoord, pixMap);
-        } else {
-            m_rightClickTimer = QTime();
-        }
-    }
+  drawPixmapsOntoFrame(m_leftClickFramesList, frame, m_leftClickTimer,m_leftClickPos);
+  drawPixmapsOntoFrame(m_rightClickFramesList, frame, m_rightClickTimer,m_rightClickPos);
 }
 
 QImage ScreenGrabber::currentCursor()
@@ -248,12 +235,10 @@ void ScreenGrabber::onMousePress(const MouseEvent &event)
         if(isDrawClicks()) {
             if(event.type == MouseEvent::MouseButtonPress) {
                 if(event.button == MouseEvent::LeftButton) {
-                    m_leftClickTimer = QTime();
-                    m_leftClickTimer.start();
+                    m_leftClickTimer.restart();
                     m_leftClickPos = event.position;
                 } else {
-                    m_rightClickTimer = QTime();
-                    m_rightClickTimer.start();
+                    m_rightClickTimer.restart();
                     m_rightClickPos = event.position;
                 }
             }
