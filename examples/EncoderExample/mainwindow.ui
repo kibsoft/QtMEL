@@ -248,7 +248,7 @@
                  <string/>
                 </property>
                 <property name="text">
-                 <string>None</string>
+                 <string>default.avi</string>
                 </property>
                </widget>
               </item>
