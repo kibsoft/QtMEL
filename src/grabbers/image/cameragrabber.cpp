@@ -128,6 +128,9 @@ bool CameraGrabber::createCamera()
         setSize(size);
     }
 
+    cvSetCaptureProperty( m_camera, CV_CAP_PROP_FRAME_WIDTH, m_size.width());
+    cvSetCaptureProperty( m_camera, CV_CAP_PROP_FRAME_HEIGHT, m_size.height());
+
     return true;
 }
 
